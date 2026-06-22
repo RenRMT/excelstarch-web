@@ -1,0 +1,303 @@
+{
+  "$schema": "./spec.schema (informal) — ExcelStarch port input",
+  "provenance": {
+    "sourceRepo": "https://github.com/RenRMT/ExcelStarch.git",
+    "branch": "demo/inso-brand-colors",
+    "commit": "c6fd5df9b04ffac334ee87631228d80493d1601c",
+    "note": "Colours converted BGR Long → #RRGGBB and cross-checked against VBA comment hex."
+  },
+  "orgName": "COMPANY",
+  "colors": {
+    "brand": {
+      "colorBrand1": "#1B4BA7",
+      "colorBrand2": "#07142C",
+      "colorBrand3": "#02020A",
+      "colorBrandLightGrey": "#F9F9F9",
+      "colorBrand4": "#F9F9F9"
+    },
+    "neutral": {
+      "colorNeutral1": "#DDDDDD",
+      "colorNeutral2": "#BBBBBB",
+      "colorNeutral3": "#9C9C9C",
+      "colorNeutral4": "#FFFFFF"
+    },
+    "data": {
+      "colorData1": "#0077BB",
+      "colorData2": "#FF8866",
+      "colorData3": "#77CCFF",
+      "colorData4": "#009988",
+      "colorData5": "#FFDD33",
+      "colorData6": "#AA4400",
+      "colorData7": "#AA99EE",
+      "colorData8": "#BBBBBB"
+    }
+  },
+  "ramps": {
+    "A": [
+      "#E6F1F8",
+      "#CCE4F1",
+      "#99C9E4",
+      "#66ADD6",
+      "#3392C9",
+      "#0077BB",
+      "#005F96",
+      "#004770",
+      "#00304B",
+      "#001825"
+    ],
+    "B": [
+      "#FFF3F0",
+      "#FFE7E0",
+      "#FFCFC2",
+      "#FFB8A3",
+      "#FFA085",
+      "#FF8866",
+      "#CC6D52",
+      "#99523D",
+      "#663629",
+      "#331B14"
+    ],
+    "C": [
+      "#F1FAFF",
+      "#E4F5FF",
+      "#C9EBFF",
+      "#ADE0FF",
+      "#92D6FF",
+      "#77CCFF",
+      "#5FA3CC",
+      "#477A99",
+      "#305266",
+      "#182933"
+    ],
+    "D": [
+      "#E6F5F3",
+      "#CCEBE7",
+      "#99D6CF",
+      "#66C2B8",
+      "#33ADA0",
+      "#009988",
+      "#007A6D",
+      "#005C52",
+      "#003D36",
+      "#001F1B"
+    ],
+    "E": [
+      "#FFFCEB",
+      "#FFF8D6",
+      "#FFF1AD",
+      "#FFEB85",
+      "#FFE45C",
+      "#FFDD33",
+      "#CCB129",
+      "#99851F",
+      "#665814",
+      "#332C0A"
+    ],
+    "F": [
+      "#F7ECE6",
+      "#EEDACC",
+      "#DDB499",
+      "#CC8F66",
+      "#BB6933",
+      "#AA4400",
+      "#883600",
+      "#662900",
+      "#441B00",
+      "#220E00"
+    ],
+    "G": [
+      "#F7F5FD",
+      "#EEEBFC",
+      "#DDD6F8",
+      "#CCC2F5",
+      "#BBADF1",
+      "#AA99EE",
+      "#887ABE",
+      "#665C8F",
+      "#443D5F",
+      "#221F30"
+    ],
+    "H": [
+      "#F8F8F8",
+      "#F1F1F1",
+      "#E4E4E4",
+      "#D6D6D6",
+      "#C9C9C9",
+      "#BBBBBB",
+      "#969696",
+      "#707070",
+      "#4B4B4B",
+      "#252525"
+    ]
+  },
+  "divergingTags": [
+    "A|B",
+    "A|C",
+    "A|D",
+    "A|E",
+    "A|F",
+    "A|G",
+    "B|A",
+    "B|C",
+    "B|D",
+    "B|E",
+    "B|F",
+    "B|G",
+    "C|A",
+    "C|B",
+    "C|D",
+    "C|E",
+    "C|F",
+    "C|G",
+    "D|A",
+    "D|B",
+    "D|C",
+    "D|E",
+    "D|F",
+    "D|G",
+    "E|A",
+    "E|B",
+    "E|C",
+    "E|D",
+    "E|F",
+    "E|G",
+    "F|A",
+    "F|B",
+    "F|C",
+    "F|D",
+    "F|E",
+    "F|G",
+    "G|A",
+    "G|B",
+    "G|C",
+    "G|D",
+    "G|E",
+    "G|F"
+  ],
+  "paletteOrder": {
+    "contrasting": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "rainbow": [
+      1,
+      7,
+      3,
+      4,
+      5,
+      2,
+      6,
+      8
+    ],
+    "fallbackOver8": "colorNeutral2"
+  },
+  "geometry": {
+    "canvas": {
+      "width": 600,
+      "height": 600
+    },
+    "boxProportions": {
+      "figureBoxHeight": 0.04,
+      "titleBoxHeight": 0.07,
+      "subtitleBoxHeight": 0.05,
+      "yAxisLabelHeight": 0.04,
+      "legendHeight": 0.04,
+      "titleBoxWidth": 1,
+      "titleBoxNudge": 0,
+      "sourceBoxWidth": 0.8,
+      "sourceBoxHeight": 0.08,
+      "sourceBoxNudge": 0.01
+    },
+    "padding": {
+      "legendLeftPad": 0,
+      "plotAreaLeft": 0.005,
+      "yAxisLabelPad": 10
+    },
+    "logo": {
+      "fileType": "svg",
+      "heightScale": 0.1,
+      "aspectRatio": 2.08,
+      "marginRightProp": 0.01,
+      "marginBottomProp": 0.01
+    },
+    "plotAreaBottomMarginProp": 0.03,
+    "series": {
+      "gapWidth": 33,
+      "overlap": -5
+    },
+    "lollipop": {
+      "gapWidth": 150,
+      "stickWeight": 2
+    },
+    "pie": {
+      "plotAreaSizeLegend": 400,
+      "plotAreaSizeNoLegend": 447,
+      "plotAreaLeft": 131,
+      "plotAreaTop": 53,
+      "plotTopRatio": 0.75,
+      "legendGap": 6
+    },
+    "weights": {
+      "gridline": 1,
+      "axisLine": 1
+    },
+    "annotation": {
+      "boxWidth": 120,
+      "boxHeight": 30,
+      "offsetX": 8,
+      "offsetY": -8
+    }
+  },
+  "fonts": {
+    "primary": "Calibri",
+    "primaryItalic": "Calibri Italic",
+    "sizes": {
+      "title": 28,
+      "subtitle": 22,
+      "figure": 18,
+      "axis": 18,
+      "source": 14,
+      "general": 18
+    },
+    "colors": {
+      "title": "colorBrand1",
+      "subtitle": "colorBrand2",
+      "figure": "colorBrand3",
+      "axis": "colorBrand3",
+      "legend": "colorBrand3",
+      "source": "colorBrand3"
+    }
+  },
+  "placeholders": {
+    "figure": "Figure XX (optional)",
+    "title": "Title in 28pt sentence case",
+    "subtitle": "Subtitle in 22pt sentence case",
+    "yAxis": "Y axis title (unit)",
+    "xAxis": "X axis title (unit)",
+    "source": "Source: Source text goes here.",
+    "notes": "Notes: Notes text goes here.",
+    "annotation": "Annotation"
+  },
+  "enums": {
+    "axis": {
+      "none": 0,
+      "x": 1,
+      "y": 2,
+      "both": 3
+    },
+    "wcagLuminanceThreshold": 0.179,
+    "scatterMarkerSize": 9,
+    "bubbleTransparency": 0.5,
+    "defaults": {
+      "gridlines": 0,
+      "axisDisplay": 0,
+      "legend": false
+    }
+  }
+}
