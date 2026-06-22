@@ -169,6 +169,7 @@ with `isSetSupported`; use `font.italic = true` not the named italic family.
   layout, tag/payload parse, contrast thresholds, plot-area geometry).
 - **Interop / chrome:** `npm start` sideload (web + desktop); per phase, create each chart
   type and confirm 600×600 canvas, brand colours, gridlines, and a grouped chrome layer
-  matching the VBA output side-by-side.
+  matching the VBA output side-by-side. Full step-by-step checklists are in
+  [`testing-manual.md`](testing-manual.md).
 - **Colour tooling / toggles / export / host gating / cross-platform smoke:** per the phased
-  exits above.
+  exits above and the matching sections of [`testing-manual.md`](testing-manual.md).
