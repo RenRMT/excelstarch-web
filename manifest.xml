@@ -55,6 +55,22 @@
                     <SourceLocation resid="Taskpane.Url"/>
                   </Action>
                 </Control>
+                <Control xsi:type="Button" id="ColorPickerButton">
+                  <Label resid="ColorPickerButton.Label"/>
+                  <Supertip>
+                    <Title resid="ColorPickerButton.Label"/>
+                    <Description resid="ColorPickerButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ButtonId2</TaskpaneId>
+                    <SourceLocation resid="ColorPicker.Url"/>
+                  </Action>
+                </Control>
               </Group>
             </OfficeTab>
           </ExtensionPoint>
@@ -70,15 +86,18 @@
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/>
+        <bt:Url id="ColorPicker.Url" DefaultValue="https://localhost:3000/colorpicker.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with ExcelStarch!"/>
         <bt:String id="CommandsGroup.Label" DefaultValue="ExcelStarch"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Chart Styles"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Chart Builder"/>
+        <bt:String id="ColorPickerButton.Label" DefaultValue="Color Picker"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="ExcelStarch loaded successfully. On the HOME tab, click 'Chart Styles' to open the task pane."/>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open the ExcelStarch chart styling task pane"/>
+        <bt:String id="GetStarted.Description" DefaultValue="ExcelStarch loaded successfully. On the HOME tab, click 'Chart Builder' to create charts or 'Color Picker' to recolour a selected chart."/>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open the ExcelStarch chart builder task pane"/>
+        <bt:String id="ColorPickerButton.Tooltip" DefaultValue="Open the ExcelStarch color picker task pane"/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

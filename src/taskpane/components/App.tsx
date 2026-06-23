@@ -3,19 +3,12 @@ import { makeStyles, MessageBar, MessageBarBody, MessageBarTitle } from "@fluent
 import Header from "./Header";
 import ChartCreatorPanel from "./ChartCreatorPanel";
 import ChromeTextPanel from "./ChromeTextPanel";
-import ColourPanel from "./ColourPanel";
+import type { Status } from "./status";
 import { orgName } from "../../config/brand";
 import logoUrl from "../../../assets/logo.png";
 
 interface AppProps {
   title: string;
-}
-
-/** A transient status message rendered in a non-blocking MessageBar (never a modal). */
-export interface Status {
-  intent: "success" | "warning" | "error";
-  title: string;
-  body?: string;
 }
 
 const useStyles = makeStyles({
@@ -37,7 +30,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
 
   return (
     <div className={styles.root}>
-      <Header logo={logoUrl} title={props.title} message={`${orgName} chart styles`} />
+      <Header logo={logoUrl} title={props.title} message={`${orgName} chart builder`} />
       <main className={styles.body}>
         {status && (
           <MessageBar key={status.title} intent={status.intent} className={styles.status}>
@@ -52,7 +45,6 @@ const App: React.FC<AppProps> = (props: AppProps) => {
           onChartReady={setTargetChartName}
         />
         <ChromeTextPanel targetChartName={targetChartName} onStatus={setStatus} />
-        <ColourPanel targetChartName={targetChartName} onStatus={setStatus} />
       </main>
     </div>
   );

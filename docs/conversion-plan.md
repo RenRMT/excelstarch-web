@@ -97,15 +97,20 @@ src/
 ├── chrome/   chromeBuilder, chromeShapes, chromeGroup, chromeLayout
 ├── export/   exportImage.ts (getImage + client-side canvas composite)
 ├── persist/  settings.ts (Office.context.document.settings)
-├── taskpane/ React + Fluent UI components
+├── taskpane/    React + Fluent UI — Chart Builder pane (create + chart-text)
+├── colorpicker/ React + Fluent UI — Color Picker pane (colour tooling)
 └── commands/ commands.ts (Office.actions.associate)
-manifest.xml  add-in commands + task pane; min ExcelApi 1.9
+manifest.xml  add-in commands + task panes; min ExcelApi 1.9
 ```
 
-**UI split.** Ribbon stays tiny (Show Task Pane + optional one-click creators). Everything
-galleried/stateful (chart gallery, palette, ramp + diverging pickers, 5 toggles, chart-text
-panel, element selector, export) lives in the task pane. **Batching:** one `Excel.run` per
-action, minimal `context.sync()`.
+**UI split.** Ribbon stays tiny. Two task panes, each its own ribbon button + HTML entry +
+React root: **Chart Builder** (`taskpane/`, ButtonId1 → `taskpane.html`) = chart creation +
+chart-text; **Color Picker** (`colorpicker/`, ButtonId2 → `colorpicker.html`) = palette / ramps /
+diverging / invert / per-element fill. **Two panes can't share React state**, so the Color Picker
+resolves the chart the user has selected via `getActiveChartOrNullObject` (Excel's "select then
+format" model) rather than a handed-in chart name; it gates its controls on a chart being selected
+and reloads the series list on open + a Refresh button. **Batching:** one `Excel.run` per action,
+minimal `context.sync()`.
 
 ## Module-by-module conversion (summary)
 

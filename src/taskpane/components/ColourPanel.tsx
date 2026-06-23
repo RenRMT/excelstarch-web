@@ -10,19 +10,19 @@ import {
   Spinner,
   makeStyles,
 } from "@fluentui/react-components";
-import type { Status } from "./App";
+import type { Status } from "./status";
 import type { RampName } from "../../config/ramps";
 import { ramps, divergingTags, rampNames } from "../../config/ramps";
 import {
   recolourSeries,
   applyElementFill,
   listSeries,
+  hasActiveChart,
   type RecolourMode,
 } from "../../excel/colourFlow";
 import type { RunResult } from "../../excel/session";
 
 interface ColourPanelProps {
-  targetChartName: string | null;
   onStatus: (status: Status) => void;
 }
 
@@ -58,15 +58,18 @@ const FILL_OPTIONS: { value: string; label: string }[] = [
 ];
 
 /**
- * Recolour the most-recently created/restyled chart's series — palette (Contrasting/Rainbow),
- * single-hue ramp, diverging ramp, invert — and apply a per-element fill to one chosen series.
- * Replaces the VBA ribbon colour buttons + Selection model. Maps each typed RunResult to a
- * MessageBar; over-limit (>10 single / >21 diverging) surfaces as a non-blocking error.
+ * Recolour the ACTIVE (selected) chart's series — palette (Contrasting/Rainbow), single-hue ramp,
+ * diverging ramp, invert — and apply a per-element fill to one chosen series. Lives in the Color
+ * Picker task pane, which has no shared React state with the builder, so it resolves the chart the
+ * user has selected in Excel (via the interop's `getActiveChartOrNullObject`). The element list
+ * loads on mount and via the Refresh button (re-read after selecting a different chart). Maps each
+ * typed RunResult to a MessageBar; over-limit (>10 single / >21 diverging) surfaces as a non-blocking
+ * error.
  */
-const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) => {
+const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
   const styles = useStyles();
-  const disabled = targetChartName === null;
   const [busy, setBusy] = React.useState(false);
+  const [hasChart, setHasChart] = React.useState(false);
   const [useAltOrder, setUseAltOrder] = React.useState(false);
   const [rampName, setRampName] = React.useState<RampName>(SINGLE_RAMP_NAMES[0]);
   const [divergingTag, setDivergingTag] = React.useState<string>(divergingTags[0]);
@@ -74,24 +77,27 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
   const [elementIndex, setElementIndex] = React.useState<"all" | number>("all");
   const [fillValue, setFillValue] = React.useState<string>(FILL_OPTIONS[0].value);
 
-  // Refresh the element selector whenever the target chart changes.
-  React.useEffect(() => {
-    if (targetChartName === null) {
+  const disabled = !hasChart || busy;
+
+  /** Re-resolve the active chart + its series (on mount and via Refresh). */
+  const refresh = React.useCallback(async () => {
+    const present = await hasActiveChart();
+    const chartPresent = present.ok && present.value;
+    setHasChart(chartPresent);
+    if (!chartPresent) {
       setSeriesNames([]);
       return;
     }
-    let cancelled = false;
-    void (async () => {
-      const result = await listSeries(targetChartName);
-      if (!cancelled && result.ok) {
-        setSeriesNames(result.value);
-        setElementIndex("all");
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [targetChartName]);
+    const result = await listSeries();
+    if (result.ok) {
+      setSeriesNames(result.value);
+      setElementIndex("all");
+    }
+  }, []);
+
+  React.useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   const report = (result: RunResult<void>, failTitle: string) => {
     if (result.ok) {
@@ -106,23 +112,18 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
   };
 
   const runRecolour = async (mode: RecolourMode) => {
-    if (targetChartName === null) return;
     setBusy(true);
     try {
-      report(await recolourSeries(targetChartName, mode), "Couldn't recolour the series");
+      report(await recolourSeries(mode), "Couldn't recolour the series");
     } finally {
       setBusy(false);
     }
   };
 
   const runElementFill = async () => {
-    if (targetChartName === null) return;
     setBusy(true);
     try {
-      report(
-        await applyElementFill(targetChartName, elementIndex, fillValue),
-        "Couldn't apply the fill"
-      );
+      report(await applyElementFill(elementIndex, fillValue), "Couldn't apply the fill");
     } finally {
       setBusy(false);
     }
@@ -131,36 +132,41 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
   return (
     <section className={styles.panel}>
       <Title3>Colours</Title3>
-      <Body1 className={styles.hint}>
-        {disabled
-          ? "Create a chart first, then recolour its series here."
-          : `Recolouring "${targetChartName}".`}
-      </Body1>
+      <div className={styles.row}>
+        <Body1 className={styles.hint}>
+          {hasChart
+            ? "Recolouring the selected chart."
+            : "Select a chart on the sheet, then click Refresh."}
+        </Body1>
+        <Button size="small" disabled={busy} onClick={() => void refresh()}>
+          Refresh
+        </Button>
+        {busy && <Spinner size="tiny" label="Working…" />}
+      </div>
 
       <Switch
         checked={useAltOrder}
-        disabled={disabled || busy}
+        disabled={disabled}
         label={useAltOrder ? "Rainbow order" : "Contrasting order"}
         onChange={(_, d) => setUseAltOrder(d.checked)}
       />
       <div className={styles.row}>
         <Button
           appearance="primary"
-          disabled={disabled || busy}
+          disabled={disabled}
           onClick={() => runRecolour({ kind: "palette", useAltOrder })}
         >
           Apply palette
         </Button>
-        <Button disabled={disabled || busy} onClick={() => runRecolour({ kind: "invert" })}>
+        <Button disabled={disabled} onClick={() => runRecolour({ kind: "invert" })}>
           Invert
         </Button>
-        {busy && <Spinner size="tiny" label="Working…" />}
       </div>
 
       <div className={styles.row}>
         <Field label="Single-hue ramp">
           <Dropdown
-            disabled={disabled || busy}
+            disabled={disabled}
             value={rampNames[rampName]}
             selectedOptions={[rampName]}
             onOptionSelect={(_, d) => d.optionValue && setRampName(d.optionValue as RampName)}
@@ -172,10 +178,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
             ))}
           </Dropdown>
         </Field>
-        <Button
-          disabled={disabled || busy}
-          onClick={() => runRecolour({ kind: "single", rampName })}
-        >
+        <Button disabled={disabled} onClick={() => runRecolour({ kind: "single", rampName })}>
           Apply ramp
         </Button>
       </div>
@@ -183,7 +186,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
       <div className={styles.row}>
         <Field label="Diverging ramp">
           <Dropdown
-            disabled={disabled || busy}
+            disabled={disabled}
             value={divergingLabel(divergingTag)}
             selectedOptions={[divergingTag]}
             onOptionSelect={(_, d) => d.optionValue && setDivergingTag(d.optionValue)}
@@ -196,7 +199,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
           </Dropdown>
         </Field>
         <Button
-          disabled={disabled || busy}
+          disabled={disabled}
           onClick={() => runRecolour({ kind: "diverging", tag: divergingTag })}
         >
           Apply diverging
@@ -206,7 +209,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
       <div className={styles.row}>
         <Field label="Element">
           <Dropdown
-            disabled={disabled || busy}
+            disabled={disabled}
             value={elementIndex === "all" ? "All series" : seriesNames[elementIndex] ?? "Series"}
             selectedOptions={[String(elementIndex)]}
             onOptionSelect={(_, d) =>
@@ -223,7 +226,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
         </Field>
         <Field label="Fill">
           <Dropdown
-            disabled={disabled || busy}
+            disabled={disabled}
             value={FILL_OPTIONS.find((o) => o.value === fillValue)?.label ?? fillValue}
             selectedOptions={[fillValue]}
             onOptionSelect={(_, d) => d.optionValue && setFillValue(d.optionValue)}
@@ -235,7 +238,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
             ))}
           </Dropdown>
         </Field>
-        <Button disabled={disabled || busy} onClick={runElementFill}>
+        <Button disabled={disabled} onClick={runElementFill}>
           Apply fill
         </Button>
       </div>
