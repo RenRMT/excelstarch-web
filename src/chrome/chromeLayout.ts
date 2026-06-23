@@ -21,7 +21,6 @@ import {
   subtitleBoxHeight,
   sourceBoxHeight,
   sourceBoxWidth,
-  sourceBoxLeftNudge,
   yAxisLabelTopNoLegend,
   yAxisLabelHeight,
   logoHeight,
@@ -85,9 +84,9 @@ export function chromePositions(
       width: titleBoxWidth,
       height: subtitleBoxHeight,
     },
-    // Source box sits at the canvas bottom, nudged left; shares the bottom band with the logo.
+    // Source box anchored at the canvas bottom-left; shares the bottom band with the logo.
     source: {
-      left: baseLeft - sourceBoxLeftNudge,
+      left: baseLeft,
       top: baseTop + chartHeight - sourceBoxHeight,
       width: sourceBoxWidth,
       height: sourceBoxHeight,

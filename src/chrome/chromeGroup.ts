@@ -38,25 +38,16 @@ export function removeExistingChrome(
 }
 
 /**
- * Group the chart with its chrome members into one named group. `memberShapeNames` are the chrome
- * shapes that were actually created (logo / y-axis title may be absent). Returns the group shape.
- * The chart participates by its chart name (Office.js exposes the chart in `sheet.shapes`).
+ * Group the chrome members into one named group. `memberShapeNames` are the chrome shapes that were
+ * actually created (logo / y-axis title may be absent). Returns the group shape.
  *
- * Caller wraps this in try/catch: if grouping-with-the-chart is unsupported on the host, it retries
- * with chrome-only and records a warning (chrome still grouped; chart drags separately).
+ * The live chart is intentionally NOT a member: Office.js has disjoint Chart and Shape object models
+ * — a chart is not addressable in `sheet.shapes` (no `chart` value in `Excel.ShapeType`) and
+ * `Excel.Chart` exposes no group/shape handle, so it cannot join a shape group. The chart is instead
+ * sized into the canvas band (`positionChartIntoBand`) so it sits within the chrome visually; users
+ * move the pair by selecting the chart together with the group.
  */
-export function groupChromeWithChart(
-  sheet: Excel.Worksheet,
-  chartName: string,
-  memberShapeNames: string[]
-): Excel.Shape {
-  const group = sheet.shapes.addGroup([chartName, ...memberShapeNames]);
-  group.name = chromeGroupName(chartName);
-  return group;
-}
-
-/** Fallback grouping without the chart (chrome shapes only). */
-export function groupChromeOnly(
+export function groupChrome(
   sheet: Excel.Worksheet,
   chartName: string,
   memberShapeNames: string[]

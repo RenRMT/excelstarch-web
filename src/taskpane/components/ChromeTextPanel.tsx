@@ -32,7 +32,8 @@ const FIELDS: FieldDef[] = [
 
 /**
  * Edits the chrome text of the most recently created/restyled chart by writing to the named
- * worksheet shapes (no chart selection required). Applies on blur; empty restores the placeholder.
+ * worksheet shapes (no chart selection required). Applies on blur; blank restores the placeholder,
+ * "-" clears the field completely.
  */
 const ChromeTextPanel: React.FC<ChromeTextPanelProps> = ({ targetChartName, onStatus }) => {
   const styles = useStyles();
@@ -58,7 +59,7 @@ const ChromeTextPanel: React.FC<ChromeTextPanelProps> = ({ targetChartName, onSt
       <Body1 className={styles.hint}>
         {disabled
           ? "Create a chart first, then edit its title, subtitle, and notes here."
-          : `Editing "${targetChartName}". Leave a field blank to restore its placeholder.`}
+          : `Editing "${targetChartName}". Leave a field blank to restore its placeholder, or type "-" to clear it completely.`}
       </Body1>
       {FIELDS.map(({ field, label, multiline, unavailable }) => (
         <Field

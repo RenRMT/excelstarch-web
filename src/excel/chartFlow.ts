@@ -13,17 +13,18 @@
  *   Sync B — create/retype the chart; load its name, position, parent worksheet, series count.
  *   Sync C — resolve the canvas origin and prior-group existence on the chart's own worksheet.
  *   Sync D — reposition + style + colour the chart AND build all chrome shapes (they now exist).
- *   Sync E — group the chrome with the chart (must follow the shapes-exist sync).
+ *   Sync E — group the chrome shapes (must follow the shapes-exist sync). The live chart can't be
+ *            a group member (disjoint Chart/Shape object models); it's sized into the canvas band.
  *
  * INTEROP: Office.js. UI never throws — returns a typed RunResult.
  */
 import type { ChartKind } from "../logic/chartType";
 import { RunResult, runExcel, shapesSupported, unsupported } from "./session";
-import { createChart, retypeChart, positionChartIntoBand } from "./chartFactory";
+import { createChart, resolveChartRange, retypeChart, positionChartIntoBand } from "./chartFactory";
 import { applyChartStyle } from "./chartStyle";
 import { colorSeriesByPalette } from "./seriesColorer";
 import { buildChrome } from "../chrome/chromeBuilder";
-import { groupChromeWithChart, groupChromeOnly, chromeGroupName } from "../chrome/chromeGroup";
+import { groupChrome, chromeGroupName } from "../chrome/chromeGroup";
 import { chromeShapeName } from "../chrome/chromeNames";
 import { barChartDefaults, columnChartDefaults } from "../config/chartDefaults";
 
@@ -41,14 +42,18 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
   return runExcel<CreateChartResult>(async (ctx) => {
     const defaults = kind === "bar" ? barChartDefaults() : columnChartDefaults();
 
-    // Decide create vs restyle: is a chart currently selected?
+    // Decide create vs restyle: is a chart currently selected? Also read the selected range's
+    // cellCount so a create can expand a single selected cell to its surrounding region.
     const active = ctx.workbook.getActiveChartOrNullObject();
     active.load("isNullObject");
-    await ctx.sync(); // Sync A — know whether to restyle the active chart or create a new one.
+    const selected = ctx.workbook.getSelectedRange();
+    selected.load("cellCount");
+    await ctx.sync(); // Sync A — restyle-or-create decision + selection size.
 
     let chart: Excel.Chart;
     if (active.isNullObject) {
-      chart = createChart(ctx, ctx.workbook.worksheets.getActiveWorksheet(), kind);
+      const range = resolveChartRange(selected);
+      chart = createChart(ctx.workbook.worksheets.getActiveWorksheet(), range, kind);
     } else {
       chart = active;
       retypeChart(chart, kind);
@@ -96,26 +101,15 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
     );
     await ctx.sync(); // Sync D — chart repositioned/styled/coloured AND chrome shapes exist.
 
-    // Group the chrome with the chart. If grouping-with-the-chart is unsupported on this host (or
-    // the chart isn't addressable by name in sheet.shapes), fall back to grouping the chrome only.
-    // Both attempts are guarded so a grouping failure degrades to a warning rather than discarding
-    // an otherwise-complete chart + chrome.
+    // Group the chrome shapes. The live chart can't join the group — Office.js has disjoint Chart
+    // and Shape object models (see chromeGroup.groupChrome) — so it's sized into the canvas band
+    // above and sits within the chrome visually. Guard the group call so a rare failure degrades to
+    // a warning rather than discarding an otherwise-complete chart + chrome.
     try {
-      groupChromeWithChart(sheet, chartName, createdShapeNames);
+      groupChrome(sheet, chartName, createdShapeNames);
       await ctx.sync(); // Sync E — group + rename.
     } catch {
-      try {
-        groupChromeOnly(sheet, chartName, createdShapeNames);
-        await ctx.sync();
-        warnings.push(
-          "Couldn't group the chart with its chrome on this host; the chrome is grouped but the " +
-            "chart moves separately."
-        );
-      } catch {
-        warnings.push(
-          "The chart and its chrome were created but could not be grouped on this host."
-        );
-      }
+      warnings.push("The chart and its chrome were created but the chrome could not be grouped.");
     }
 
     return { chartName, groupName: chromeGroupName(chartName), warnings };

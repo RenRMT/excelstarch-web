@@ -22,6 +22,13 @@ const GRIDLINE_COLOR = colorNeutral2; // light grey value-scale lines (matches t
 export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): void {
   const axes = chart.axes;
 
+  // --- Suppress the chart's own title; the branded title lives in the chrome title shape ---
+  chart.title.visible = false;
+
+  // --- Transparent, borderless chart area so only the white chrome canvas shows behind it ---
+  chart.format.fill.clear();
+  chart.format.border.clear();
+
   // --- Gridlines: only on the axes named by defaults.gridlines ---
   const showYGrid = (defaults.gridlines & Axis.Y) !== 0;
   const showXGrid = (defaults.gridlines & Axis.X) !== 0;

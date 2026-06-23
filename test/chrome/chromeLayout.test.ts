@@ -13,7 +13,6 @@ import {
   titleBoxTop,
   subtitleBoxTop,
   sourceBoxHeight,
-  sourceBoxLeftNudge,
   logoHeight,
   logoAspectRatio,
   logoMarginRight,
@@ -34,8 +33,8 @@ describe("chromePositions", () => {
     expect(p.title.top).toBeCloseTo(base.top + titleBoxTop, 10);
     expect(p.subtitle.top).toBeCloseTo(base.top + subtitleBoxTop, 10);
 
-    // Source sits at the canvas bottom, nudged left.
-    expect(p.source.left).toBeCloseTo(base.left - sourceBoxLeftNudge, 10);
+    // Source anchored at the canvas bottom-left.
+    expect(p.source.left).toBeCloseTo(base.left, 10);
     expect(p.source.top).toBeCloseTo(base.top + chartHeight - sourceBoxHeight, 10);
   });
 

@@ -5,12 +5,14 @@
  * No chart needs to be selected (more robust than the old Selection model).
  *
  * Source and Notes share one `_SourceBox` on two lines: writing one field reloads the box, replaces
- * the relevant line, and writes both back. An empty value restores the placeholder.
+ * the relevant line, and writes both back. The blank/sentinel/text rule lives in the pure
+ * `logic/chromeText.resolveChromeText` (blank → placeholder, `-` → truly empty, text → text).
  *
  * INTEROP: Office.js shape API. UI never throws — returns a typed RunResult.
  */
 import { RunResult, runExcel, shapesSupported, unsupported } from "./session";
 import { chromeShapeName, ChromeSuffixKey } from "../chrome/chromeNames";
+import { resolveChromeText } from "../logic/chromeText";
 import {
   titlePlaceholder,
   subtitlePlaceholder,
@@ -60,7 +62,7 @@ export async function writeChromeText(
         `No "${field}" box found for chart "${chartName}". Recreate the chart first.`
       );
     }
-    shape.textFrame.textRange.text = value.length > 0 ? value : placeholder;
+    shape.textFrame.textRange.text = resolveChromeText(value, placeholder);
     await ctx.sync();
   });
 }
@@ -87,8 +89,9 @@ async function writeSourceOrNotes(
   const [existingSource = sourcePlaceholder, existingNotes = notesPlaceholder] =
     range.text.split(/[\r\n\v]+/);
 
-  const source = field === "source" ? value || sourcePlaceholder : existingSource;
-  const notes = field === "notes" ? value || notesPlaceholder : existingNotes;
+  // Resolve only the edited line (blank → placeholder, `-` → empty); keep the other line as-is.
+  const source = field === "source" ? resolveChromeText(value, sourcePlaceholder) : existingSource;
+  const notes = field === "notes" ? resolveChromeText(value, notesPlaceholder) : existingNotes;
 
   range.text = `${source}\n${notes}`;
   await ctx.sync();

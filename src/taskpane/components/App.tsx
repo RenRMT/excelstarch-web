@@ -4,6 +4,7 @@ import Header from "./Header";
 import ChartCreatorPanel from "./ChartCreatorPanel";
 import ChromeTextPanel from "./ChromeTextPanel";
 import { orgName } from "../../config/brand";
+import logoUrl from "../../../assets/logo.png";
 
 interface AppProps {
   title: string;
@@ -35,7 +36,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
 
   return (
     <div className={styles.root}>
-      <Header logo="assets/logo-filled.png" title={props.title} message={`${orgName} chart styles`} />
+      <Header logo={logoUrl} title={props.title} message={`${orgName} chart styles`} />
       <main className={styles.body}>
         {status && (
           <MessageBar key={status.title} intent={status.intent} className={styles.status}>

@@ -15,17 +15,23 @@ function chartTypeFor(kind: ChartKind): Excel.ChartType {
   return kind === "bar" ? Excel.ChartType.barClustered : Excel.ChartType.columnClustered;
 }
 
-/** Create a new chart from the selected range. */
+/**
+ * Resolve the range to chart from the user's selection: a single selected cell is expanded to its
+ * surrounding region (the contiguous block / Excel Table around it — matching Excel's own
+ * "chart from one cell" behaviour); a multi-cell selection is used as-is. The caller must have
+ * loaded `selected.cellCount` (synced) before calling.
+ */
+export function resolveChartRange(selected: Excel.Range): Excel.Range {
+  return selected.cellCount <= 1 ? selected.getSurroundingRegion() : selected;
+}
+
+/** Create a new chart from the given (already-resolved) range. */
 export function createChart(
-  ctx: Excel.RequestContext,
   sheet: Excel.Worksheet,
+  range: Excel.Range,
   kind: ChartKind
 ): Excel.Chart {
-  return sheet.charts.add(
-    chartTypeFor(kind),
-    ctx.workbook.getSelectedRange(),
-    Excel.ChartSeriesBy.columns
-  );
+  return sheet.charts.add(chartTypeFor(kind), range, Excel.ChartSeriesBy.columns);
 }
 
 /** Retype an existing chart in place (restyle path). */
