@@ -148,10 +148,13 @@ is wired to the host correctly.
 ### 5.3 Per-element fill (element selector)
 
 - [ ] The element selector lists the chart's series; choosing one and applying a fill colours **only
-      that series** (replaces the lost VBA Selection model).
-- [ ] Fill with transparency (e.g. `DATA1|0.5`) applies the clamped transparency; `NONE`/`NOFILL`/
-      `OFF` removes the fill.
-- [ ] Line/scatter series colour the **line**, not a fill (the `IsLineTarget` distinction).
+      that series** (replaces the lost VBA Selection model). "All series" applies to every series.
+- [ ] A colour applies (`DATA1..8`, `NEUTRAL2/4`); `NONE`/`NOFILL`/`OFF` removes the fill.
+- [ ] **Transparency is not offered** for series fills — Office.js `ChartFill` has no transparency
+      API (the VBA `DATA1|0.5` case doesn't apply to chart series). Confirm there is no transparency
+      control and a solid colour is applied.
+- [ ] Line/scatter series colour the **line**, not a fill (the `IsLineTarget` distinction) — **N/A
+      until line/scatter ship** (chart-types breadth PR); the apply seam is in `seriesRecolorer`.
 
 ### 5.4 Last-used persistence
 

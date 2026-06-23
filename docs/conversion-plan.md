@@ -148,6 +148,9 @@ with `isSetSupported`; use `font.italic = true` not the named italic family.
   *Exit:* select range → Bar → branded 600×600 grouped chart with editable chrome text.
 - **Phase 2 — Breadth + colour tooling (priority).** Remaining classic + chartex types; full
   colour tooling + per-element fill via element selector; last-used via `persist/settings.ts`.
+  *Delivered in slices:* (a) recolour (palette/ramp/diverging/invert) + per-element fill —
+  `logic/seriesFills` (pure) → `excel/seriesRecolorer`/`colourFlow` → `ColourPanel`; (b) last-used
+  persistence and (c) chart-type breadth follow as separate PRs.
 - **Phase 3 — Toggles, restyle, export, annotation.** Toggles; `ApplyChartStyle`; export via the
   group-image composite (`Shape.getAsImage`, canvas fallback); annotation as a plot-centre draggable box.
 
@@ -165,6 +168,10 @@ with `isSetSupported`; use `font.italic = true` not the named italic family.
 2. **Annotation on a point — degraded.** No per-point pixel coords → plot-centre box + drag.
 3. **Selection-dependent ops — rearchitected.** Resolve target chart by enumerating
    `worksheet.charts`; replace click-to-select with a task-pane element selector.
+   - **Series-fill transparency — dropped.** Office.js `ChartFill` has no transparency (only
+     `clear`/`setSolidColor`); the VBA `DATA1|0.5` transparency isn't applicable to chart series, so
+     the element-fill UI offers colour + remove only. (`parseFillPayload` still parses it for tag
+     compatibility.)
 4. **Ribbon richness — lost.** Nested menus / split galleries / 21-combo diverging → task pane.
 5. **Modal messaging — gone.** `MsgBox` → non-blocking Fluent `MessageBar`.
 6. **PDF/`ExportAsFixedFormat` + chart sheets — gone.** PDF only via the canvas route;
