@@ -25,7 +25,6 @@ const titleBoxWidthProportion = 1;
 const titleBoxNudgeProportion = 0;
 const sourceBoxWidthProportion = 0.8;
 const sourceBoxHeightProportion = 0.08;
-const sourceBoxNudgeProportion = 0.01;
 
 // --- Padding (spec.geometry.padding) -------------------------------------------------------
 const legendLeftPadProportion = 0;
@@ -79,7 +78,6 @@ export const plotAreaLeft = chartWidth * plotAreaLeftProportion;
 
 // --- Source box ----------------------------------------------------------------------------
 export const sourceBoxWidth = chartWidth * sourceBoxWidthProportion;
-export const sourceBoxLeftNudge = chartWidth * sourceBoxNudgeProportion;
 export const sourceBoxHeight = chartHeight * sourceBoxHeightProportion;
 
 // --- Pie / donut geometry (spec.geometry.pie) ----------------------------------------------

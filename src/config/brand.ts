@@ -10,7 +10,7 @@
 /** A `#RRGGBB` color string. */
 export type Hex = string;
 
-export const orgName = "COMPANY" as const;
+export const orgName = "INSO" as const;
 
 // --- Brand colors (spec.colors.brand) -----------------------------------------------------
 export const colorBrand1: Hex = "#1B4BA7";

@@ -6,7 +6,7 @@
     "commit": "c6fd5df9b04ffac334ee87631228d80493d1601c",
     "note": "Colours converted BGR Long → #RRGGBB and cross-checked against VBA comment hex."
   },
-  "orgName": "COMPANY",
+  "orgName": "INSO",
   "colors": {
     "brand": {
       "colorBrand1": "#1B4BA7",

@@ -169,15 +169,33 @@ is wired to the host correctly.
       without ungrouping chrome.
 - [ ] **Restyle / ApplyChartStyle** re-applies branding to an existing chart.
 
-### 6.2 Export (severely degraded vs VBA — verify the fallback)
+### 6.2 Export (group-image composite — verify the primary path first)
 
-`chart.getImage()` returns **bare-chart JPEG only** (no chrome, no PNG/SVG/PDF/Save-As). The chosen
-fallback reconstructs the composite client-side on an HTML `<canvas>`.
+`chart.getImage()` is **bare-chart JPEG only** (no chrome). The primary export rasterizes the chart,
+temporarily adds it into the chrome group, images the **group** with `Shape.getAsImage` (ExcelApi 1.9,
+native PNG/JPEG), then restores the sheet. An HTML-`<canvas>` composite is the fallback if a host's
+group `getAsImage` doesn't capture child shapes. (Background: the chart can't be a real group member —
+see the chrome-overlay skill.)
 
-- [ ] Export produces an image that **includes the chrome + logo**, not just the bare plot — i.e. the
-      canvas composite ran, using `geometry.ts` positions.
-- [ ] PNG export downloads and opens; if PDF/SVG is wired, it exports via the JS lib route.
-- [ ] The exported composite visually matches the on-sheet chrome.
+**Decide the path first (decision #0):**
+
+- [ ] Export PNG and open the file: it shows the **chart pixels + white canvas + title/subtitle/figure/
+      source/logo** all composited. If only the chrome (or an empty/partial image) appears, the host's
+      group `getAsImage` doesn't capture children → the **canvas fallback** must be the primary path
+      on that host; record it.
+
+**Then verify the rest:**
+
+- [ ] **Z-order:** chart sits over the white canvas with the text/logo legible on top, nothing clipped.
+- [ ] **Cleanup is exact:** after export the on-sheet chart + chrome are **unchanged** — the group is
+      still named `ESChromeGroup_<chartName>`, all members present, and **no leftover
+      `<chartName>_ExportChartPic`**. Then re-run create/restyle and confirm it still finds and cleans
+      the group (proves the group name was restored).
+- [ ] **Failure path:** if `getAsImage` fails, the sheet is restored (chart intact, no temp picture)
+      and a non-blocking error `MessageBar` shows — no crash.
+- [ ] **PNG and JPEG** both download and open; the composite visually matches the on-sheet chrome.
+- [ ] **Per host:** the download actually **saves** on Excel web (Edge/Chrome), Windows (WebView2), and
+      Mac (WKWebView — most restrictive; note if a dialog fallback is needed).
 
 ### 6.3 Annotation (degraded — plot-centre box)
 

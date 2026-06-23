@@ -20,6 +20,25 @@ import {
 } from "../../src/config/brand";
 import { ramps, divergingTags, paletteOrder } from "../../src/config/ramps";
 import type { RampName } from "../../src/config/ramps";
+import {
+  fontPrimary,
+  titleFontSize,
+  subtitleFontSize,
+  figureFontSize,
+  axisFontSize,
+  sourceFontSize,
+  titleFontColor,
+  subtitleFontColor,
+  figureFontColor,
+} from "../../src/config/fonts";
+import {
+  figurePlaceholder,
+  titlePlaceholder,
+  subtitlePlaceholder,
+  yAxisPlaceholder,
+  sourcePlaceholder,
+  notesPlaceholder,
+} from "../../src/config/text";
 
 interface Spec {
   orgName: string;
@@ -31,6 +50,12 @@ interface Spec {
   ramps: Record<string, string[]>;
   divergingTags: string[];
   paletteOrder: { contrasting: number[]; rainbow: number[] };
+  fonts: {
+    primary: string;
+    sizes: Record<string, number>;
+    colors: Record<string, string>;
+  };
+  placeholders: Record<string, string>;
 }
 
 const spec: Spec = JSON.parse(
@@ -65,5 +90,31 @@ describe("config parity with reference/spec.json", () => {
     expect([...divergingTags]).toEqual(spec.divergingTags);
     expect([...paletteOrder.contrasting]).toEqual(spec.paletteOrder.contrasting);
     expect([...paletteOrder.rainbow]).toEqual(spec.paletteOrder.rainbow);
+  });
+
+  it("font family and sizes match", () => {
+    expect(fontPrimary).toBe(spec.fonts.primary);
+    expect(titleFontSize).toBe(spec.fonts.sizes.title);
+    expect(subtitleFontSize).toBe(spec.fonts.sizes.subtitle);
+    expect(figureFontSize).toBe(spec.fonts.sizes.figure);
+    expect(axisFontSize).toBe(spec.fonts.sizes.axis);
+    expect(sourceFontSize).toBe(spec.fonts.sizes.source);
+  });
+
+  it("font colours resolve to the brand colour their spec name points to", () => {
+    // spec.fonts.colors holds NAMES (e.g. "colorBrand1"); the ported colour must equal the hex
+    // that name resolves to in spec.colors.brand.
+    expect(titleFontColor).toBe(spec.colors.brand[spec.fonts.colors.title]);
+    expect(subtitleFontColor).toBe(spec.colors.brand[spec.fonts.colors.subtitle]);
+    expect(figureFontColor).toBe(spec.colors.brand[spec.fonts.colors.figure]);
+  });
+
+  it("placeholder text matches", () => {
+    expect(figurePlaceholder).toBe(spec.placeholders.figure);
+    expect(titlePlaceholder).toBe(spec.placeholders.title);
+    expect(subtitlePlaceholder).toBe(spec.placeholders.subtitle);
+    expect(yAxisPlaceholder).toBe(spec.placeholders.yAxis);
+    expect(sourcePlaceholder).toBe(spec.placeholders.source);
+    expect(notesPlaceholder).toBe(spec.placeholders.notes);
   });
 });

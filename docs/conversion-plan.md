@@ -124,12 +124,14 @@ action, minimal `context.sync()`.
 
 ## Chrome-overlay strategy (core)
 
-Recreate each chrome element as a worksheet shape over the chart, then group with the chart —
-generalizing `BuildChartExChrome` to all types. Reuse `ChartExCanvasOrigin` (reuse canvas
-position on re-run) and `PositionChartExChart` (inset chart into the plot band) as
-`chromeLayout.ts`. Per action, in one `Excel.run`: create/size chart → add white canvas
-(`setZOrder(sendToBack)`) → add text boxes + logo at canvas-offset positions → optional
-y-axis-title box → sync → `addGroup([...])` named `ESChromeGroup_<chartName>` → sync.
+Recreate each chrome element as a worksheet shape over the chart — generalizing `BuildChartExChrome`
+to all types. The live chart **cannot** join the shape group (disjoint Office.js Chart/Shape object
+models: no `chart` in `Excel.ShapeType`, no group handle on `Excel.Chart`), so the chrome shapes are
+grouped on their own and the chart is sized into the canvas band so it sits within the chrome. Reuse
+`ChartExCanvasOrigin` (reuse canvas position on re-run) and `PositionChartExChart` (inset chart into
+the plot band) as `chromeLayout.ts`. Per action, in one `Excel.run`: create/size chart → add white
+canvas (`setZOrder(sendToBack)`) → add text boxes + logo at canvas-offset positions → optional
+y-axis-title box → sync → `addGroup([...chromeShapes])` named `ESChromeGroup_<chartName>` → sync.
 
 **Chrome text editing moves to the task pane** (Title/Subtitle/Figure/Y-axis/Source/Notes
 fields writing `shape.textFrame.textRange.text`). Risks & mitigations: group only
@@ -146,15 +148,20 @@ with `isSetSupported`; use `font.italic = true` not the named italic family.
   *Exit:* select range → Bar → branded 600×600 grouped chart with editable chrome text.
 - **Phase 2 — Breadth + colour tooling (priority).** Remaining classic + chartex types; full
   colour tooling + per-element fill via element selector; last-used via `persist/settings.ts`.
-- **Phase 3 — Toggles, restyle, export, annotation.** Toggles; `ApplyChartStyle`; export via
-  client-side canvas composite; annotation as a plot-centre draggable box.
+- **Phase 3 — Toggles, restyle, export, annotation.** Toggles; `ApplyChartStyle`; export via the
+  group-image composite (`Shape.getAsImage`, canvas fallback); annotation as a plot-centre draggable box.
 
 ## Degraded features (with fallbacks)
 
-1. **Export formats — severely degraded.** No PNG/GIF/BMP/SVG/PDF/Save-As; `getImage()` is
-   bare-chart JPEG only. **Fallback (chosen):** reconstruct the composite client-side —
-   `getImage()` for the plot, draw chrome+logo onto an HTML `<canvas>` using `geometry.ts`,
-   export the canvas (PNG; PDF/SVG via a JS lib). Higher fidelity than VBA.
+1. **Export formats — degraded but native-capable.** `chart.getImage()` is bare-chart **JPEG only**
+   (no chrome), but `Shape.getAsImage` (ExcelApi 1.9, our gate) yields native **PNG/JPEG/GIF/BMP** at
+   96 DPI — and a group is a Shape. The chart still can't join the chrome group (disjoint Chart/Shape
+   object models — see the chrome-overlay strategy), which is *why* export needs a composite.
+   **Chosen primary:** rasterize the chart (`getImage()`), temporarily add it into the chrome group
+   (ungroup → `addImage` → re-`addGroup` → restore the group name — there is no add-to-existing-group
+   API), `getAsImage` the group, then restore. **Fallback** (if a host's group `getAsImage` skips
+   children): reconstruct client-side on an HTML `<canvas>` from `geometry.ts`/`fonts.ts`. PDF/SVG, if
+   ever needed, via a bundled JS lib. PNG + JPEG download. Higher fidelity than VBA.
 2. **Annotation on a point — degraded.** No per-point pixel coords → plot-centre box + drag.
 3. **Selection-dependent ops — rearchitected.** Resolve target chart by enumerating
    `worksheet.charts`; replace click-to-select with a task-pane element selector.

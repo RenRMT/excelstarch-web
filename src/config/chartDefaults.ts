@@ -42,7 +42,10 @@ export function lineChartDefaults(): ChartDefaults {
 
 export function barChartDefaults(): ChartDefaults {
   return {
-    gridlines: Axis.X,
+    // Gridlines on the VALUE axis. A horizontal bar rotates the axes so the value axis runs
+    // horizontally — value-axis gridlines therefore render as the expected vertical lines. (Naming
+    // the category axis here, as Axis.X once did, would draw horizontal gridlines on a bar chart.)
+    gridlines: Axis.Y,
     axisDisplay: Axis.Both,
     legend: defaultLegend,
     showYAxisTitle: false,

@@ -38,6 +38,17 @@ Porting from `main` would bake in the wrong palette and logo.
 | `modEmbeddedImages.bas` | Base64 logo source → `assets/logo.svg` |
 | `modTestHarness.bas` | Assertions to reproduce in the Jest suite |
 
+## Intentional overrides of the upstream snapshot
+
+`spec.json` is normally a faithful transcription of the pinned VBA. One field is a deliberate
+**product override**, not a transcription of upstream:
+
+| Field | Upstream value | spec.json value | Why |
+|-------|----------------|-----------------|-----|
+| `orgName` | `"COMPANY"` | `"INSO"` | Upstream `modConfig.bas` on `demo/inso-brand-colors` still carries the `"COMPANY"` placeholder; the product name is INSO. Set here (and in `src/config/brand.ts`) rather than waiting on an upstream re-snapshot. The `spec-parity` test still passes because both sides agree. |
+
+If upstream later sets `orgName` itself, re-snapshot per below and drop this row.
+
 ## Re-snapshot procedure
 
 ```sh
