@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button, Title3, Body1, Spinner, makeStyles } from "@fluentui/react-components";
-import type { Status } from "./App";
+import type { Status } from "./status";
 import type { ChartKind } from "../../logic/chartType";
 import { createBrandedChart } from "../../excel/chartFlow";
 

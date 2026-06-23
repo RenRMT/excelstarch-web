@@ -15,11 +15,13 @@ export default [
     },
   },
   {
-    // chartFlow.ts and chromeText.ts use the documented getItemOrNullObject + load("isNullObject")
-    // + sync + read pattern across if/ternary branches. The sync boundaries are correct (verified
-    // by hand and by the manual sideload tests in docs/testing-manual.md), but the office-addins
-    // flow analysis cannot follow the sync across the branch and misfires these three rules.
-    files: ["src/excel/chartFlow.ts", "src/excel/chromeText.ts"],
+    // chartFlow.ts, chromeText.ts, and colourFlow.ts use the documented
+    // getActiveChartOrNullObject/getItemOrNullObject + load("isNullObject") + sync + read pattern.
+    // In colourFlow the load→sync→read lives in the `resolveActiveChart`/`hasActiveChart` helpers, so
+    // the sync crosses a function boundary; the sync boundaries are correct (verified by hand and by
+    // the manual sideload tests in docs/testing-manual.md), but the office-addins flow analysis can't
+    // follow the sync across the branch/helper and misfires these three rules.
+    files: ["src/excel/chartFlow.ts", "src/excel/chromeText.ts", "src/excel/colourFlow.ts"],
     rules: {
       "office-addins/call-sync-before-read": "off",
       "office-addins/call-sync-after-load": "off",

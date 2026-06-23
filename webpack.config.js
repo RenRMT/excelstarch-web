@@ -24,6 +24,10 @@ module.exports = async (env, options) => {
         import: ["./src/taskpane/index.tsx", "./src/taskpane/taskpane.html"],
         dependOn: "react",
       },
+      colorpicker: {
+        import: ["./src/colorpicker/index.tsx", "./src/colorpicker/colorpicker.html"],
+        dependOn: "react",
+      },
     },
     output: {
       clean: true,
@@ -73,6 +77,11 @@ module.exports = async (env, options) => {
         filename: "taskpane.html",
         template: "./src/taskpane/taskpane.html",
         chunks: ["polyfill", "taskpane", "react"],
+      }),
+      new HtmlWebpackPlugin({
+        filename: "colorpicker.html",
+        template: "./src/colorpicker/colorpicker.html",
+        chunks: ["polyfill", "colorpicker", "react"],
       }),
       new CopyWebpackPlugin({
         patterns: [

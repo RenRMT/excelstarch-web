@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Field, Input, Textarea, Title3, Body1, makeStyles } from "@fluentui/react-components";
-import type { Status } from "./App";
+import type { Status } from "./status";
 import { writeChromeText, ChromeField } from "../../excel/chromeText";
 
 interface ChromeTextPanelProps {
