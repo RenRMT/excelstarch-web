@@ -12,7 +12,7 @@ import {
 } from "@fluentui/react-components";
 import type { Status } from "./App";
 import type { RampName } from "../../config/ramps";
-import { ramps, divergingTags } from "../../config/ramps";
+import { ramps, divergingTags, rampNames } from "../../config/ramps";
 import {
   recolourSeries,
   applyElementFill,
@@ -32,14 +32,22 @@ const useStyles = makeStyles({
   hint: { color: "#605e5c" },
 });
 
-const RAMP_NAMES = Object.keys(ramps) as RampName[];
+// H (Steel) is a neutral grey ramp, defined but intentionally not offered in the ramp menu (it's a
+// neutral, not a sequential brand hue) — matching the VBA. Diverging tags already exclude it.
+const SINGLE_RAMP_NAMES = (Object.keys(ramps) as RampName[]).filter((name) => name !== "H");
+
+/** Friendly label for a diverging tag, e.g. "A|B" → "Ocean to Coral". */
+function divergingLabel(tag: string): string {
+  const [left, right] = tag.split("|") as RampName[];
+  return `${rampNames[left]} to ${rampNames[right]}`;
+}
 
 /** Fill colours offered for per-element fill (matches colorFromName's known names) plus remove. */
 const FILL_OPTIONS: { value: string; label: string }[] = [
   { value: "DATA1", label: "Data 1 (Ocean)" },
   { value: "DATA2", label: "Data 2 (Coral)" },
   { value: "DATA3", label: "Data 3 (Sky)" },
-  { value: "DATA4", label: "Data 4 (Teal)" },
+  { value: "DATA4", label: "Data 4 (Pine)" },
   { value: "DATA5", label: "Data 5 (Gold)" },
   { value: "DATA6", label: "Data 6 (Rust)" },
   { value: "DATA7", label: "Data 7 (Lavender)" },
@@ -60,7 +68,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
   const disabled = targetChartName === null;
   const [busy, setBusy] = React.useState(false);
   const [useAltOrder, setUseAltOrder] = React.useState(false);
-  const [rampName, setRampName] = React.useState<RampName>(RAMP_NAMES[0]);
+  const [rampName, setRampName] = React.useState<RampName>(SINGLE_RAMP_NAMES[0]);
   const [divergingTag, setDivergingTag] = React.useState<string>(divergingTags[0]);
   const [seriesNames, setSeriesNames] = React.useState<string[]>([]);
   const [elementIndex, setElementIndex] = React.useState<"all" | number>("all");
@@ -153,13 +161,13 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
         <Field label="Single-hue ramp">
           <Dropdown
             disabled={disabled || busy}
-            value={rampName}
+            value={rampNames[rampName]}
             selectedOptions={[rampName]}
             onOptionSelect={(_, d) => d.optionValue && setRampName(d.optionValue as RampName)}
           >
-            {RAMP_NAMES.map((name) => (
+            {SINGLE_RAMP_NAMES.map((name) => (
               <Option key={name} value={name}>
-                {name}
+                {rampNames[name]}
               </Option>
             ))}
           </Dropdown>
@@ -176,13 +184,13 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ targetChartName, onStatus }) 
         <Field label="Diverging ramp">
           <Dropdown
             disabled={disabled || busy}
-            value={divergingTag}
+            value={divergingLabel(divergingTag)}
             selectedOptions={[divergingTag]}
             onOptionSelect={(_, d) => d.optionValue && setDivergingTag(d.optionValue)}
           >
             {divergingTags.map((tag) => (
               <Option key={tag} value={tag}>
-                {tag}
+                {divergingLabel(tag)}
               </Option>
             ))}
           </Dropdown>
