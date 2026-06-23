@@ -1,45 +1,56 @@
 import * as React from "react";
+import { makeStyles, MessageBar, MessageBarBody, MessageBarTitle } from "@fluentui/react-components";
 import Header from "./Header";
-import HeroList, { HeroListItem } from "./HeroList";
-import TextInsertion from "./TextInsertion";
-import { makeStyles } from "@fluentui/react-components";
-import { Ribbon24Regular, LockOpen24Regular, DesignIdeas24Regular } from "@fluentui/react-icons";
-import { insertText } from "../taskpane";
+import ChartCreatorPanel from "./ChartCreatorPanel";
+import ChromeTextPanel from "./ChromeTextPanel";
+import { orgName } from "../../config/brand";
 
 interface AppProps {
   title: string;
 }
 
+/** A transient status message rendered in a non-blocking MessageBar (never a modal). */
+export interface Status {
+  intent: "success" | "warning" | "error";
+  title: string;
+  body?: string;
+}
+
 const useStyles = makeStyles({
-  root: {
-    minHeight: "100vh",
+  root: { minHeight: "100vh" },
+  body: {
+    display: "flex",
+    flexDirection: "column",
+    rowGap: "16px",
+    padding: "16px",
   },
+  status: { marginBottom: "4px" },
 });
 
 const App: React.FC<AppProps> = (props: AppProps) => {
   const styles = useStyles();
-  // The list items are static and won't change at runtime,
-  // so this should be an ordinary const, not a part of state.
-  const listItems: HeroListItem[] = [
-    {
-      icon: <Ribbon24Regular />,
-      primaryText: "Achieve more with Office integration",
-    },
-    {
-      icon: <LockOpen24Regular />,
-      primaryText: "Unlock features and functionality",
-    },
-    {
-      icon: <DesignIdeas24Regular />,
-      primaryText: "Create and visualize like a pro",
-    },
-  ];
+  const [status, setStatus] = React.useState<Status | null>(null);
+  // The chart most recently created/restyled — the chart-text panel writes to its shapes.
+  const [targetChartName, setTargetChartName] = React.useState<string | null>(null);
 
   return (
     <div className={styles.root}>
-      <Header logo="assets/logo-filled.png" title={props.title} message="Welcome" />
-      <HeroList message="Discover what this add-in can do for you today!" items={listItems} />
-      <TextInsertion insertText={insertText} />
+      <Header logo="assets/logo-filled.png" title={props.title} message={`${orgName} chart styles`} />
+      <main className={styles.body}>
+        {status && (
+          <MessageBar key={status.title} intent={status.intent} className={styles.status}>
+            <MessageBarBody>
+              <MessageBarTitle>{status.title}</MessageBarTitle>
+              {status.body}
+            </MessageBarBody>
+          </MessageBar>
+        )}
+        <ChartCreatorPanel
+          onStatus={setStatus}
+          onChartReady={setTargetChartName}
+        />
+        <ChromeTextPanel targetChartName={targetChartName} onStatus={setStatus} />
+      </main>
     </div>
   );
 };
