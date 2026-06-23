@@ -130,6 +130,16 @@
       "#252525"
     ]
   },
+  "rampNames": {
+    "A": "Ocean",
+    "B": "Coral",
+    "C": "Sky",
+    "D": "Pine",
+    "E": "Gold",
+    "F": "Rust",
+    "G": "Lavender",
+    "H": "Steel"
+  },
   "divergingTags": [
     "A|B",
     "A|C",

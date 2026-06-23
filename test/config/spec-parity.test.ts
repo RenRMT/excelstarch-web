@@ -18,7 +18,7 @@ import {
   dataColors,
   orgName,
 } from "../../src/config/brand";
-import { ramps, divergingTags, paletteOrder } from "../../src/config/ramps";
+import { ramps, divergingTags, paletteOrder, rampNames } from "../../src/config/ramps";
 import type { RampName } from "../../src/config/ramps";
 import {
   fontPrimary,
@@ -48,6 +48,7 @@ interface Spec {
     data: Record<string, string>;
   };
   ramps: Record<string, string[]>;
+  rampNames: Record<string, string>;
   divergingTags: string[];
   paletteOrder: { contrasting: number[]; rainbow: number[] };
   fonts: {
@@ -83,6 +84,12 @@ describe("config parity with reference/spec.json", () => {
   it("all eight ramps match step-for-step", () => {
     (Object.keys(ramps) as RampName[]).forEach((name) => {
       expect([...ramps[name]]).toEqual(spec.ramps[name]);
+    });
+  });
+
+  it("ramp display names match", () => {
+    (Object.keys(rampNames) as RampName[]).forEach((name) => {
+      expect(rampNames[name]).toBe(spec.rampNames[name]);
     });
   });
 

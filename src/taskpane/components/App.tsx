@@ -3,6 +3,7 @@ import { makeStyles, MessageBar, MessageBarBody, MessageBarTitle } from "@fluent
 import Header from "./Header";
 import ChartCreatorPanel from "./ChartCreatorPanel";
 import ChromeTextPanel from "./ChromeTextPanel";
+import ColourPanel from "./ColourPanel";
 import { orgName } from "../../config/brand";
 import logoUrl from "../../../assets/logo.png";
 
@@ -51,6 +52,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
           onChartReady={setTargetChartName}
         />
         <ChromeTextPanel targetChartName={targetChartName} onStatus={setStatus} />
+        <ColourPanel targetChartName={targetChartName} onStatus={setStatus} />
       </main>
     </div>
   );

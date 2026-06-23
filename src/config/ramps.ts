@@ -160,6 +160,22 @@ export const divergingTags: readonly string[] = [
 ];
 
 /**
+ * Human-friendly display name for each ramp (← spec.json `rampNames`, from the `modConfig.bas`
+ * comments). Shown in the colour UI in place of the internal A–H letters; the tag/letter stays the
+ * stored identifier. H (Steel) is a neutral grey ramp, defined but not offered in the ramp menu.
+ */
+export const rampNames: Readonly<Record<RampName, string>> = {
+  A: "Ocean",
+  B: "Coral",
+  C: "Sky",
+  D: "Pine",
+  E: "Gold",
+  F: "Rust",
+  G: "Lavender",
+  H: "Steel",
+};
+
+/**
  * Palette-slot ordering for series colouring (1-based slot → data-colour index 1..8).
  * Contrasting is the default; Rainbow is the alternate toggle order.
  */
