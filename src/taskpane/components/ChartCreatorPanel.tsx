@@ -22,6 +22,8 @@ const CHART_KINDS: ReadonlyArray<{ kind: ChartKind; label: string }> = [
   { kind: "area", label: "Area" },
   { kind: "scatter", label: "Scatter" },
   { kind: "pie", label: "Pie" },
+  { kind: "treemap", label: "Treemap" },
+  { kind: "boxwhisker", label: "Box & Whisker" },
 ];
 
 /**

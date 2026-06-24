@@ -4,8 +4,9 @@
  * on the chart object (gridlines, axis visibility, axis/gridline line styling, legend), as opposed
  * to the chrome text/logo (which are worksheet shapes in chrome/).
  *
- * Driven by the per-type `ChartDefaults`: bar shows X-axis gridlines, column shows Y-axis
- * gridlines; both show both axes and hide the legend.
+ * Driven by the per-type `ChartDefaults`: e.g. column shows Y-axis gridlines and both axes; pie and
+ * treemap display no axes (and treemap no legend). Axis styling is gated on `axisDisplay` so a
+ * no-axis type never touches a non-existent value/category axis.
  *
  * QUEUES property writes only — the caller syncs. No `context.sync()` here.
  *
@@ -29,21 +30,21 @@ export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): vo
   chart.format.fill.clear();
   chart.format.border.clear();
 
-  // --- Gridlines: only on the axes named by defaults.gridlines ---
-  const showYGrid = (defaults.gridlines & Axis.Y) !== 0;
-  const showXGrid = (defaults.gridlines & Axis.X) !== 0;
-  styleGridlines(axes.valueAxis, showYGrid);
-  styleGridlines(axes.categoryAxis, showXGrid);
+  // --- Axes: touch an axis ONLY when this chart type displays it. A treemap (and pie) have no
+  // value/category axes, so reading axes.valueAxis/categoryAxis there would queue writes against a
+  // non-existent axis and throw on sync. Gating on axisDisplay keeps the no-axis types safe. ---
+  if ((defaults.axisDisplay & Axis.Y) !== 0) {
+    styleGridlines(axes.valueAxis, (defaults.gridlines & Axis.Y) !== 0);
+    axes.valueAxis.visible = true;
+    styleAxisLineAndFont(axes.valueAxis);
+  }
+  if ((defaults.axisDisplay & Axis.X) !== 0) {
+    styleGridlines(axes.categoryAxis, (defaults.gridlines & Axis.X) !== 0);
+    axes.categoryAxis.visible = true;
+    styleAxisLineAndFont(axes.categoryAxis);
+  }
 
-  // --- Axis visibility ---
-  axes.valueAxis.visible = (defaults.axisDisplay & Axis.Y) !== 0;
-  axes.categoryAxis.visible = (defaults.axisDisplay & Axis.X) !== 0;
-
-  // --- Axis line + tick-label font (white axis lines; branded labels) ---
-  styleAxisLineAndFont(axes.valueAxis);
-  styleAxisLineAndFont(axes.categoryAxis);
-
-  // --- Legend ---
+  // --- Legend (valid on every chart type, including treemap/pie) ---
   chart.legend.visible = defaults.legend;
 }
 

@@ -155,12 +155,14 @@ with `isSetSupported`; use `font.italic = true` not the named italic family.
   colour tooling + per-element fill via element selector; last-used via `persist/settings.ts`.
   *Delivered in slices:* (a) recolour (palette/ramp/diverging/invert) + per-element fill —
   `logic/seriesFills` (pure) → `excel/seriesRecolorer`/`colourFlow` → `ColourPanel`; (c) chart-type
-  breadth — **classic types shipped** (bar, column, line, area, scatter, pie) via the `ChartKind`
-  union + `chartFactory.chartTypeFor` + the per-kind `defaultsForKind` map in `chartFlow`; chartex
-  types (treemap, box & whisker) remain a follow-up; (b) **last-used persistence shipped** —
+  breadth — **all types shipped** (bar, column, line, area, scatter, pie, treemap, box & whisker)
+  via the `ChartKind` union + `chartFactory.chartTypeFor` + the per-kind `defaultsForKind` map in
+  `chartFlow`; treemap colours per point (pie's path), box & whisker gets the value-axis title box,
+  and `applyChartStyle` gates axis styling on `axisDisplay` so the no-axis types are safe;
+  (b) **last-used persistence shipped** —
   `persist/settings.ts` over `Office.context.document.settings` remembers the last ramp / diverging
   tag / fill / palette-order choice (saved on successful apply, restored as the `ColourPanel`
-  dropdown defaults on mount). Phase 2 is complete bar the chartex types.
+  dropdown defaults on mount). **Phase 2 is complete.**
 - **Phase 3 — Toggles, restyle, export, annotation.** Toggles; `ApplyChartStyle`; export via the
   group-image composite (`Shape.getAsImage`, canvas fallback); annotation as a plot-centre draggable box.
 

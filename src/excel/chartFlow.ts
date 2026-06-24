@@ -34,6 +34,8 @@ import {
   areaChartDefaults,
   scatterChartDefaults,
   pieChartDefaults,
+  treemapChartDefaults,
+  boxWhiskerChartDefaults,
 } from "../config/chartDefaults";
 import { Axis } from "../config/enums";
 
@@ -48,6 +50,8 @@ const defaultsForKind: Record<ChartKind, () => ChartDefaults> = {
   area: areaChartDefaults,
   scatter: scatterChartDefaults,
   pie: pieChartDefaults,
+  treemap: treemapChartDefaults,
+  boxwhisker: boxWhiskerChartDefaults,
 };
 
 export interface CreateChartResult {
@@ -90,9 +94,10 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
     const chartName = chart.name;
     const seriesCount = chart.series.count;
 
-    // Pie/doughnut have a single series whose slices are POINTS — colour per point, not per series
-    // (a solid series fill would flatten the whole pie to one colour). Load that point count here.
-    const colourByPoint = kind === "pie";
+    // Pie/doughnut and treemap have a single series whose slices/tiles are POINTS — colour per
+    // point, not per series (a solid series fill would flatten the whole chart to one colour). Load
+    // that point count here. (Box & whisker colours per series, like bar/column — no special case.)
+    const colourByPoint = kind === "pie" || kind === "treemap";
     const firstSeriesPoints = colourByPoint ? chart.series.getItemAt(0).points : undefined;
     firstSeriesPoints?.load("count");
 
