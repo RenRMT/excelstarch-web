@@ -11,8 +11,18 @@ interface ChartCreatorPanelProps {
 
 const useStyles = makeStyles({
   panel: { display: "flex", flexDirection: "column", rowGap: "8px" },
-  buttons: { display: "flex", columnGap: "8px" },
+  buttons: { display: "flex", flexWrap: "wrap", columnGap: "8px", rowGap: "8px" },
 });
+
+/** Chart types offered in the creator, in display order. */
+const CHART_KINDS: ReadonlyArray<{ kind: ChartKind; label: string }> = [
+  { kind: "bar", label: "Bar" },
+  { kind: "column", label: "Column" },
+  { kind: "line", label: "Line" },
+  { kind: "area", label: "Area" },
+  { kind: "scatter", label: "Scatter" },
+  { kind: "pie", label: "Pie" },
+];
 
 /**
  * Creates a branded chart from the current selection. With a chart selected, the create call
@@ -54,12 +64,11 @@ const ChartCreatorPanel: React.FC<ChartCreatorPanelProps> = ({ onStatus, onChart
       <Title3>Create a branded chart</Title3>
       <Body1>Select your data range, then choose a chart type. A selected chart is restyled in place.</Body1>
       <div className={styles.buttons}>
-        <Button appearance="primary" disabled={busy} onClick={() => handleCreate("bar")}>
-          Bar
-        </Button>
-        <Button appearance="primary" disabled={busy} onClick={() => handleCreate("column")}>
-          Column
-        </Button>
+        {CHART_KINDS.map(({ kind, label }) => (
+          <Button key={kind} appearance="primary" disabled={busy} onClick={() => handleCreate(kind)}>
+            {label}
+          </Button>
+        ))}
         {busy && <Spinner size="tiny" label="Working…" />}
       </div>
     </section>

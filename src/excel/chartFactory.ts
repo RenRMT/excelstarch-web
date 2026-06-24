@@ -10,9 +10,30 @@
 import type { ChartKind } from "../logic/chartType";
 import { chartBandPosition } from "../chrome/chromeLayout";
 
-/** Map the UI's ChartKind to the concrete Office.js chart type. */
+/**
+ * Map the UI's ChartKind to the concrete Office.js chart type. Exhaustive `switch` — adding a new
+ * ChartKind without a case here is a compile error (the `never` default fails to type-check).
+ * `scatter` uses `xyscatter` (markers only), the closest classic match to the VBA scatter.
+ */
 function chartTypeFor(kind: ChartKind): Excel.ChartType {
-  return kind === "bar" ? Excel.ChartType.barClustered : Excel.ChartType.columnClustered;
+  switch (kind) {
+    case "bar":
+      return Excel.ChartType.barClustered;
+    case "column":
+      return Excel.ChartType.columnClustered;
+    case "line":
+      return Excel.ChartType.line;
+    case "area":
+      return Excel.ChartType.area;
+    case "scatter":
+      return Excel.ChartType.xyscatter;
+    case "pie":
+      return Excel.ChartType.pie;
+    default: {
+      const exhaustive: never = kind;
+      return exhaustive;
+    }
+  }
 }
 
 /**

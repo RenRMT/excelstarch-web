@@ -124,11 +124,27 @@ The VBA `Selection`-driven click-to-edit model is gone; chrome text is edited fr
 
 ### 5.1 Remaining chart types
 
-For each newly added type (area, scatter, pie, line, treemap, box & whisker, lollipop):
+**Classic types shipped** in the chart-type-breadth PR: line, area, scatter, pie (joining bar/column).
+Chartex types (treemap, box & whisker) and lollipop remain a follow-up.
+
+For each shipped type (line, area, scatter, pie):
 
 - [ ] Creates a 600×600 branded chart with the type-appropriate defaults (see `chartDefaults`).
-- [ ] Chrome group builds correctly (box & whisker also gets the optional **Y-axis title box**).
-- [ ] Pie/donut: legend sits below the subtitle without overlap; plot geometry matches the pie spec.
+- [ ] Chrome group builds correctly; the chart insets into the canvas band (re-run snaps it back).
+- [ ] Gridlines/axes match the defaults: **line/area → Y-gridlines, both axes**; **scatter → both
+      gridlines, both axes**; **pie → no axes/gridlines, legend ON**.
+- [ ] **Pie point-colouring (HIGH-risk path):** a pie's slices are *points* of one series, so the
+      colourer fills **points** in brand-palette order (`colorPointsByPalette`), not the single series.
+      Confirm slices are distinctly coloured (not one flat colour). Try a fixture with 3 and with 8+
+      categories (>8 falls back to neutral per `getPaletteColor`).
+- [ ] **Pie band/legend layout:** legend sits below the subtitle without overlap; the no-axes band
+      (`chartBandPosition(false,false,true)`) leaves the title block above and logo/source below.
+- [ ] **Scatter axis/marker (HIGH-risk path):** scatter has two value axes (no category axis).
+      Confirm `applyChartStyle` does not throw and the chart shows the intended X/Y gridlines + axes,
+      and that markers pick up the brand colour. If markers don't colour, note the `IsLineTarget`
+      seam in `seriesRecolorer`/`seriesColorer` (see §5.3) as the follow-up.
+- [ ] **Retype between kinds:** with a chart selected, create a different kind (e.g. bar → pie → line)
+      and confirm it retypes in place and the chrome snaps back to its canvas origin.
 
 ### 5.2 Palette / ramps / diverging
 
