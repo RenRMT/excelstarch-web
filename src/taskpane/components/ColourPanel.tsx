@@ -30,6 +30,9 @@ const useStyles = makeStyles({
   panel: { display: "flex", flexDirection: "column", rowGap: "10px" },
   row: { display: "flex", columnGap: "8px", alignItems: "end" },
   hint: { color: "#605e5c" },
+  // Fluent v9 Dropdown defaults to min-width 250px; shrink it to fit its text so the task pane
+  // stays narrow. fit-content + min-width 0 lets the trigger size to the selected option label.
+  narrowDropdown: { minWidth: "0", width: "fit-content" },
 });
 
 // H (Steel) is a neutral grey ramp, defined but intentionally not offered in the ramp menu (it's a
@@ -166,6 +169,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
       <div className={styles.row}>
         <Field label="Single-hue ramp">
           <Dropdown
+            className={styles.narrowDropdown}
             disabled={disabled}
             value={rampNames[rampName]}
             selectedOptions={[rampName]}
@@ -186,6 +190,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
       <div className={styles.row}>
         <Field label="Diverging ramp">
           <Dropdown
+            className={styles.narrowDropdown}
             disabled={disabled}
             value={divergingLabel(divergingTag)}
             selectedOptions={[divergingTag]}
@@ -209,6 +214,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
       <div className={styles.row}>
         <Field label="Element">
           <Dropdown
+            className={styles.narrowDropdown}
             disabled={disabled}
             value={elementIndex === "all" ? "All series" : seriesNames[elementIndex] ?? "Series"}
             selectedOptions={[String(elementIndex)]}
@@ -226,6 +232,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
         </Field>
         <Field label="Fill">
           <Dropdown
+            className={styles.narrowDropdown}
             disabled={disabled}
             value={FILL_OPTIONS.find((o) => o.value === fillValue)?.label ?? fillValue}
             selectedOptions={[fillValue]}
