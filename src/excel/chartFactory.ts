@@ -13,7 +13,9 @@ import { chartBandPosition } from "../chrome/chromeLayout";
 /**
  * Map the UI's ChartKind to the concrete Office.js chart type. Exhaustive `switch` — adding a new
  * ChartKind without a case here is a compile error (the `never` default fails to type-check).
- * `scatter` uses `xyscatter` (markers only), the closest classic match to the VBA scatter.
+ * `scatter` uses `xyscatter` (markers only), the closest classic match to the VBA scatter. The
+ * chartex types (`treemap`, `boxwhisker`) are ExcelApi 1.9 members, the same set the chrome overlay
+ * already gates on.
  */
 function chartTypeFor(kind: ChartKind): Excel.ChartType {
   switch (kind) {
@@ -29,6 +31,10 @@ function chartTypeFor(kind: ChartKind): Excel.ChartType {
       return Excel.ChartType.xyscatter;
     case "pie":
       return Excel.ChartType.pie;
+    case "treemap":
+      return Excel.ChartType.treemap;
+    case "boxwhisker":
+      return Excel.ChartType.boxwhisker;
     default: {
       const exhaustive: never = kind;
       return exhaustive;

@@ -8,7 +8,12 @@ import { Axis, defaultGridlines, defaultAxisDisplay, defaultLegend } from "./enu
 
 /** Formatting options for a new or reformatted chart. */
 export interface ChartDefaults {
-  /** Which axes show gridlines. */
+  /**
+   * Which axes show gridlines. INVARIANT: `gridlines` must be a subset of `axisDisplay` — a chart
+   * type can only show gridlines on an axis it displays. `applyChartStyle` gates gridline styling on
+   * `axisDisplay` (so a no-axis type never touches a non-existent axis), which means gridlines named
+   * on a *hidden* axis would be silently dropped. Keep them aligned.
+   */
   gridlines: Axis;
   /** Which axes are displayed (HasAxis). */
   axisDisplay: Axis;

@@ -124,10 +124,11 @@ The VBA `Selection`-driven click-to-edit model is gone; chrome text is edited fr
 
 ### 5.1 Remaining chart types
 
-**Classic types shipped** in the chart-type-breadth PR: line, area, scatter, pie (joining bar/column).
-Chartex types (treemap, box & whisker) and lollipop remain a follow-up.
+**All chart types shipped:** bar, column, line, area, scatter, pie (classic) plus treemap and box &
+whisker (chartex). Lollipop and the other chartex types (sunburst, histogram, waterfall, funnel,
+pareto) remain a follow-up.
 
-For each shipped type (line, area, scatter, pie):
+For each classic type (line, area, scatter, pie):
 
 - [ ] Creates a 600×600 branded chart with the type-appropriate defaults (see `chartDefaults`).
 - [ ] Chrome group builds correctly; the chart insets into the canvas band (re-run snaps it back).
@@ -145,6 +146,24 @@ For each shipped type (line, area, scatter, pie):
       seam in `seriesRecolorer`/`seriesColorer` (see §5.3) as the follow-up.
 - [ ] **Retype between kinds:** with a chart selected, create a different kind (e.g. bar → pie → line)
       and confirm it retypes in place and the chrome snaps back to its canvas origin.
+
+For the chartex types (treemap, box & whisker — both ExcelApi 1.9, same gate as the chrome overlay):
+
+- [ ] **Treemap (HIGH-risk path):** select a categorical range → Treemap → branded 600×600 chrome,
+      **no axis errors** (`applyChartStyle` now gates axis styling on `axisDisplay`, so it never
+      touches the treemap's non-existent value/category axes), **no Y-axis title box**. Tiles are
+      coloured **per point** in brand-palette order (`colorPointsByPalette`, pie's path) — confirm
+      distinct tile colours, not one flat fill. Try 3 and 8+ categories (>8 → neutral).
+- [ ] **Box & Whisker:** select multi-series numeric data → Box & Whisker → branded chart with
+      **Y-gridlines + both axes** and the **worksheet Y-axis title box present** (`showYAxisTitle:
+      true` → `chromeBuilder.addYAxisTitle`). Series coloured **per series** in palette order (not
+      per point). Chrome group builds; re-run snaps it back. Confirm the worksheet Y-axis title box
+      does **not** visually collide with the chart's own rendered value-axis tick labels (box &
+      whisker keeps `axisDisplay: Both`, so the chart still draws its value axis).
+- [ ] **Axis-guard regression:** after the `applyChartStyle` change, re-confirm **pie** (distinct
+      slice colours, legend, no axis error) and **scatter** (gridlines/axes/markers) still create
+      correctly. Retype an existing chart across the classic↔chartex boundary (e.g. column → treemap
+      → box & whisker) and confirm no axis error on the no-axis (treemap) leg and chrome snaps back.
 
 ### 5.2 Palette / ramps / diverging
 

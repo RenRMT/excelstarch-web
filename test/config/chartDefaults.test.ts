@@ -17,6 +17,8 @@ import {
   areaChartDefaults,
   scatterChartDefaults,
   pieChartDefaults,
+  treemapChartDefaults,
+  boxWhiskerChartDefaults,
 } from "../../src/config/chartDefaults";
 import { Axis, defaultGridlines, defaultAxisDisplay, defaultLegend } from "../../src/config/enums";
 
@@ -84,6 +86,28 @@ describe("classic chart-type defaults", () => {
       axisDisplay: Axis.None,
       legend: true,
       showYAxisTitle: false,
+    });
+  });
+});
+
+describe("chartex chart-type defaults", () => {
+  it("treemap: no gridlines, no axes, default legend, no value-axis title", () => {
+    expect(treemapChartDefaults()).toEqual({
+      gridlines: Axis.None,
+      axisDisplay: Axis.None,
+      legend: defaultLegend,
+      showYAxisTitle: false,
+    });
+  });
+
+  it("box & whisker: Y gridlines, both axes, default legend, WITH value-axis title", () => {
+    // Box & whisker has a value axis → it requests the worksheet Y-axis title box (the one chartex
+    // type that sets showYAxisTitle true; the chrome builder honours it).
+    expect(boxWhiskerChartDefaults()).toEqual({
+      gridlines: Axis.Y,
+      axisDisplay: Axis.Both,
+      legend: defaultLegend,
+      showYAxisTitle: true,
     });
   });
 });
