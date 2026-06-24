@@ -174,9 +174,25 @@ is wired to the host correctly.
 
 ### 5.4 Last-used persistence
 
-- [ ] After applying a ramp/fill, the **LASTUSED** path re-applies the same choice on the next run,
-      and persists across close/reopen of the workbook (via `Office.context.document.settings`, the
-      replacement for VBA `CustomDocumentProperties`).
+The Color Picker remembers the last-used **single-hue ramp, diverging tag, fill colour, and
+palette-order toggle** per workbook (`persist/settings.ts` over `Office.context.document.settings`,
+the web replacement for VBA `CustomDocumentProperties`). Values are saved **after a successful
+apply** and restored as the pane's **pre-selected dropdown/switch defaults** when it next mounts
+(the user still clicks Apply — there is no auto-re-apply). Document-global scope (one value per
+setting, like the VBA).
+
+- [ ] Select a chart; in the Color Picker pick a non-default ramp (e.g. Coral) and **Apply ramp** →
+      success. Switch to **Rainbow order** and **Apply palette**. Pick a diverging tag (Apply) and a
+      fill colour (Apply fill).
+- [ ] **Reopen the pane** (close the Color Picker, open it again): the ramp, diverging, and fill
+      dropdowns and the order switch show the **last-used** choices, not the hard defaults.
+- [ ] **Close and reopen the workbook** (save first): the same choices are restored — proving the
+      values persisted to `document.settings`, not just React state.
+- [ ] **New/clean workbook:** the pane opens with the **hard defaults** (first ramp, first diverging
+      tag, DATA1 fill, Contrasting order) and does not error when no settings are stored.
+- [ ] **Failed/cancelled apply does not overwrite** last-used: trigger an over-limit error (e.g. a
+      single ramp on >10 series), then reopen the pane — the previously-saved ramp is still shown.
+- [ ] Persistence is **best-effort/silent**: a save failure never shows an error or blocks the apply.
 
 ---
 
