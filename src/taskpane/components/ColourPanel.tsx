@@ -21,6 +21,7 @@ import {
   type RecolourMode,
 } from "../../excel/colourFlow";
 import type { RunResult } from "../../excel/session";
+import { loadLastUsedColours, saveLastUsedColours } from "../../persist/settings";
 
 interface ColourPanelProps {
   onStatus: (status: Status) => void;
@@ -102,6 +103,26 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
     void refresh();
   }, [refresh]);
 
+  // Seed the controls from the workbook's last-used choices (persist/settings). Each value is
+  // validated against the current option lists — a stale or hand-edited setting falls back to the
+  // hard default rather than selecting something the dropdown can't show. elementIndex is not
+  // persisted (it's a per-session selection tied to the live chart's series).
+  React.useEffect(() => {
+    const last = loadLastUsedColours();
+    if (typeof last.paletteAltOrder === "boolean") {
+      setUseAltOrder(last.paletteAltOrder);
+    }
+    if (last.rampName && SINGLE_RAMP_NAMES.some((n) => n === last.rampName)) {
+      setRampName(last.rampName as RampName);
+    }
+    if (last.divergingTag && divergingTags.includes(last.divergingTag)) {
+      setDivergingTag(last.divergingTag);
+    }
+    if (last.fillValue && FILL_OPTIONS.some((o) => o.value === last.fillValue)) {
+      setFillValue(last.fillValue);
+    }
+  }, []);
+
   const report = (result: RunResult<void>, failTitle: string) => {
     if (result.ok) {
       onStatus({ intent: "success", title: "Colours applied." });
@@ -117,7 +138,19 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
   const runRecolour = async (mode: RecolourMode) => {
     setBusy(true);
     try {
-      report(await recolourSeries(mode), "Couldn't recolour the series");
+      const result = await recolourSeries(mode);
+      report(result, "Couldn't recolour the series");
+      // Persist the choice only after a successful apply (matches the VBA last-used behaviour).
+      // Invert has no choice to remember. Fire-and-forget — never block the UI on the save.
+      if (result.ok) {
+        if (mode.kind === "palette") {
+          void saveLastUsedColours({ paletteAltOrder: mode.useAltOrder });
+        } else if (mode.kind === "single") {
+          void saveLastUsedColours({ rampName: mode.rampName });
+        } else if (mode.kind === "diverging") {
+          void saveLastUsedColours({ divergingTag: mode.tag });
+        }
+      }
     } finally {
       setBusy(false);
     }
@@ -126,7 +159,11 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
   const runElementFill = async () => {
     setBusy(true);
     try {
-      report(await applyElementFill(elementIndex, fillValue), "Couldn't apply the fill");
+      const result = await applyElementFill(elementIndex, fillValue);
+      report(result, "Couldn't apply the fill");
+      if (result.ok) {
+        void saveLastUsedColours({ fillValue });
+      }
     } finally {
       setBusy(false);
     }
