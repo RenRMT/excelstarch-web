@@ -154,8 +154,10 @@ with `isSetSupported`; use `font.italic = true` not the named italic family.
 - **Phase 2 — Breadth + colour tooling (priority).** Remaining classic + chartex types; full
   colour tooling + per-element fill via element selector; last-used via `persist/settings.ts`.
   *Delivered in slices:* (a) recolour (palette/ramp/diverging/invert) + per-element fill —
-  `logic/seriesFills` (pure) → `excel/seriesRecolorer`/`colourFlow` → `ColourPanel`; (b) last-used
-  persistence and (c) chart-type breadth follow as separate PRs.
+  `logic/seriesFills` (pure) → `excel/seriesRecolorer`/`colourFlow` → `ColourPanel`; (c) chart-type
+  breadth — **classic types shipped** (bar, column, line, area, scatter, pie) via the `ChartKind`
+  union + `chartFactory.chartTypeFor` + the per-kind `defaultsForKind` map in `chartFlow`; chartex
+  types (treemap, box & whisker) remain a follow-up. (b) last-used persistence is still pending.
 - **Phase 3 — Toggles, restyle, export, annotation.** Toggles; `ApplyChartStyle`; export via the
   group-image composite (`Shape.getAsImage`, canvas fallback); annotation as a plot-centre draggable box.
 

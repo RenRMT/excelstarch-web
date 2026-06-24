@@ -66,4 +66,14 @@ describe("chartBandPosition", () => {
     expect(band.width).toBeCloseTo(chartWidth - 2 * plotAreaLeft, 10);
     expect(band.height).toBeCloseTo(plotAreaHeightFor(true, true, false), 10);
   });
+
+  it("pie combination (no axes, legend on): top band drops the y-axis strip, keeps the legend", () => {
+    // pieChartDefaults → showY=false, showX=false, hasLegend=true. The band must compose from the
+    // legend-on/no-y-axis geometry, not the bar/column (axes-on) path.
+    const band = chartBandPosition(100, 50, false, false, true);
+    expect(band.left).toBeCloseTo(100 + plotAreaLeft, 10);
+    expect(band.top).toBeCloseTo(50 + plotAreaTopFor(false, true), 10);
+    expect(band.width).toBeCloseTo(chartWidth - 2 * plotAreaLeft, 10);
+    expect(band.height).toBeCloseTo(plotAreaHeightFor(false, false, true), 10);
+  });
 });

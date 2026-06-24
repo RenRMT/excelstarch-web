@@ -22,11 +22,33 @@ import type { ChartKind } from "../logic/chartType";
 import { RunResult, runExcel, shapesSupported, unsupported } from "./session";
 import { createChart, resolveChartRange, retypeChart, positionChartIntoBand } from "./chartFactory";
 import { applyChartStyle } from "./chartStyle";
-import { colorSeriesByPalette } from "./seriesColorer";
+import { colorSeriesByPalette, colorPointsByPalette } from "./seriesColorer";
 import { buildChrome } from "../chrome/chromeBuilder";
 import { groupChrome, chromeGroupName } from "../chrome/chromeGroup";
 import { chromeShapeName } from "../chrome/chromeNames";
-import { barChartDefaults, columnChartDefaults } from "../config/chartDefaults";
+import type { ChartDefaults } from "../config/chartDefaults";
+import {
+  barChartDefaults,
+  columnChartDefaults,
+  lineChartDefaults,
+  areaChartDefaults,
+  scatterChartDefaults,
+  pieChartDefaults,
+} from "../config/chartDefaults";
+import { Axis } from "../config/enums";
+
+/**
+ * Per-kind formatting-defaults factory. Exhaustive — a new ChartKind without an entry is a compile
+ * error (the keys are `Record<ChartKind, …>`).
+ */
+const defaultsForKind: Record<ChartKind, () => ChartDefaults> = {
+  bar: barChartDefaults,
+  column: columnChartDefaults,
+  line: lineChartDefaults,
+  area: areaChartDefaults,
+  scatter: scatterChartDefaults,
+  pie: pieChartDefaults,
+};
 
 export interface CreateChartResult {
   chartName: string;
@@ -40,7 +62,7 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
   }
 
   return runExcel<CreateChartResult>(async (ctx) => {
-    const defaults = kind === "bar" ? barChartDefaults() : columnChartDefaults();
+    const defaults = defaultsForKind[kind]();
 
     // Decide create vs restyle: is a chart currently selected? Also read the selected range's
     // cellCount so a create can expand a single selected cell to its surrounding region.
@@ -68,29 +90,40 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
     const chartName = chart.name;
     const seriesCount = chart.series.count;
 
+    // Pie/doughnut have a single series whose slices are POINTS — colour per point, not per series
+    // (a solid series fill would flatten the whole pie to one colour). Load that point count here.
+    const colourByPoint = kind === "pie";
+    const firstSeriesPoints = colourByPoint ? chart.series.getItemAt(0).points : undefined;
+    firstSeriesPoints?.load("count");
+
     // Resolve canvas origin (reuse an existing canvas's position so a re-run snaps chrome back) and
     // whether a prior chrome group exists (so removeExistingChrome can safely ungroup it).
     const existingCanvas = sheet.shapes.getItemOrNullObject(chromeShapeName(chartName, "canvas"));
     existingCanvas.load("left, top, isNullObject");
     const existingGroup = sheet.shapes.getItemOrNullObject(chromeGroupName(chartName));
     existingGroup.load("isNullObject");
-    await ctx.sync(); // Sync C — canvas-or-null + group-or-null resolved.
+    await ctx.sync(); // Sync C — canvas-or-null + group-or-null resolved (+ pie point count).
 
     const baseLeft = existingCanvas.isNullObject ? chart.left : existingCanvas.left;
     const baseTop = existingCanvas.isNullObject ? chart.top : existingCanvas.top;
     const groupExists = !existingGroup.isNullObject;
 
-    // Queue all mutations (no sync between them).
+    // Queue all mutations (no sync between them). Derive the band layout from this kind's defaults
+    // so axis-less, legend-on types (e.g. pie) inset correctly — `axisDisplay` is a bit-flag.
     positionChartIntoBand(
       chart,
       baseLeft,
       baseTop,
-      /*showY*/ true,
-      /*showX*/ true,
-      /*hasLegend*/ false
+      /*showY*/ (defaults.axisDisplay & Axis.Y) !== 0,
+      /*showX*/ (defaults.axisDisplay & Axis.X) !== 0,
+      /*hasLegend*/ defaults.legend
     );
     applyChartStyle(chart, defaults);
-    colorSeriesByPalette(chart, seriesCount);
+    if (firstSeriesPoints) {
+      colorPointsByPalette(chart, firstSeriesPoints.count);
+    } else {
+      colorSeriesByPalette(chart, seriesCount);
+    }
     const { createdShapeNames, warnings } = buildChrome(
       sheet,
       chartName,
