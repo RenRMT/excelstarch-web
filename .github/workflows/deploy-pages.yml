@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    # Documentation-only changes don't affect the add-in, so they don't redeploy.
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
   workflow_dispatch:
 
 permissions:
