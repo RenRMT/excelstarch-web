@@ -1,8 +1,7 @@
 /**
- * Brand palette — mapped onto the ROOS (RVO Open Ontwerp Systeem) colour tokens in
- * `reference/roos-palette.json`. The data colours are the ROOS series palette verbatim; every
- * other colour is the nearest ROOS token (CIEDE2000) to the value the VBA port originally used, with
- * neutrals kept on the ROOS grey (slate) scale. Values are #RRGGBB strings.
+ * Brand palette — the ROOS (RVO Open Ontwerp Systeem) colour tokens. The data colours are the ROOS
+ * series palette verbatim; every other colour is a ROOS token, with neutrals on the ROOS grey
+ * (slate) scale. Values are #RRGGBB strings.
  *
  * PURE: this module must never import `Excel`/`Office`.
  */
@@ -17,18 +16,12 @@ export const colorBrand1: Hex = "#154273";
 export const colorBrand2: Hex = "#0F172A";
 /** Zwart; used for dark label/axis text and as the light-fill contrast colour. */
 export const colorBrand3: Hex = "#000000";
-/** Grijs-050. */
-export const colorBrandLightGrey: Hex = "#F8FAFC";
 /** Diverging-ramp neutral centre (Grijs-050) — the grey middle series for odd counts. */
 export const colorBrand4: Hex = "#F8FAFC";
 
 // --- Neutral colors (ROOS grey scale) ------------------------------------------------------
-/** Grijs-200. */
-export const colorNeutral1: Hex = "#E2E8F0";
 /** Grijs-300. */
 export const colorNeutral2: Hex = "#CBD5E1";
-/** Grijs-400. */
-export const colorNeutral3: Hex = "#94A3B8";
 /** Wit. */
 export const colorNeutral4: Hex = "#FFFFFF";
 

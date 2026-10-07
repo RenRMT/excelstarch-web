@@ -60,7 +60,6 @@ npm run build    # production build into dist/
 - **Layout:** `src/config/` (palette, fonts, geometry) and `src/logic/` are pure and covered by
   unit tests. `src/excel/` and `src/chrome/` call Office.js and are tested by sideloading; see
   [docs/testing-manual.md](docs/testing-manual.md).
-- **Colours:** colours and ramps must match [reference/roos-palette.json](reference/roos-palette.json).
-  A parity test enforces this.
+- **Colours and fonts:** all palette, ramp and font values live in `src/config/`.
 - **Releases:** pull requests run tests and the build in CI. Merging to `main` deploys to
   GitHub Pages. Installed add-ins pick up the new version automatically.

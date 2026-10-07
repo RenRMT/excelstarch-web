@@ -32,4 +32,5 @@ coverage/
 # Local Claude Code config — not part of the project handoff
 .claude/
 
-# NOTE: reference/ IS committed — it is the auditable input to the port.
+# Local-only reference material (VBA source snapshot, palette source). Not published.
+reference/
