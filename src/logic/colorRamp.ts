@@ -4,21 +4,22 @@
  * `StepPriority`/`PriorityStepsSorted`). The object-model fill loops (`BuildColorRamp`,
  * `BuildDivergingRamp`) are NOT here — they belong to the Phase-1 `excel/` layer.
  *
- * Step indices are 1-based palette steps (1 = lightest … 10 = darkest), matching the ramp tuples
- * when indexed as `ramp[step - 1]`.
+ * Step indices are 1-based palette steps (1 = lightest … 6 = darkest, the ROOS base colour),
+ * matching the ramp tuples when indexed as `ramp[step - 1]`.
  *
  * PURE: this module must never import `Excel`/`Office`.
  */
 
 /**
  * The fixed step-selection priority: which palette steps to use, and in what preference order,
- * as the series count grows. Shared by single and diverging ramps.
+ * as the series count grows. Shared by single and diverging ramps. The base colour (6) comes first;
+ * the lightest tint (1) last.
  */
-const STEP_PRIORITY: readonly number[] = [6, 2, 4, 3, 5, 7, 8, 1, 9, 10];
+const STEP_PRIORITY: readonly number[] = [6, 2, 4, 3, 5, 1];
 
 /**
- * The first `count` priority steps, sorted ascending (1 = lightest … 10 = darkest).
- * `count <= 0` yields an empty array. `count` must be 0..10.
+ * The first `count` priority steps, sorted ascending (1 = lightest … 6 = darkest).
+ * `count <= 0` yields an empty array. `count` must be 0..6.
  */
 export function priorityStepsSorted(count: number): number[] {
   if (count <= 0) return [];

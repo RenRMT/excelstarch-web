@@ -10,7 +10,7 @@ interface ChromeTextPanelProps {
 
 const useStyles = makeStyles({
   panel: { display: "flex", flexDirection: "column", rowGap: "10px" },
-  hint: { color: "#605e5c" },
+  hint: { color: "#475569" }, // ROOS Grijs-600
 });
 
 interface FieldDef {
@@ -22,7 +22,6 @@ interface FieldDef {
 }
 
 const FIELDS: FieldDef[] = [
-  { field: "figure", label: "Figure number" },
   { field: "title", label: "Title" },
   { field: "subtitle", label: "Subtitle" },
   { field: "source", label: "Source", multiline: true },

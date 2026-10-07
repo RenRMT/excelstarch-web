@@ -61,3 +61,19 @@ for f in modConfig modConfigDerived modColorRamp modColorContrast modColorFill \
 done
 # then update the Commit SHA / Branch fields above
 ```
+
+## ROOS palette (`roos-kleurenkiezer.html`)
+
+The colours no longer come from the VBA snapshot. `roos-kleurenkiezer.html` is the ROOS
+(RVO Open Ontwerp Systeem) colour picker, committed verbatim as the source of every colour:
+
+- **Data colours** (`colorData1..8`) are its `REEKSPALET`, in order.
+- **Ramps** are its nine `RAMPS` (six tints each, 150 → base). They replace the eight
+  ten-step VBA ramps.
+- **Chart title** colour is Lintblauw.
+- **Every other colour** is the nearest ROOS token (CIEDE2000) to the colour the VBA port used,
+  with neutrals kept on the ROOS grey scale.
+
+`test/config/roos-parity.test.ts` parses this file and checks the ported values against it.
+The `colors`, `ramps`, `rampNames`, `divergingTags`, logo and figure-box entries in `spec.json`
+are kept for history only and are no longer used.

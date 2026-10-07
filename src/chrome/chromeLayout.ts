@@ -12,8 +12,6 @@
 import {
   chartWidth,
   chartHeight,
-  figureBoxTop,
-  figureBoxHeight,
   titleBoxTop,
   titleBoxHeight,
   titleBoxWidth,
@@ -23,10 +21,6 @@ import {
   sourceBoxWidth,
   yAxisLabelTopNoLegend,
   yAxisLabelHeight,
-  logoHeight,
-  logoAspectRatio,
-  logoMarginRight,
-  logoMarginBottom,
   plotAreaLeft,
   plotAreaTopFor,
   plotAreaHeightFor,
@@ -43,11 +37,9 @@ export interface Box {
 /** Positions for every chrome shape on the canvas (yAxis present only when requested). */
 export interface ChromePositions {
   canvas: Box;
-  figure: Box;
   title: Box;
   subtitle: Box;
   source: Box;
-  logo: Box;
   yAxis?: Box;
 }
 
@@ -61,17 +53,9 @@ export function chromePositions(
   baseTop: number,
   showYAxisTitle: boolean
 ): ChromePositions {
-  const logoWidth = logoHeight * logoAspectRatio;
-
   const positions: ChromePositions = {
     // White 600×600 backdrop, sent to back so the chart + chrome render on top.
     canvas: { left: baseLeft, top: baseTop, width: chartWidth, height: chartHeight },
-    figure: {
-      left: baseLeft,
-      top: baseTop + figureBoxTop,
-      width: titleBoxWidth,
-      height: figureBoxHeight,
-    },
     title: {
       left: baseLeft,
       top: baseTop + titleBoxTop,
@@ -84,19 +68,12 @@ export function chromePositions(
       width: titleBoxWidth,
       height: subtitleBoxHeight,
     },
-    // Source box anchored at the canvas bottom-left; shares the bottom band with the logo.
+    // Source (footer) box anchored at the canvas bottom-left; the chart band ends at its top edge.
     source: {
       left: baseLeft,
       top: baseTop + chartHeight - sourceBoxHeight,
       width: sourceBoxWidth,
       height: sourceBoxHeight,
-    },
-    // Logo bottom-right, scaled against the fixed canvas.
-    logo: {
-      left: baseLeft + chartWidth - logoWidth - logoMarginRight,
-      top: baseTop + chartHeight - logoHeight - logoMarginBottom,
-      width: logoWidth,
-      height: logoHeight,
     },
   };
 
@@ -114,7 +91,7 @@ export function chromePositions(
 
 /**
  * The chart object's position as a band inset into the canvas, leaving the title block above and
- * the logo/source band below. Ported from `PositionChartExChart`: we set the CHART size/position,
+ * the source (footer) box below. Ported from `PositionChartExChart`: we set the CHART size/position,
  * not an internal plot area.
  */
 export function chartBandPosition(

@@ -16,14 +16,13 @@ import { resolveChromeText } from "../logic/chromeText";
 import {
   titlePlaceholder,
   subtitlePlaceholder,
-  figurePlaceholder,
   yAxisPlaceholder,
   sourcePlaceholder,
   notesPlaceholder,
 } from "../config/text";
 
 /** Editable chrome fields exposed by the task pane. */
-export type ChromeField = "title" | "subtitle" | "figure" | "yAxis" | "source" | "notes";
+export type ChromeField = "title" | "subtitle" | "yAxis" | "source" | "notes";
 
 /** Map a single-box field to its shape suffix + placeholder. */
 const SINGLE_BOX: Record<
@@ -32,7 +31,6 @@ const SINGLE_BOX: Record<
 > = {
   title: { suffix: "title", placeholder: titlePlaceholder },
   subtitle: { suffix: "subtitle", placeholder: subtitlePlaceholder },
-  figure: { suffix: "figure", placeholder: figurePlaceholder },
   yAxis: { suffix: "yAxis", placeholder: yAxisPlaceholder },
 };
 

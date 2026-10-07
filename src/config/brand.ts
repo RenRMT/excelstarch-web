@@ -1,8 +1,8 @@
 /**
- * Brand palette — ported from `reference/spec.json` (`colors.*`), which is the reviewed,
- * BGR→hex-converted snapshot of `modConfig.bas` on the pinned `demo/inso-brand-colors` commit.
- * Values are #RRGGBB strings; the VBA original stored Excel BGR `Long`s, but the whole port
- * works in hex so there is no per-call BGR conversion.
+ * Brand palette — mapped onto the ROOS (RVO Open Ontwerp Systeem) colour tokens in
+ * `reference/roos-kleurenkiezer.html`. The data colours are the ROOS series palette verbatim; every
+ * other colour is the nearest ROOS token (CIEDE2000) to the value the VBA port originally used, with
+ * neutrals kept on the ROOS grey (slate) scale. Values are #RRGGBB strings.
  *
  * PURE: this module must never import `Excel`/`Office`.
  */
@@ -10,35 +10,40 @@
 /** A `#RRGGBB` color string. */
 export type Hex = string;
 
-export const orgName = "INSO" as const;
+// --- Brand colors --------------------------------------------------------------------------
+/** Lintblauw — chart title colour. */
+export const colorBrand1: Hex = "#154273";
+/** Grijs-900 — subtitle colour. */
+export const colorBrand2: Hex = "#0F172A";
+/** Zwart; used for dark label/axis text and as the light-fill contrast colour. */
+export const colorBrand3: Hex = "#000000";
+/** Grijs-050. */
+export const colorBrandLightGrey: Hex = "#F8FAFC";
+/** Diverging-ramp neutral centre (Grijs-050) — the grey middle series for odd counts. */
+export const colorBrand4: Hex = "#F8FAFC";
 
-// --- Brand colors (spec.colors.brand) -----------------------------------------------------
-export const colorBrand1: Hex = "#1B4BA7";
-export const colorBrand2: Hex = "#07142C";
-/** Near-black; used for dark label/axis text and as the light-fill contrast colour. */
-export const colorBrand3: Hex = "#02020A";
-export const colorBrandLightGrey: Hex = "#F9F9F9";
-/** Diverging-ramp neutral centre (#F9F9F9) — the grey middle series for odd counts. */
-export const colorBrand4: Hex = "#F9F9F9";
-
-// --- Neutral colors (spec.colors.neutral) --------------------------------------------------
-export const colorNeutral1: Hex = "#DDDDDD";
-export const colorNeutral2: Hex = "#BBBBBB";
-export const colorNeutral3: Hex = "#9C9C9C";
+// --- Neutral colors (ROOS grey scale) ------------------------------------------------------
+/** Grijs-200. */
+export const colorNeutral1: Hex = "#E2E8F0";
+/** Grijs-300. */
+export const colorNeutral2: Hex = "#CBD5E1";
+/** Grijs-400. */
+export const colorNeutral3: Hex = "#94A3B8";
+/** Wit. */
 export const colorNeutral4: Hex = "#FFFFFF";
 
 /** Semantic alias — use for axis/border white styling and as the dark-fill contrast colour. */
 export const colorWhite: Hex = colorNeutral4;
 
-// --- Data series colors (spec.colors.data) -------------------------------------------------
-export const colorData1: Hex = "#0077BB";
-export const colorData2: Hex = "#FF8866";
-export const colorData3: Hex = "#77CCFF";
-export const colorData4: Hex = "#009988";
-export const colorData5: Hex = "#FFDD33";
-export const colorData6: Hex = "#AA4400";
-export const colorData7: Hex = "#AA99EE";
-export const colorData8: Hex = "#BBBBBB";
+// --- Data series colors (the ROOS reekspalet, in order) ------------------------------------
+export const colorData1: Hex = "#007BC7"; // Hemelblauw
+export const colorData2: Hex = "#E89440"; // Oranje-750
+export const colorData3: Hex = "#CB66A0"; // Violet-600
+export const colorData4: Hex = "#6BA549"; // Groen-750
+export const colorData5: Hex = "#FFDE94"; // Donkergeel-450
+export const colorData6: Hex = "#E06056"; // Rood-750
+export const colorData7: Hex = "#8FCAE7"; // Lichtblauw
+export const colorData8: Hex = "#94A3B8"; // Grijs-400: always "other" / "previous period"
 
 /** The eight data colours in declaration order, 0-based. */
 export const dataColors: readonly Hex[] = [

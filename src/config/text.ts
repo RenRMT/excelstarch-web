@@ -5,7 +5,6 @@
  *
  * PURE: this module must never import `Excel`/`Office`.
  */
-export const figurePlaceholder = "Figure XX (optional)";
 export const titlePlaceholder = "Title in 28pt sentence case";
 export const subtitlePlaceholder = "Subtitle in 22pt sentence case";
 export const yAxisPlaceholder = "Y axis title (unit)";

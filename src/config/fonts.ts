@@ -15,7 +15,6 @@ export const fontPrimary = "Calibri";
 // --- Sizes (spec.fonts.sizes) --------------------------------------------------------------
 export const titleFontSize = 28;
 export const subtitleFontSize = 22;
-export const figureFontSize = 18;
 export const axisFontSize = 18;
 export const sourceFontSize = 14;
 export const generalFontSize = 18;
@@ -23,7 +22,6 @@ export const generalFontSize = 18;
 // --- Colours (spec.fonts.colors → brand palette) -------------------------------------------
 export const titleFontColor: Hex = colorBrand1;
 export const subtitleFontColor: Hex = colorBrand2;
-export const figureFontColor: Hex = colorBrand3;
 export const axisFontColor: Hex = colorBrand3;
 export const legendFontColor: Hex = colorBrand3;
 export const sourceFontColor: Hex = colorBrand3;

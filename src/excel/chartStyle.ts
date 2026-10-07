@@ -2,7 +2,7 @@
 /**
  * Non-shape chart formatting — the part of `modEngineBuilder`/`ApplyDefaultFormatting` that lives
  * on the chart object (gridlines, axis visibility, axis/gridline line styling, legend), as opposed
- * to the chrome text/logo (which are worksheet shapes in chrome/).
+ * to the chrome text (which are worksheet shapes in chrome/).
  *
  * Driven by the per-type `ChartDefaults`: e.g. column shows Y-axis gridlines and both axes; pie and
  * treemap display no axes (and treemap no legend). Axis styling is gated on `axisDisplay` so a

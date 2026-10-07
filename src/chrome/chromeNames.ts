@@ -11,13 +11,17 @@
  */
 export const chromeSuffix = {
   canvas: "_Canvas",
-  figure: "_FigureBox",
   title: "_TitleBox",
   subtitle: "_SubTitleBox",
   source: "_SourceBox",
-  logo: "_LogoImage",
   yAxis: "_YAxisTitle",
 } as const;
+
+/**
+ * Shapes earlier versions built but no longer do (figure-number box, logo image). Kept only so a
+ * rebuild of an older chart deletes them instead of leaving them orphaned.
+ */
+export const legacyChromeSuffixes: readonly string[] = ["_FigureBox", "_LogoImage"];
 
 export type ChromeSuffixKey = keyof typeof chromeSuffix;
 

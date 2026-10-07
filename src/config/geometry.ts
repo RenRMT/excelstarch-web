@@ -16,7 +16,6 @@ export const chartWidth = 600;
 export const chartHeight = 600;
 
 // --- Box proportions (spec.geometry.boxProportions) ----------------------------------------
-const figureBoxHeightProportion = 0.04;
 const titleBoxHeightProportion = 0.07;
 const subtitleBoxHeightProportion = 0.05;
 const yAxisLabelHeightProportion = 0.04;
@@ -33,31 +32,15 @@ export const plotAreaLeftProportion = 0.005;
 /** Flat point pad below the y-axis-label strip (not a proportion). */
 export const yAxisLabelPad = 10;
 
-// --- Logo geometry (spec.geometry.logo) ----------------------------------------------------
-const logoHeightScale = 0.1;
-const logoMarginRightProp = 0.01;
-const logoMarginBottomProp = 0.01;
-export const logoAspectRatio = 2.08;
-export const logoHeight = chartHeight * logoHeightScale;
-export const logoMarginBottom = chartHeight * logoMarginBottomProp;
-export const logoTop = chartHeight - logoHeight - logoMarginBottom;
-export const logoMarginRight = chartWidth * logoMarginRightProp;
-
-// --- Plot-area bottom margin (spec.geometry.plotAreaBottomMarginProp) ----------------------
-const plotAreaBottomMarginProp = 0.03;
-export const plotAreaBottomMargin = chartHeight * plotAreaBottomMarginProp;
-
-// --- Title area (modConfigDerived: figure / title / subtitle bands) ------------------------
-export const figureBoxTop = 0;
-export const figureBoxHeight = chartHeight * figureBoxHeightProportion;
-export const titleBoxTop = figureBoxHeight;
+// --- Title area (title at the very top, subtitle below it) ---------------------------------
+export const titleBoxTop = 0;
 export const titleBoxHeight = chartHeight * titleBoxHeightProportion;
 export const subtitleBoxTop = titleBoxTop + titleBoxHeight;
 export const subtitleBoxHeight = chartHeight * subtitleBoxHeightProportion;
 export const titleBoxWidth = chartWidth * titleBoxWidthProportion;
 export const titleBoxNudge = chartWidth * titleBoxNudgeProportion;
-/** Combined title-band height (figure + title + subtitle); used in plot-area maths. */
-export const calcTitlesHeight = figureBoxHeight + titleBoxHeight + subtitleBoxHeight;
+/** Combined title-band height (title + subtitle); used in plot-area maths. */
+export const calcTitlesHeight = titleBoxHeight + subtitleBoxHeight;
 
 // --- Legend strip --------------------------------------------------------------------------
 export const legendTop = calcTitlesHeight;
@@ -68,17 +51,19 @@ export const yAxisLabelTop = calcTitlesHeight + legendHeight;
 export const yAxisLabelHeight = chartHeight * yAxisLabelHeightProportion;
 export const yAxisLabelTopNoLegend = calcTitlesHeight;
 
-// --- X-axis title strip (mirrors the Y strip; sits just above the logo/source band) --------
+// --- Source (footer) box -------------------------------------------------------------------
+export const sourceBoxWidth = chartWidth * sourceBoxWidthProportion;
+export const sourceBoxHeight = chartHeight * sourceBoxHeightProportion;
+/** Top edge of the footer; the plot band ends here. */
+export const sourceBoxTop = chartHeight - sourceBoxHeight;
+
+// --- X-axis title strip (mirrors the Y strip; sits just above the footer) ------------------
 export const xAxisLabelHeight = yAxisLabelHeight;
-export const xAxisLabelTop = chartHeight - logoHeight - plotAreaBottomMargin - xAxisLabelHeight;
+export const xAxisLabelTop = sourceBoxTop - xAxisLabelHeight;
 
 // --- Plot area (fixed dimensions; Top/Height are computed by the helpers below) ------------
 export const plotAreaWidth = chartWidth;
 export const plotAreaLeft = chartWidth * plotAreaLeftProportion;
-
-// --- Source box ----------------------------------------------------------------------------
-export const sourceBoxWidth = chartWidth * sourceBoxWidthProportion;
-export const sourceBoxHeight = chartHeight * sourceBoxHeightProportion;
 
 // --- Pie / donut geometry (spec.geometry.pie) ----------------------------------------------
 export const pieLegendGap = 6;
@@ -120,15 +105,10 @@ export function plotAreaTopFor(showY: boolean, hasLegend: boolean): number {
 }
 
 /**
- * Plot-area Height: the canvas below the top band, less the x-title strip (when shown) and the
- * always-reserved bottom margin + logo. Ported from `PlotAreaHeightFor` in `modEngineBuilder.bas`.
+ * Plot-area Height: from the top band down to the footer (source box) top edge, less the x-title
+ * strip when shown. Adapted from `PlotAreaHeightFor` in `modEngineBuilder.bas`, which reserved a
+ * bottom margin plus a logo band instead.
  */
 export function plotAreaHeightFor(showY: boolean, showX: boolean, hasLegend: boolean): number {
-  return (
-    chartHeight -
-    plotAreaTopFor(showY, hasLegend) -
-    (showX ? xAxisLabelHeight : 0) -
-    plotAreaBottomMargin -
-    logoHeight
-  );
+  return sourceBoxTop - plotAreaTopFor(showY, hasLegend) - (showX ? xAxisLabelHeight : 0);
 }

@@ -16,16 +16,13 @@ import {
   fontPrimary,
   titleFontSize,
   subtitleFontSize,
-  figureFontSize,
   axisFontSize,
   sourceFontSize,
   titleFontColor,
   subtitleFontColor,
-  figureFontColor,
   axisFontColor,
 } from "../config/fonts";
 import {
-  figurePlaceholder,
   titlePlaceholder,
   subtitlePlaceholder,
   yAxisPlaceholder,
@@ -77,15 +74,6 @@ function addTextBoxShape(
   return shape;
 }
 
-export function addFigureBox(sheet: Excel.Worksheet, chartName: string, pos: Box): Excel.Shape {
-  return addTextBoxShape(sheet, chartName, "figure", pos, figurePlaceholder, {
-    size: figureFontSize,
-    color: figureFontColor,
-    bold: false,
-    italic: false,
-  });
-}
-
 export function addTitleBox(sheet: Excel.Worksheet, chartName: string, pos: Box): Excel.Shape {
   return addTextBoxShape(sheet, chartName, "title", pos, titlePlaceholder, {
     size: titleFontSize,
@@ -124,24 +112,4 @@ export function addYAxisTitle(sheet: Excel.Worksheet, chartName: string, pos: Bo
     bold: false,
     italic: true,
   });
-}
-
-/**
- * Logo image bottom-right. Returns null if `addImage` throws (e.g. host rejects the payload) so
- * the rest of the chrome is still built — the caller records a warning.
- */
-export function addLogo(
-  sheet: Excel.Worksheet,
-  chartName: string,
-  logoBase64: string,
-  pos: Box
-): Excel.Shape | null {
-  try {
-    const shape = sheet.shapes.addImage(logoBase64);
-    shape.name = chromeShapeName(chartName, "logo");
-    positionShape(shape, pos);
-    return shape;
-  } catch {
-    return null;
-  }
 }

@@ -10,7 +10,7 @@ import {
 } from "../../src/logic/colorRamp";
 
 describe("orderedRampSteps", () => {
-  // Priority is [6,2,4,3,5,7,8,1,9,10]; take the first n, sort ascending, reverse (darkest first).
+  // Priority is [6,2,4,3,5,1]; take the first n, sort ascending, reverse (darkest first).
   it("n=1: the single darkest priority step", () => {
     expect(orderedRampSteps(1)).toEqual([6]);
   });
@@ -27,8 +27,8 @@ describe("orderedRampSteps", () => {
     expect(orderedRampSteps(5)).toEqual([6, 5, 4, 3, 2]);
   });
 
-  it("n=10: full set, darkest (10) to lightest (1)", () => {
-    expect(orderedRampSteps(10)).toEqual([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+  it("n=6: full set, base (6) to lightest tint (1)", () => {
+    expect(orderedRampSteps(6)).toEqual([6, 5, 4, 3, 2, 1]);
   });
 });
 

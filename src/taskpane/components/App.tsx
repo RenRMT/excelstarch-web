@@ -4,8 +4,7 @@ import Header from "./Header";
 import ChartCreatorPanel from "./ChartCreatorPanel";
 import ChromeTextPanel from "./ChromeTextPanel";
 import type { Status } from "./status";
-import { orgName } from "../../config/brand";
-import logoUrl from "../../../assets/logo.png";
+import logoUrl from "../../../assets/logo_empty_dark.png";
 
 interface AppProps {
   title: string;
@@ -30,7 +29,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
 
   return (
     <div className={styles.root}>
-      <Header logo={logoUrl} title={props.title} message={`${orgName} chart builder`} />
+      <Header logo={logoUrl} title={props.title} message="Excel chart builder" />
       <main className={styles.body}>
         {status && (
           <MessageBar key={status.title} intent={status.intent} className={styles.status}>

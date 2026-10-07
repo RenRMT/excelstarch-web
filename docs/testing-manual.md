@@ -70,7 +70,7 @@ series** for the colouring edge cases later.
    - [ ] A chart is created on the worksheet (embedded, not a chart sheet).
    - [ ] Canvas is **600 × 600 points** (right-click chart → Format → Size; or trust the layout —
          it should be a visibly square canvas).
-   - [ ] Series use the **brand data palette** in order (Ocean, Coral, Sky, … = `colorData1..8`).
+   - [ ] Series use the **brand data palette** in order (ROOS Hemelblauw, Oranje-750, Violet-600, … = `colorData1..8`).
    - [ ] Gridlines match the type: **column → Y-gridlines only**, **bar → X-gridlines only**.
    - [ ] Axes/legend match the chart-type defaults (bar/column: both axes shown, legend off by default).
 
@@ -80,13 +80,14 @@ Office.js charts cannot host in-chart shapes, so chrome is built as **worksheet 
 the chart** (generalizing `modEngineExChrome.bas`). Verify:
 
 - [ ] A white **canvas rectangle** sits behind the chart (sent to back).
-- [ ] **Title, subtitle, figure-number, source/notes** text boxes appear at the branded positions
-      with the correct fonts/sizes/colours (title 28pt `colorBrand1`, subtitle 22pt `colorBrand2`,
-      figure 18pt `colorBrand3`, source 14pt `colorBrand3`).
-- [ ] The **logo** appears bottom-right at the branded margin.
+- [ ] **Title, subtitle, source/notes** text boxes appear at the branded positions with the correct
+      fonts/sizes/colours (title 28pt Lintblauw `colorBrand1`, subtitle 22pt `colorBrand2`, source
+      14pt `colorBrand3`). The title sits at the very top of the canvas; there is **no figure-number
+      box and no logo**.
+- [ ] The bottom of the chart lines up with the top of the source/notes (footer) box.
 - [ ] Selecting any one element and dragging moves the **whole group together** (chart + canvas +
-      text + logo) — i.e. they are grouped, named `ESChromeGroup_<chartName>`.
-- [ ] Placeholder text matches the spec (`"Title in 28pt sentence case"`, `"Figure XX (optional)"`,
+      text) — i.e. they are grouped, named `ESChromeGroup_<chartName>`.
+- [ ] Placeholder text matches the spec (`"Title in 28pt sentence case"`,
       `"Source: Source text goes here."`, etc.).
 
 ### 3.3 Re-run / reuse-canvas behaviour
@@ -110,7 +111,7 @@ the chart** (generalizing `modEngineExChrome.bas`). Verify:
 The VBA `Selection`-driven click-to-edit model is gone; chrome text is edited from the task pane.
 
 1. With a branded chart present (and selected, if the resolver requires it), open the chart-text panel.
-2. Type into the **Title / Subtitle / Figure / Y-axis / Source / Notes** fields.
+2. Type into the **Title / Subtitle / Y-axis / Source / Notes** fields.
 3. Verify:
    - [ ] Each field writes to the matching shape's `textFrame.textRange.text` — the chart chrome
          updates live (or on apply, per the panel's design).
@@ -139,7 +140,7 @@ For each classic type (line, area, scatter, pie):
       Confirm slices are distinctly coloured (not one flat colour). Try a fixture with 3 and with 8+
       categories (>8 falls back to neutral per `getPaletteColor`).
 - [ ] **Pie band/legend layout:** legend sits below the subtitle without overlap; the no-axes band
-      (`chartBandPosition(false,false,true)`) leaves the title block above and logo/source below.
+      (`chartBandPosition(false,false,true)`) leaves the title block above and the source box below.
 - [ ] **Scatter axis/marker (HIGH-risk path):** scatter has two value axes (no category axis).
       Confirm `applyChartStyle` does not throw and the chart shows the intended X/Y gridlines + axes,
       and that markers pick up the brand colour. If markers don't colour, note the `IsLineTarget`
@@ -170,14 +171,14 @@ For the chartex types (treemap, box & whisker — both ExcelApi 1.9, same gate a
 Use the multi-series fixtures. The **pure** ordering math is already Jest-proven; here you confirm it
 is wired to the host correctly.
 
-- [ ] **Palette** recolours series in brand order; the **Rainbow/Contrasting toggle** swaps slot 2↔
-      Lavender and slot 6↔Coral (matches `getPaletteColor` with/without alt order).
-- [ ] **Single-hue ramp** (e.g. Ocean): series go **darkest-first** (series 1 darkest), n=1..10.
-      Spot-check n=3 → steps `[6,4,2]` of the ramp; n=10 → all ten darkest→lightest.
-- [ ] **Diverging ramp** (e.g. `A|B`): dark→light on the left, light→dark on the right; **odd series
+- [ ] **Palette** recolours series in brand order; the **Rainbow/Contrasting toggle** swaps slots 2
+      and 6 (matches `getPaletteColor` with/without alt order).
+- [ ] **Single-hue ramp** (e.g. Hemelblauw): series go **darkest-first** (series 1 darkest), n=1..6.
+      Spot-check n=3 → steps `[6,4,2]` of the ramp; n=6 → all six ROOS tints, base→150.
+- [ ] **Diverging ramp** (e.g. `Rood|Groen`): dark→light on the left, light→dark on the right; **odd series
       count gets a grey centre** (`colorBrand4`), even count does not. Try n=5 (grey middle) and n=8.
 - [ ] **Invert** reverses the current fill assignment across all series.
-- [ ] Over-limit guard: >10 series for a single ramp, or >21 for diverging, shows the non-blocking
+- [ ] Over-limit guard: >6 series for a single ramp, or >13 for diverging, shows the non-blocking
       "too many series" message instead of mis-colouring.
 
 ### 5.3 Per-element fill (element selector)
@@ -210,7 +211,7 @@ setting, like the VBA).
 - [ ] **New/clean workbook:** the pane opens with the **hard defaults** (first ramp, first diverging
       tag, DATA1 fill, Contrasting order) and does not error when no settings are stored.
 - [ ] **Failed/cancelled apply does not overwrite** last-used: trigger an over-limit error (e.g. a
-      single ramp on >10 series), then reopen the pane — the previously-saved ramp is still shown.
+      single ramp on >6 series), then reopen the pane — the previously-saved ramp is still shown.
 - [ ] Persistence is **best-effort/silent**: a save failure never shows an error or blocks the apply.
 
 ---
@@ -233,14 +234,14 @@ see the chrome-overlay skill.)
 
 **Decide the path first (decision #0):**
 
-- [ ] Export PNG and open the file: it shows the **chart pixels + white canvas + title/subtitle/figure/
-      source/logo** all composited. If only the chrome (or an empty/partial image) appears, the host's
+- [ ] Export PNG and open the file: it shows the **chart pixels + white canvas + title/subtitle/
+      source** all composited. If only the chrome (or an empty/partial image) appears, the host's
       group `getAsImage` doesn't capture children → the **canvas fallback** must be the primary path
       on that host; record it.
 
 **Then verify the rest:**
 
-- [ ] **Z-order:** chart sits over the white canvas with the text/logo legible on top, nothing clipped.
+- [ ] **Z-order:** chart sits over the white canvas with the text legible on top, nothing clipped.
 - [ ] **Cleanup is exact:** after export the on-sheet chart + chrome are **unchanged** — the group is
       still named `ESChromeGroup_<chartName>`, all members present, and **no leftover
       `<chartName>_ExportChartPic`**. Then re-run create/restyle and confirm it still finds and cleans
