@@ -21,6 +21,7 @@ import {
   titleFontColor,
   subtitleFontColor,
   axisFontColor,
+  sourceFontColor,
 } from "../config/fonts";
 import {
   titlePlaceholder,
@@ -100,7 +101,7 @@ export function addSourceBox(sheet: Excel.Worksheet, chartName: string, pos: Box
     "source",
     pos,
     `${sourcePlaceholder}\n${notesPlaceholder}`,
-    { size: sourceFontSize, color: axisFontColor, bold: false, italic: false }
+    { size: sourceFontSize, color: sourceFontColor, bold: false, italic: false }
   );
 }
 

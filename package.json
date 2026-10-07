@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RenRMT/ExcelStarch.git"
+    "url": "https://github.com/RenRMT/excelstarch-web.git"
   },
   "license": "MIT",
   "config": {
@@ -74,7 +74,6 @@
   },
   "prettier": "office-addin-prettier-config",
   "browserslist": [
-    "last 2 versions",
-    "ie 11"
+    "last 2 versions"
   ]
 }

@@ -1,26 +1,24 @@
 # Manual sideload testing — the interop layers Jest cannot cover
 
-The pure `config/` and `logic/` layers are unit-tested with Jest (`npm test`) — see
-[`testing-with-jest`](../.claude/skills/testing-with-jest/SKILL.md). Everything that touches the
-live Office host is **not** unit-tested and must be verified by sideloading the add-in into a real
+The pure `config/` and `logic/` layers are unit-tested with Jest (`npm test`). Everything that
+touches the live Office host is **not** unit-tested and must be verified by sideloading the add-in into a real
 Excel. This document is the canonical checklist for that.
 
-> **Why manual?** `excel/`, `chrome/`, and `export/` call `Excel.run` and manipulate the workbook
+> **Why manual?** `excel/` and `chrome/` call `Excel.run` and manipulate the workbook
 > object model, charts, and worksheet shapes. Mocking the entire Office object model is brittle and
 > proves nothing about real host behaviour — so we sideload instead. The decision boundary: if a
 > function imports `Excel`/`Office`, it is sideload-tested, not Jested.
 
 ## Scope by phase
 
-This guide is written so each section maps to a phased delivery exit in
-[`conversion-plan.md`](conversion-plan.md). Run only the sections whose phase has shipped.
+Each section maps to a delivery phase of the original port. Phases 0–2 have shipped; the planned
+Phase 3 (toggles, export, annotation) was not built.
 
 | Phase | What to sideload-test | Section |
 |-------|-----------------------|---------|
 | 0 | Nothing — no interop yet. `npm test` green is the whole gate. | — |
 | 1 | Bar + column creation, branded styling, the worksheet-chrome group, chart-text panel. | [§3](#3-phase-1--chart-creation-styling-and-chrome), [§4](#4-phase-1--chart-text-chrome-panel) |
 | 2 | Remaining chart types, full colour tooling, per-element fill, last-used persistence. | [§5](#5-phase-2--colour-tooling-and-breadth) |
-| 3 | Toggles, restyle, export (canvas composite), annotation. | [§6](#6-phase-3--toggles-export-annotation) |
 | every | Requirement-set gating, cross-platform smoke. | [§7](#7-requirement-set-gating), [§8](#8-cross-platform-smoke) |
 
 ---
@@ -33,8 +31,6 @@ This guide is written so each section maps to a phased delivery exit in
   the usual cause — re-run `npx office-addin-dev-certs install`.
 - Excel: at least one of **Excel on the web** (Microsoft 365), **Excel for Windows**, or
   **Excel for Mac**. Cross-platform parity is a project requirement, so test more than one when you can.
-- The original VBA add-in (`ExcelStarch.xlsm` on the pinned `demo/inso-brand-colors` build) open in a
-  second window for **side-by-side visual comparison** — the fidelity bar is "matches the VBA output."
 
 ## 2. Sideloading
 
@@ -216,49 +212,6 @@ setting, like the VBA).
 
 ---
 
-## 6. Phase 3 — toggles, export, annotation
-
-### 6.1 Toggles & restyle
-
-- [ ] Each of the 5 toggles flips its target on the resolved chart (gridlines, axes, legend, …)
-      without ungrouping chrome.
-- [ ] **Restyle / ApplyChartStyle** re-applies branding to an existing chart.
-
-### 6.2 Export (group-image composite — verify the primary path first)
-
-`chart.getImage()` is **bare-chart JPEG only** (no chrome). The primary export rasterizes the chart,
-temporarily adds it into the chrome group, images the **group** with `Shape.getAsImage` (ExcelApi 1.9,
-native PNG/JPEG), then restores the sheet. An HTML-`<canvas>` composite is the fallback if a host's
-group `getAsImage` doesn't capture child shapes. (Background: the chart can't be a real group member —
-see the chrome-overlay skill.)
-
-**Decide the path first (decision #0):**
-
-- [ ] Export PNG and open the file: it shows the **chart pixels + white canvas + title/subtitle/
-      source** all composited. If only the chrome (or an empty/partial image) appears, the host's
-      group `getAsImage` doesn't capture children → the **canvas fallback** must be the primary path
-      on that host; record it.
-
-**Then verify the rest:**
-
-- [ ] **Z-order:** chart sits over the white canvas with the text legible on top, nothing clipped.
-- [ ] **Cleanup is exact:** after export the on-sheet chart + chrome are **unchanged** — the group is
-      still named `ESChromeGroup_<chartName>`, all members present, and **no leftover
-      `<chartName>_ExportChartPic`**. Then re-run create/restyle and confirm it still finds and cleans
-      the group (proves the group name was restored).
-- [ ] **Failure path:** if `getAsImage` fails, the sheet is restored (chart intact, no temp picture)
-      and a non-blocking error `MessageBar` shows — no crash.
-- [ ] **PNG and JPEG** both download and open; the composite visually matches the on-sheet chrome.
-- [ ] **Per host:** the download actually **saves** on Excel web (Edge/Chrome), Windows (WebView2), and
-      Mac (WKWebView — most restrictive; note if a dialog fallback is needed).
-
-### 6.3 Annotation (degraded — plot-centre box)
-
-- [ ] No per-point anchor (the web API has no point pixel coords); annotation appears as a
-      **plot-centre draggable box** that can be repositioned, per the degraded-feature decision.
-
----
-
 ## 7. Requirement-set gating
 
 The add-in requires **ExcelApi 1.9** (worksheet shapes). Features must be gated with
@@ -282,10 +235,10 @@ run at least §2 (loads) + §3.1–3.2 (create + chrome):
 ## 9. Reporting in the PR
 
 Per the testing rule, **interop changes ship with documented sideload steps in the PR description.**
-When a PR touches `excel/`, `chrome/`, or `export/`:
+When a PR touches `excel/` or `chrome/`:
 
 - State which sections of this guide you ran and on which platform(s).
-- Paste/attach a screenshot of the resulting chart next to the VBA reference where fidelity matters.
+- Paste/attach a screenshot of the resulting chart.
 - Note any checklist item that could not be verified (e.g. "Mac not available").
 
 `npm test` green is **necessary but not sufficient** when interop changed — sideload too.
