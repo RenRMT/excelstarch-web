@@ -11,10 +11,18 @@ import {
   yAxisLabelHeight,
   yAxisLabelPad,
   xAxisLabelHeight,
-  plotAreaBottomMargin,
-  logoHeight,
+  sourceBoxTop,
+  sourceBoxHeight,
+  titleBoxHeight,
+  subtitleBoxHeight,
   chartHeight,
 } from "../../src/config/geometry";
+
+describe("title band", () => {
+  it("is just the title + subtitle (no figure-number box)", () => {
+    expect(calcTitlesHeight).toBe(titleBoxHeight + subtitleBoxHeight);
+  });
+});
 
 describe("plotAreaTopFor", () => {
   it("top band = titles, plus legend strip and/or y-axis-label strip when shown", () => {
@@ -28,13 +36,14 @@ describe("plotAreaTopFor", () => {
 });
 
 describe("plotAreaHeightFor", () => {
-  it("height = canvas less top band, x-title strip (when shown), and reserved bottom + logo", () => {
+  it("height = top band down to the footer top, less the x-title strip when shown", () => {
+    expect(sourceBoxTop).toBe(chartHeight - sourceBoxHeight);
     expect(plotAreaHeightFor(true, true, true)).toBeCloseTo(
-      chartHeight - plotAreaTopFor(true, true) - xAxisLabelHeight - plotAreaBottomMargin - logoHeight,
+      sourceBoxTop - plotAreaTopFor(true, true) - xAxisLabelHeight,
       10
     );
     expect(plotAreaHeightFor(false, false, false)).toBeCloseTo(
-      chartHeight - plotAreaTopFor(false, false) - plotAreaBottomMargin - logoHeight,
+      sourceBoxTop - plotAreaTopFor(false, false),
       10
     );
   });

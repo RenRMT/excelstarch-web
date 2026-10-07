@@ -3,8 +3,7 @@ import { makeStyles, MessageBar, MessageBarBody, MessageBarTitle } from "@fluent
 import Header from "../taskpane/components/Header";
 import ColourPanel from "../taskpane/components/ColourPanel";
 import type { Status } from "../taskpane/components/status";
-import { orgName } from "../config/brand";
-import logoUrl from "../../assets/logo.png";
+import logoUrl from "../../assets/logo_empty_dark.png";
 
 interface ColorPickerAppProps {
   title: string;
@@ -33,7 +32,7 @@ const ColorPickerApp: React.FC<ColorPickerAppProps> = (props: ColorPickerAppProp
 
   return (
     <div className={styles.root}>
-      <Header logo={logoUrl} title={props.title} message={`${orgName} colour picker`} />
+      <Header logo={logoUrl} title={props.title} message="Excel colour picker" />
       <main className={styles.body}>
         {status && (
           <MessageBar key={status.title} intent={status.intent} className={styles.status}>

@@ -9,14 +9,9 @@ import { chromePositions, chartBandPosition } from "../../src/chrome/chromeLayou
 import {
   chartWidth,
   chartHeight,
-  figureBoxTop,
   titleBoxTop,
   subtitleBoxTop,
   sourceBoxHeight,
-  logoHeight,
-  logoAspectRatio,
-  logoMarginRight,
-  logoMarginBottom,
   yAxisLabelTopNoLegend,
   plotAreaLeft,
   plotAreaTopFor,
@@ -29,7 +24,7 @@ describe("chromePositions", () => {
     const p = chromePositions(base.left, base.top, false);
 
     expect(p.canvas).toEqual({ left: 100, top: 50, width: chartWidth, height: chartHeight });
-    expect(p.figure.top).toBeCloseTo(base.top + figureBoxTop, 10);
+    expect(p.title.top).toBeCloseTo(base.top, 10); // title sits at the very top
     expect(p.title.top).toBeCloseTo(base.top + titleBoxTop, 10);
     expect(p.subtitle.top).toBeCloseTo(base.top + subtitleBoxTop, 10);
 
@@ -38,15 +33,9 @@ describe("chromePositions", () => {
     expect(p.source.top).toBeCloseTo(base.top + chartHeight - sourceBoxHeight, 10);
   });
 
-  it("places the logo bottom-right with the correct width from aspect ratio", () => {
-    const base = { left: 0, top: 0 };
-    const p = chromePositions(base.left, base.top, false);
-    const expectedWidth = logoHeight * logoAspectRatio;
-
-    expect(p.logo.width).toBeCloseTo(expectedWidth, 10);
-    expect(p.logo.height).toBeCloseTo(logoHeight, 10);
-    expect(p.logo.left).toBeCloseTo(base.left + chartWidth - expectedWidth - logoMarginRight, 10);
-    expect(p.logo.top).toBeCloseTo(base.top + chartHeight - logoHeight - logoMarginBottom, 10);
+  it("builds no figure box or logo", () => {
+    const p = chromePositions(0, 0, true);
+    expect(Object.keys(p).sort()).toEqual(["canvas", "source", "subtitle", "title", "yAxis"]);
   });
 
   it("omits the y-axis box unless requested, includes it when asked", () => {
@@ -65,6 +54,12 @@ describe("chartBandPosition", () => {
     expect(band.top).toBeCloseTo(50 + plotAreaTopFor(true, false), 10);
     expect(band.width).toBeCloseTo(chartWidth - 2 * plotAreaLeft, 10);
     expect(band.height).toBeCloseTo(plotAreaHeightFor(true, true, false), 10);
+  });
+
+  it("ends the chart band (plus x-title strip) exactly at the footer's top edge", () => {
+    const p = chromePositions(100, 50, false);
+    const noX = chartBandPosition(100, 50, false, false, false);
+    expect(noX.top + noX.height).toBeCloseTo(p.source.top, 10);
   });
 
   it("pie combination (no axes, legend on): top band drops the y-axis strip, keeps the legend", () => {

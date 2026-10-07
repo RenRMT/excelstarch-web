@@ -8,11 +8,11 @@
  *
  * INTEROP: Office.js shape API.
  */
-import { chromeSuffix, chromeGroupName } from "./chromeNames";
+import { chromeSuffix, chromeGroupName, legacyChromeSuffixes } from "./chromeNames";
 
 export { chromeGroupName };
 
-const ALL_SUFFIXES = Object.values(chromeSuffix);
+const ALL_SUFFIXES = [...Object.values(chromeSuffix), ...legacyChromeSuffixes];
 
 /**
  * Ungroup a prior chrome group (the chart survives the ungroup) and delete every prefixed chrome
@@ -39,7 +39,7 @@ export function removeExistingChrome(
 
 /**
  * Group the chrome members into one named group. `memberShapeNames` are the chrome shapes that were
- * actually created (logo / y-axis title may be absent). Returns the group shape.
+ * actually created (the y-axis title may be absent). Returns the group shape.
  *
  * The live chart is intentionally NOT a member: Office.js has disjoint Chart and Shape object models
  * — a chart is not addressable in `sheet.shapes` (no `chart` value in `Excel.ShapeType`) and

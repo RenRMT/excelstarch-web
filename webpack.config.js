@@ -55,16 +55,7 @@ module.exports = async (env, options) => {
           use: "html-loader",
         },
         {
-          // Import an image with `?inline` to embed it as a base64 data URI. The chrome logo
-          // uses this so it can be handed to Office.js `shape.addImage`, which takes base64
-          // (not a URL). All other images stay file assets.
-          test: /\.(png|jpg|jpeg|gif)$/,
-          resourceQuery: /inline/,
-          type: "asset/inline",
-        },
-        {
           test: /\.(png|jpg|jpeg|ttf|woff|woff2|gif|ico)$/,
-          resourceQuery: { not: [/inline/] },
           type: "asset/resource",
           generator: {
             filename: "assets/[name][ext][query]",

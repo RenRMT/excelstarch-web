@@ -1,0 +1,40 @@
+{
+  "source": "ROOS Kleurenkiezer (RVO Open Ontwerp Systeem; nl-design-system.github.io/rvo/docs, bijlage B). Values copied verbatim.",
+  "font": "Verdana",
+  "rampTints": ["150", "300", "450", "600", "750", "base"],
+  "ramps": {
+    "Lintblauw": ["#DCE3EA", "#B9C7D5", "#95AAC0", "#738EAB", "#507196", "#154273"],
+    "Violet": ["#F2D9E7", "#E5B2CF", "#D88CB7", "#CB66A0", "#BE4088", "#A90061"],
+    "Lichtblauw": ["#EEF7FC", "#DEF0F8", "#CCE7F4", "#BCDFF1", "#ABD7ED", "#8FCAE7"],
+    "Hemelblauw": ["#D9EBF7", "#B3D7EE", "#8CC4E6", "#66B0DD", "#409CD5", "#007BC7"],
+    "Donkerblauw": ["#D9E9F0", "#B3D2E1", "#8CBBD2", "#67A4C3", "#418EB4", "#01689B"],
+    "Oranje": ["#FBEAD9", "#F6D4B3", "#F1BF8C", "#EDA966", "#E89440", "#E17000"],
+    "Groen": ["#E2EDDB", "#C4DBB7", "#A6C991", "#88B76D", "#6BA549", "#39870C"],
+    "Donkergeel": ["#FFF4DB", "#FFE9B8", "#FFDE94", "#FFD371", "#FFC84D", "#FFB612"],
+    "Rood": ["#F9DFDD", "#F3C0BC", "#EC9F99", "#E68078", "#E06056", "#D51B1E"]
+  },
+  "seriesPalette": [
+    { "name": "Hemelblauw", "value": "#007BC7" },
+    { "name": "Oranje-750", "value": "#E89440" },
+    { "name": "Violet-600", "value": "#CB66A0" },
+    { "name": "Groen-750", "value": "#6BA549" },
+    { "name": "Donkergeel-450", "value": "#FFDE94" },
+    { "name": "Rood-750", "value": "#E06056" },
+    { "name": "Lichtblauw", "value": "#8FCAE7" },
+    { "name": "Grijs-400", "value": "#94A3B8" }
+  ],
+  "greys": [
+    { "name": "Grijs-050", "value": "#F8FAFC" },
+    { "name": "Grijs-100", "value": "#F1F5F9" },
+    { "name": "Grijs-200", "value": "#E2E8F0" },
+    { "name": "Grijs-300", "value": "#CBD5E1" },
+    { "name": "Grijs-400", "value": "#94A3B8" },
+    { "name": "Grijs-500", "value": "#64748B" },
+    { "name": "Grijs-600", "value": "#475569" },
+    { "name": "Grijs-700", "value": "#334155" },
+    { "name": "Grijs-800", "value": "#1E293B" },
+    { "name": "Grijs-900", "value": "#0F172A" },
+    { "name": "Zwart", "value": "#000000" },
+    { "name": "Wit", "value": "#FFFFFF" }
+  ]
+}

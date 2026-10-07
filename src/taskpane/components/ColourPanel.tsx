@@ -12,7 +12,7 @@ import {
 } from "@fluentui/react-components";
 import type { Status } from "./status";
 import type { RampName } from "../../config/ramps";
-import { ramps, divergingTags, rampNames } from "../../config/ramps";
+import { rampOrder, divergingTags } from "../../config/ramps";
 import {
   recolourSeries,
   applyElementFill,
@@ -30,33 +30,35 @@ interface ColourPanelProps {
 const useStyles = makeStyles({
   panel: { display: "flex", flexDirection: "column", rowGap: "10px" },
   row: { display: "flex", columnGap: "8px", alignItems: "end" },
-  hint: { color: "#605e5c" },
+  hint: { color: "#475569" }, // ROOS Grijs-600
   // Fluent v9 Dropdown defaults to min-width 250px; shrink it to fit its text so the task pane
   // stays narrow. fit-content + min-width 0 lets the trigger size to the selected option label.
   narrowDropdown: { minWidth: "0", width: "fit-content" },
 });
 
-// H (Steel) is a neutral grey ramp, defined but intentionally not offered in the ramp menu (it's a
-// neutral, not a sequential brand hue) — matching the VBA. Diverging tags already exclude it.
-const SINGLE_RAMP_NAMES = (Object.keys(ramps) as RampName[]).filter((name) => name !== "H");
+const SINGLE_RAMP_NAMES = rampOrder;
 
-/** Friendly label for a diverging tag, e.g. "A|B" → "Ocean to Coral". */
+/** Hemelblauw is the ROOS primary colour; Rood–Groen is the ROOS default diverging pair. */
+const DEFAULT_RAMP: RampName = "Hemelblauw";
+const DEFAULT_DIVERGING_TAG = "Rood|Groen";
+
+/** Friendly label for a diverging tag, e.g. "Rood|Groen" → "Rood to Groen". */
 function divergingLabel(tag: string): string {
-  const [left, right] = tag.split("|") as RampName[];
-  return `${rampNames[left]} to ${rampNames[right]}`;
+  const [left, right] = tag.split("|");
+  return `${left} to ${right}`;
 }
 
 /** Fill colours offered for per-element fill (matches colorFromName's known names) plus remove. */
 const FILL_OPTIONS: { value: string; label: string }[] = [
-  { value: "DATA1", label: "Data 1 (Ocean)" },
-  { value: "DATA2", label: "Data 2 (Coral)" },
-  { value: "DATA3", label: "Data 3 (Sky)" },
-  { value: "DATA4", label: "Data 4 (Pine)" },
-  { value: "DATA5", label: "Data 5 (Gold)" },
-  { value: "DATA6", label: "Data 6 (Rust)" },
-  { value: "DATA7", label: "Data 7 (Lavender)" },
-  { value: "DATA8", label: "Data 8 (Grey)" },
-  { value: "NEUTRAL2", label: "Neutral grey" },
+  { value: "DATA1", label: "Data 1 (Hemelblauw)" },
+  { value: "DATA2", label: "Data 2 (Oranje-750)" },
+  { value: "DATA3", label: "Data 3 (Violet-600)" },
+  { value: "DATA4", label: "Data 4 (Groen-750)" },
+  { value: "DATA5", label: "Data 5 (Donkergeel-450)" },
+  { value: "DATA6", label: "Data 6 (Rood-750)" },
+  { value: "DATA7", label: "Data 7 (Lichtblauw)" },
+  { value: "DATA8", label: "Data 8 (Grijs-400)" },
+  { value: "NEUTRAL2", label: "Neutral grey (Grijs-300)" },
   { value: "NEUTRAL4", label: "White" },
   { value: "NONE", label: "No fill (remove)" },
 ];
@@ -67,7 +69,7 @@ const FILL_OPTIONS: { value: string; label: string }[] = [
  * Picker task pane, which has no shared React state with the builder, so it resolves the chart the
  * user has selected in Excel (via the interop's `getActiveChartOrNullObject`). The element list
  * loads on mount and via the Refresh button (re-read after selecting a different chart). Maps each
- * typed RunResult to a MessageBar; over-limit (>10 single / >21 diverging) surfaces as a non-blocking
+ * typed RunResult to a MessageBar; over-limit (>6 single / >13 diverging) surfaces as a non-blocking
  * error.
  */
 const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
@@ -75,8 +77,8 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
   const [busy, setBusy] = React.useState(false);
   const [hasChart, setHasChart] = React.useState(false);
   const [useAltOrder, setUseAltOrder] = React.useState(false);
-  const [rampName, setRampName] = React.useState<RampName>(SINGLE_RAMP_NAMES[0]);
-  const [divergingTag, setDivergingTag] = React.useState<string>(divergingTags[0]);
+  const [rampName, setRampName] = React.useState<RampName>(DEFAULT_RAMP);
+  const [divergingTag, setDivergingTag] = React.useState<string>(DEFAULT_DIVERGING_TAG);
   const [seriesNames, setSeriesNames] = React.useState<string[]>([]);
   const [elementIndex, setElementIndex] = React.useState<"all" | number>("all");
   const [fillValue, setFillValue] = React.useState<string>(FILL_OPTIONS[0].value);
@@ -208,13 +210,13 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
           <Dropdown
             className={styles.narrowDropdown}
             disabled={disabled}
-            value={rampNames[rampName]}
+            value={rampName}
             selectedOptions={[rampName]}
             onOptionSelect={(_, d) => d.optionValue && setRampName(d.optionValue as RampName)}
           >
             {SINGLE_RAMP_NAMES.map((name) => (
               <Option key={name} value={name}>
-                {rampNames[name]}
+                {name}
               </Option>
             ))}
           </Dropdown>

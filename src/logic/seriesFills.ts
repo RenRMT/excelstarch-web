@@ -5,7 +5,7 @@
  * the returned list to the host with a dumb index loop, so the ordering is unit-proven without a
  * host. Composes the already-tested primitives in `colorRamp`/`colorSeries`.
  *
- * Step indices from `colorRamp` are 1-based palette steps (1 = lightest … 10 = darkest); a ramp
+ * Step indices from `colorRamp` are 1-based palette steps (1 = lightest … 6 = darkest); a ramp
  * tuple is indexed `ramp[step - 1]`.
  *
  * PURE: this module must never import `Excel`/`Office`.
@@ -22,10 +22,10 @@ import {
   parseDivergingTag,
 } from "./colorRamp";
 
-/** Max series a single-hue ramp can colour (the ramp has ten steps). */
-export const MAX_SINGLE_RAMP_SERIES = 10;
-/** Max series a diverging ramp can colour (ten steps per side + an optional grey centre). */
-export const MAX_DIVERGING_SERIES = 21;
+/** Max series a single-hue ramp can colour (the ramp has six steps). */
+export const MAX_SINGLE_RAMP_SERIES = 6;
+/** Max series a diverging ramp can colour (six steps per side + an optional grey centre). */
+export const MAX_DIVERGING_SERIES = 13;
 
 /** Brand-palette fills for series 1..count (Contrasting by default, Rainbow when `useAltOrder`). */
 export function paletteFills(count: number, useAltOrder = false): Hex[] {
@@ -52,9 +52,9 @@ export function singleRampFills(rampName: RampName, count: number): Hex[] {
 }
 
 /**
- * Diverging-ramp fills for `tag` ("LEFT|RIGHT", e.g. "A|B"): left ramp dark→light, a grey centre
+ * Diverging-ramp fills for `tag` ("LEFT|RIGHT", e.g. "Rood|Groen"): left ramp dark→light, a grey centre
  * (`colorBrand4`) when the series count is odd, then right ramp light→dark — matching the VBA
- * `BuildDivergingRamp`. The caller must normalise the tag (upper-case/trim) before calling, like the
+ * `BuildDivergingRamp`. The caller must normalise the tag (trim) before calling, like the
  * pure `parseDivergingTag` boundary expects. Throws `RangeError` for an invalid tag or
  * `count > MAX_DIVERGING_SERIES`.
  */
@@ -66,7 +66,7 @@ export function divergingFills(tag: string, count: number): Hex[] {
   }
   const parsed = parseDivergingTag(tag);
   if (parsed === null) {
-    throw new RangeError(`Invalid diverging tag "${tag}" (expected "LEFT|RIGHT", e.g. "A|B").`);
+    throw new RangeError(`Invalid diverging tag "${tag}" (expected "LEFT|RIGHT", e.g. "Rood|Groen").`);
   }
   const left = ramps[parsed.left as RampName];
   const right = ramps[parsed.right as RampName];
