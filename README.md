@@ -1,8 +1,7 @@
 # ExcelStarch (web)
 
-An Excel add-in that creates house-styled charts using the ROOS colour palette and the Verdana font.
-It is a partial Office JS port of the original ExcelStarch VBA macro. Some features of the macro
-cannot be replicated in Office JS and are not included.
+An Excel add-in that creates house-styled charts using branded colour palette and  font.
+It is a partial Office JS port of my [ExcelStarch VBA macro](https://github.com/RenRMT/ExcelStarch). Some features of the macro cannot be replicated in Office JS and are not included. But this one can be used in corporate environments with more restrictive IT policies.
 
 The add-in is hosted on GitHub Pages: <https://renrmt.github.io/excelstarch-web/>.
 
