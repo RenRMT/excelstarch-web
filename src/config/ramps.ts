@@ -1,6 +1,6 @@
 /**
  * Colour ramps, diverging-tag list, and palette-order maps. The ramps are the ROOS tint ramps from
- * `reference/roos-kleurenkiezer.html`: each is six defined tokens, index 0 = lightest (tint 150) …
+ * `reference/roos-palette.json`: each is six defined tokens, index 0 = lightest (tint 150) …
  * index 5 = the base colour at full strength. ROOS defines no tints darker than the base, so the
  * base is the darkest step.
  *

@@ -1,8 +1,8 @@
 /**
  * Insurance against a silent transcription error in the ported config: read `reference/spec.json`
- * (the reviewed port input) at runtime and assert the ported fonts, placeholders and palette order
- * still match it. Colours and ramps no longer come from the VBA spec — they are checked against the
- * ROOS palette in `roos-parity.test.ts`.
+ * (the reviewed port input) at runtime and assert the ported font sizes, placeholders and palette
+ * order still match it. Colours, ramps and the typeface no longer come from the VBA spec — they are
+ * checked against the ROOS reference in `roos-parity.test.ts`.
  *
  * This reads the spec via `fs` rather than importing JSON so the webpack/tsconfig build is
  * unaffected (no `resolveJsonModule` needed).
@@ -12,7 +12,6 @@ import { resolve } from "path";
 
 import { paletteOrder } from "../../src/config/ramps";
 import {
-  fontPrimary,
   titleFontSize,
   subtitleFontSize,
   axisFontSize,
@@ -29,7 +28,6 @@ import {
 interface Spec {
   paletteOrder: { contrasting: number[]; rainbow: number[] };
   fonts: {
-    primary: string;
     sizes: Record<string, number>;
   };
   placeholders: Record<string, string>;
@@ -45,8 +43,7 @@ describe("config parity with reference/spec.json", () => {
     expect([...paletteOrder.rainbow]).toEqual(spec.paletteOrder.rainbow);
   });
 
-  it("font family and sizes match", () => {
-    expect(fontPrimary).toBe(spec.fonts.primary);
+  it("font sizes match", () => {
     expect(titleFontSize).toBe(spec.fonts.sizes.title);
     expect(subtitleFontSize).toBe(spec.fonts.sizes.subtitle);
     expect(axisFontSize).toBe(spec.fonts.sizes.axis);

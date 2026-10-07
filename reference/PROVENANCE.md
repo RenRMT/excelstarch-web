@@ -62,18 +62,20 @@ done
 # then update the Commit SHA / Branch fields above
 ```
 
-## ROOS palette (`roos-kleurenkiezer.html`)
+## ROOS palette (`roos-palette.json`)
 
-The colours no longer come from the VBA snapshot. `roos-kleurenkiezer.html` is the ROOS
-(RVO Open Ontwerp Systeem) colour picker, committed verbatim as the source of every colour:
+The colours and the typeface no longer come from the VBA snapshot. `roos-palette.json` holds the
+values copied verbatim from the ROOS (RVO Open Ontwerp Systeem) colour picker, and is the source
+of every colour:
 
-- **Data colours** (`colorData1..8`) are its `REEKSPALET`, in order.
-- **Ramps** are its nine `RAMPS` (six tints each, 150 → base). They replace the eight
+- **Data colours** (`colorData1..8`) are its `seriesPalette`, in order.
+- **Ramps** are its nine `ramps` (six tints each, 150 → base). They replace the eight
   ten-step VBA ramps.
+- **Font** for all chart text is its `font` (Verdana), replacing Calibri.
 - **Chart title** colour is Lintblauw.
 - **Every other colour** is the nearest ROOS token (CIEDE2000) to the colour the VBA port used,
   with neutrals kept on the ROOS grey scale.
 
-`test/config/roos-parity.test.ts` parses this file and checks the ported values against it.
-The `colors`, `ramps`, `rampNames`, `divergingTags`, logo and figure-box entries in `spec.json`
-are kept for history only and are no longer used.
+`test/config/roos-parity.test.ts` reads this file and checks the ported values against it.
+The `colors`, `ramps`, `rampNames`, `divergingTags`, `fonts.primary`, logo and figure-box entries
+in `spec.json` are kept for history only and are no longer used.

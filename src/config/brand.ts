@@ -1,6 +1,6 @@
 /**
  * Brand palette — mapped onto the ROOS (RVO Open Ontwerp Systeem) colour tokens in
- * `reference/roos-kleurenkiezer.html`. The data colours are the ROOS series palette verbatim; every
+ * `reference/roos-palette.json`. The data colours are the ROOS series palette verbatim; every
  * other colour is the nearest ROOS token (CIEDE2000) to the value the VBA port originally used, with
  * neutrals kept on the ROOS grey (slate) scale. Values are #RRGGBB strings.
  *

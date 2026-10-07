@@ -30,6 +30,9 @@ export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): vo
   chart.format.fill.clear();
   chart.format.border.clear();
 
+  // --- Chart-wide font, so the legend and data labels match the axes and chrome text ---
+  chart.format.font.name = fontPrimary;
+
   // --- Axes: touch an axis ONLY when this chart type displays it. A treemap (and pie) have no
   // value/category axes, so reading axes.valueAxis/categoryAxis there would queue writes against a
   // non-existent axis and throw on sync. Gating on axisDisplay keeps the no-axis types safe. ---

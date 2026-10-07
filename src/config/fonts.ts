@@ -3,14 +3,15 @@
  * Sizes are in points; colours are resolved from the brand palette (not re-hardcoded).
  *
  * Cross-platform note: italic is applied via `font.italic = true` at the interop layer, NEVER a
- * named italic family ("Calibri Italic") — named italic families do not resolve on Mac.
+ * named italic family ("Verdana Italic") — named italic families do not resolve on Mac.
  *
  * PURE: this module must never import `Excel`/`Office`.
  */
 import type { Hex } from "./brand";
 import { colorBrand1, colorBrand2, colorBrand3 } from "./brand";
 
-export const fontPrimary = "Calibri";
+/** The ROOS typeface (see `reference/roos-palette.json`). */
+export const fontPrimary = "Verdana";
 
 // --- Sizes (spec.fonts.sizes) --------------------------------------------------------------
 export const titleFontSize = 28;

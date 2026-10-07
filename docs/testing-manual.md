@@ -81,7 +81,7 @@ the chart** (generalizing `modEngineExChrome.bas`). Verify:
 
 - [ ] A white **canvas rectangle** sits behind the chart (sent to back).
 - [ ] **Title, subtitle, source/notes** text boxes appear at the branded positions with the correct
-      fonts/sizes/colours (title 28pt Lintblauw `colorBrand1`, subtitle 22pt `colorBrand2`, source
+      fonts/sizes/colours (all Verdana; title 28pt Lintblauw `colorBrand1`, subtitle 22pt `colorBrand2`, source
       14pt `colorBrand3`). The title sits at the very top of the canvas; there is **no figure-number
       box and no logo**.
 - [ ] The bottom of the chart lines up with the top of the source/notes (footer) box.
