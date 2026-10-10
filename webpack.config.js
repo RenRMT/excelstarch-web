@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
 
 const urlDev = "https://localhost:3000/";
-const urlProd = "https://renrmt.github.io/excelstarch-web/"; // GitHub Pages, deployed by .github/workflows/deploy-pages.yml
+const urlProd = "https://rendata.nl/excelstarch-web/"; // GitHub Pages, deployed by .github/workflows/deploy-pages.yml
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();

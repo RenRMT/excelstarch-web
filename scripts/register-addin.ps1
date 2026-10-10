@@ -5,7 +5,7 @@
 
 param([switch]$Unregister)
 
-$manifestUrl = "https://renrmt.github.io/excelstarch-web/manifest.xml"
+$manifestUrl = "https://rendata.nl/excelstarch-web/manifest.xml"
 $installDir = Join-Path $env:LOCALAPPDATA "ExcelStarch"
 $manifestPath = Join-Path $installDir "manifest.xml"
 $regKey = "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"

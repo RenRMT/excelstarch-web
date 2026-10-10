@@ -3,7 +3,7 @@
 An Excel add-in that creates house-styled charts using a branded colour palette and font.
 It is a partial Office JS port of my [ExcelStarch VBA macro](https://github.com/RenRMT/ExcelStarch). Some features of the macro cannot be replicated in Office JS and are not included. But this one can be used in corporate environments with more restrictive IT policies.
 
-The add-in is hosted on GitHub Pages: <https://renrmt.github.io/excelstarch-web/>.
+The add-in is hosted on GitHub Pages: <https://rendata.nl/excelstarch-web/>.
 
 ## Install
 
@@ -19,7 +19,7 @@ The script downloads the manifest to `%LOCALAPPDATA%\ExcelStarch` and registers 
 current user. To remove the add-in, run the script again with `-Unregister`.
 
 **Excel on the web:** go to Home → Add-ins → More Add-ins → My Add-ins → **Upload My Add-in**,
-then upload the manifest from <https://renrmt.github.io/excelstarch-web/manifest.xml>.
+then upload the manifest from <https://rendata.nl/excelstarch-web/manifest.xml>.
 
 ## Usage
 
