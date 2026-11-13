@@ -13,8 +13,8 @@
     <Host Name="Workbook"/>
   </Hosts>
   <Requirements>
-    <Sets DefaultMinVersion="1.9">
-      <Set Name="ExcelApi" MinVersion="1.9"/>
+    <Sets DefaultMinVersion="1.14">
+      <Set Name="ExcelApi" MinVersion="1.14"/>
     </Sets>
   </Requirements>
   <DefaultSettings>

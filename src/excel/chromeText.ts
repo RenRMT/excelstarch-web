@@ -1,8 +1,8 @@
 /* global Excel */
 /**
- * Chart-text panel writer — replaces the VBA in-chart selection-driven text editing. Resolves a
- * chrome shape by its name convention (`<chartName>_<Suffix>`) and writes the user's text to it.
- * No chart needs to be selected (more robust than the old Selection model).
+ * Chart-text panel reader/writer — replaces the VBA in-chart selection-driven text editing. Finds
+ * a chart's chrome shapes by their name convention (`<chartName>_<Suffix>`) on the chart's own
+ * worksheet and reads or writes their text.
  *
  * Source and Notes share one `_SourceBox` on two lines: writing one field reloads the box, replaces
  * the relevant line, and writes both back. The blank/sentinel/text rule lives in the pure
@@ -11,8 +11,9 @@
  * INTEROP: Office.js shape API. UI never throws — returns a typed RunResult.
  */
 import { RunResult, runExcel, shapesSupported, unsupported } from "./session";
-import { chromeShapeName, ChromeSuffixKey } from "../chrome/chromeNames";
-import { resolveChromeText } from "../logic/chromeText";
+import { chromeShapeName, ChromeTextKey } from "../chrome/chromeNames";
+import { readChromeSnapshot } from "../chrome/chromeSnapshot";
+import { resolveChromeText, splitSourceNotes } from "../logic/chromeText";
 import {
   titlePlaceholder,
   subtitlePlaceholder,
@@ -24,18 +25,88 @@ import {
 /** Editable chrome fields exposed by the task pane. */
 export type ChromeField = "title" | "subtitle" | "yAxis" | "source" | "notes";
 
-/** Map a single-box field to its shape suffix + placeholder. */
+/** Identifies a chart across worksheets (chart names are only unique per sheet). */
+export interface ChartRef {
+  worksheetId: string;
+  chartName: string;
+}
+
+/**
+ * The chart whose text the panel edits, with the current text of each field. A `null` field means
+ * the chart has no such box (e.g. no y-axis title on a pie).
+ */
+export interface ChromeTarget extends ChartRef {
+  texts: Record<ChromeField, string | null>;
+}
+
+/** Map a single-box field to its shape key + placeholder. */
 const SINGLE_BOX: Record<
   Exclude<ChromeField, "source" | "notes">,
-  { suffix: ChromeSuffixKey; placeholder: string }
+  { key: ChromeTextKey; placeholder: string }
 > = {
-  title: { suffix: "title", placeholder: titlePlaceholder },
-  subtitle: { suffix: "subtitle", placeholder: subtitlePlaceholder },
-  yAxis: { suffix: "yAxis", placeholder: yAxisPlaceholder },
+  title: { key: "title", placeholder: titlePlaceholder },
+  subtitle: { key: "subtitle", placeholder: subtitlePlaceholder },
+  yAxis: { key: "yAxis", placeholder: yAxisPlaceholder },
 };
 
+/**
+ * Work out which chart the text panel should edit and read its current text: the chart selected in
+ * Excel if there is one, otherwise `fallback` (the chart the panel was already editing, or the one
+ * just created). Resolves to `null` when there is no such chart or it has no chrome.
+ */
+export async function resolveChromeTarget(
+  fallback: ChartRef | null
+): Promise<RunResult<ChromeTarget | null>> {
+  if (!shapesSupported()) {
+    return unsupported<ChromeTarget | null>();
+  }
+
+  return runExcel<ChromeTarget | null>(async (ctx) => {
+    const active = ctx.workbook.getActiveChartOrNullObject();
+    active.load("isNullObject, name");
+    await ctx.sync();
+
+    let ref: ChartRef;
+    let sheet: Excel.Worksheet;
+    if (!active.isNullObject) {
+      sheet = active.worksheet;
+      sheet.load("id");
+      await ctx.sync();
+      ref = { worksheetId: sheet.id, chartName: active.name };
+    } else if (fallback !== null) {
+      sheet = ctx.workbook.worksheets.getItemOrNullObject(fallback.worksheetId);
+      sheet.load("isNullObject");
+      await ctx.sync();
+      if (sheet.isNullObject) {
+        return null;
+      }
+      ref = fallback;
+    } else {
+      return null;
+    }
+
+    const snapshot = await readChromeSnapshot(ctx, sheet, ref.chartName);
+    if (snapshot.canvasOrigin === null) {
+      return null; // not a chart this add-in has styled.
+    }
+
+    const { title, subtitle, source, yAxis } = snapshot.texts;
+    const sourceNotes = source === undefined ? null : splitSourceNotes(source);
+    return {
+      ...ref,
+      texts: {
+        title: title ?? null,
+        subtitle: subtitle ?? null,
+        yAxis: yAxis ?? null,
+        source: sourceNotes ? sourceNotes.source : null,
+        notes: sourceNotes ? sourceNotes.notes : null,
+      },
+    };
+  });
+}
+
 export async function writeChromeText(
-  chartName: string,
+  target: ChartRef,
   field: ChromeField,
   value: string
 ): Promise<RunResult<void>> {
@@ -44,53 +115,30 @@ export async function writeChromeText(
   }
 
   return runExcel<void>(async (ctx) => {
-    const sheet = ctx.workbook.worksheets.getActiveWorksheet();
-
-    if (field === "source" || field === "notes") {
-      await writeSourceOrNotes(ctx, sheet, chartName, field, value);
-      return;
-    }
-
-    const { suffix, placeholder } = SINGLE_BOX[field];
-    const shape = sheet.shapes.getItemOrNullObject(chromeShapeName(chartName, suffix));
+    const sheet = ctx.workbook.worksheets.getItem(target.worksheetId);
+    const key: ChromeTextKey = field === "source" || field === "notes" ? "source" : field;
+    const shape = sheet.shapes.getItemOrNullObject(chromeShapeName(target.chartName, key));
     shape.load("isNullObject");
     await ctx.sync();
     if (shape.isNullObject) {
       throw new Error(
-        `No "${field}" box found for chart "${chartName}". Recreate the chart first.`
+        `No "${field}" box found for chart "${target.chartName}". Restyle the chart first.`
       );
     }
-    shape.textFrame.textRange.text = resolveChromeText(value, placeholder);
+
+    const range = shape.textFrame.textRange;
+    if (field === "source" || field === "notes") {
+      // Source + Notes live on two lines of the shared box; update one line, keep the other.
+      range.load("text");
+      await ctx.sync();
+      const existing = splitSourceNotes(range.text);
+      const source =
+        field === "source" ? resolveChromeText(value, sourcePlaceholder) : existing.source;
+      const notes = field === "notes" ? resolveChromeText(value, notesPlaceholder) : existing.notes;
+      range.text = `${source}\n${notes}`;
+    } else {
+      range.text = resolveChromeText(value, SINGLE_BOX[field].placeholder);
+    }
     await ctx.sync();
   });
-}
-
-/** Source + Notes live on two lines of the shared `_SourceBox`; update one line, keep the other. */
-async function writeSourceOrNotes(
-  ctx: Excel.RequestContext,
-  sheet: Excel.Worksheet,
-  chartName: string,
-  field: "source" | "notes",
-  value: string
-): Promise<void> {
-  const shape = sheet.shapes.getItemOrNullObject(chromeShapeName(chartName, "source"));
-  shape.load("isNullObject");
-  const range = shape.textFrame.textRange;
-  range.load("text");
-  await ctx.sync();
-  if (shape.isNullObject) {
-    throw new Error(`No source box found for chart "${chartName}". Recreate the chart first.`);
-  }
-
-  // Office.js text frames may use \r, \n, or \v as the in-shape line separator depending on host,
-  // so split on any run of them rather than just "\n" (else editing one field could wipe the other).
-  const [existingSource = sourcePlaceholder, existingNotes = notesPlaceholder] =
-    range.text.split(/[\r\n\v]+/);
-
-  // Resolve only the edited line (blank → placeholder, `-` → empty); keep the other line as-is.
-  const source = field === "source" ? resolveChromeText(value, sourcePlaceholder) : existingSource;
-  const notes = field === "notes" ? resolveChromeText(value, notesPlaceholder) : existingNotes;
-
-  range.text = `${source}\n${notes}`;
-  await ctx.sync();
 }

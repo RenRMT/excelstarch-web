@@ -21,6 +21,10 @@ current user. To remove the add-in, run the script again with `-Unregister`.
 **Excel on the web:** go to Home → Add-ins → More Add-ins → My Add-ins → **Upload My Add-in**,
 then upload the manifest from <https://renrmt.github.io/excelstarch-web/manifest.xml>.
 
+**Requirements:** Excel on the web, or a desktop Excel that supports the ExcelApi 1.14
+requirement set (current Microsoft 365 builds do; for other versions check Microsoft's
+requirement-set table). Inverting fill colours needs ExcelApi 1.16.
+
 ## Usage
 
 The add-in adds an **ExcelStarch** group to the Home tab with two buttons.

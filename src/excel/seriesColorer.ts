@@ -1,33 +1,27 @@
 /* global Excel */
 /**
- * Brand-palette series fill — the FILL-mode apply loop from `FormatSeriesColors`
- * (`modColorSeries.bas`), consuming the already-ported pure `getPaletteColor`. Series 1..count get
- * the brand data colours in palette order; >8 falls back to the neutral (handled in getPaletteColor).
+ * Brand-palette colouring for a freshly built chart — the apply loop from `FormatSeriesColors`
+ * (`modColorSeries.bas`) and `ApplySliceColors` (`modChartPie.bas`), consuming the pure
+ * `getPaletteColor`. Elements 1..count get the brand data colours in palette order; beyond the
+ * eighth they fall back to the neutral (handled in `getPaletteColor`).
  *
- * QUEUES one `setSolidColor` per series/point — never a `context.sync()` inside the loop. The caller
- * must have loaded the relevant count in a prior sync and passes it in.
+ * `count` is the number of series, or — for a `point` target (pie, treemap) — the number of points
+ * in the first series. The caller loads it in a prior sync.
+ *
+ * QUEUES writes only — never a `context.sync()`.
  *
  * INTEROP: Office.js chart API.
  */
-import { getPaletteColor } from "../logic/colorSeries";
+import type { ColourTarget } from "../config/chartSpecs";
+import { seriesLineWeight } from "../config/geometry";
+import { paletteFills } from "../logic/seriesFills";
+import { applyColours } from "./seriesRecolorer";
 
-export function colorSeriesByPalette(chart: Excel.Chart, seriesCount: number): void {
-  for (let i = 1; i <= seriesCount; i++) {
-    // getItemAt is 0-based; getPaletteColor is 1-based (series index).
-    chart.series.getItemAt(i - 1).format.fill.setSolidColor(getPaletteColor(i));
-  }
-}
-
-/**
- * Brand-palette POINT fill for single-series-per-category types (pie/doughnut): a pie has one series
- * whose slices are data POINTS, so colouring the series solid would flatten the whole pie to one
- * colour. Colour each point in palette order instead. The caller must have loaded the first series'
- * `points` "count" in a prior sync and passes it in.
- */
-export function colorPointsByPalette(chart: Excel.Chart, pointCount: number): void {
-  const points = chart.series.getItemAt(0).points;
-  for (let i = 1; i <= pointCount; i++) {
-    // getItemAt is 0-based; getPaletteColor is 1-based (point index).
-    points.getItemAt(i - 1).format.fill.setSolidColor(getPaletteColor(i));
-  }
+export function colorByPalette(
+  chart: Excel.Chart,
+  target: ColourTarget,
+  count: number,
+  useAltOrder = false
+): void {
+  applyColours(chart, target, paletteFills(count, useAltOrder), seriesLineWeight);
 }

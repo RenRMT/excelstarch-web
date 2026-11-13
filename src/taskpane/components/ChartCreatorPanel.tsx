@@ -3,28 +3,18 @@ import { Button, Title3, Body1, Spinner, makeStyles } from "@fluentui/react-comp
 import type { Status } from "./status";
 import type { ChartKind } from "../../logic/chartType";
 import { createBrandedChart } from "../../excel/chartFlow";
+import type { ChartRef } from "../../excel/chromeText";
+import { chartKinds, chartSpecs } from "../../config/chartSpecs";
 
 interface ChartCreatorPanelProps {
   onStatus: (status: Status) => void;
-  onChartReady: (chartName: string) => void;
+  onChartReady: (chart: ChartRef) => void;
 }
 
 const useStyles = makeStyles({
   panel: { display: "flex", flexDirection: "column", rowGap: "8px" },
   buttons: { display: "flex", flexWrap: "wrap", columnGap: "8px", rowGap: "8px" },
 });
-
-/** Chart types offered in the creator, in display order. */
-const CHART_KINDS: ReadonlyArray<{ kind: ChartKind; label: string }> = [
-  { kind: "bar", label: "Bar" },
-  { kind: "column", label: "Column" },
-  { kind: "line", label: "Line" },
-  { kind: "area", label: "Area" },
-  { kind: "scatter", label: "Scatter" },
-  { kind: "pie", label: "Pie" },
-  { kind: "treemap", label: "Treemap" },
-  { kind: "boxwhisker", label: "Box & Whisker" },
-];
 
 /**
  * Creates a branded chart from the current selection. With a chart selected, the create call
@@ -39,7 +29,10 @@ const ChartCreatorPanel: React.FC<ChartCreatorPanelProps> = ({ onStatus, onChart
     try {
       const result = await createBrandedChart(kind);
       if (result.ok) {
-        onChartReady(result.value.chartName);
+        onChartReady({
+          worksheetId: result.value.worksheetId,
+          chartName: result.value.chartName,
+        });
         if (result.value.warnings.length > 0) {
           onStatus({
             intent: "warning",
@@ -66,9 +59,9 @@ const ChartCreatorPanel: React.FC<ChartCreatorPanelProps> = ({ onStatus, onChart
       <Title3>Create a branded chart</Title3>
       <Body1>Select your data range, then choose a chart type. A selected chart is restyled in place.</Body1>
       <div className={styles.buttons}>
-        {CHART_KINDS.map(({ kind, label }) => (
+        {chartKinds.map((kind) => (
           <Button key={kind} appearance="primary" disabled={busy} onClick={() => handleCreate(kind)}>
-            {label}
+            {chartSpecs[kind].label}
           </Button>
         ))}
         {busy && <Spinner size="tiny" label="Working…" />}

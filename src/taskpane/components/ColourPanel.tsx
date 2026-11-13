@@ -16,10 +16,12 @@ import { rampOrder, divergingTags } from "../../config/ramps";
 import {
   recolourSeries,
   applyElementFill,
-  listSeries,
+  listElements,
   hasActiveChart,
+  type ChartElements,
   type RecolourMode,
 } from "../../excel/colourFlow";
+import { watchChartSelection } from "../../excel/selectionEvents";
 import type { RunResult } from "../../excel/session";
 import { loadLastUsedColours, saveLastUsedColours } from "../../persist/settings";
 
@@ -37,6 +39,8 @@ const useStyles = makeStyles({
 });
 
 const SINGLE_RAMP_NAMES = rampOrder;
+
+const NO_ELEMENTS: ChartElements = { kind: "series", names: [] };
 
 /** Hemelblauw is the ROOS primary colour; Rood–Groen is the ROOS default diverging pair. */
 const DEFAULT_RAMP: RampName = "Hemelblauw";
@@ -68,7 +72,8 @@ const FILL_OPTIONS: { value: string; label: string }[] = [
  * diverging ramp, invert — and apply a per-element fill to one chosen series. Lives in the Color
  * Picker task pane, which has no shared React state with the builder, so it resolves the chart the
  * user has selected in Excel (via the interop's `getActiveChartOrNullObject`). The element list
- * loads on mount and via the Refresh button (re-read after selecting a different chart). Maps each
+ * (series, or points for a pie/treemap) loads on mount and whenever the chart selection changes;
+ * the Refresh button remains as a fallback. Maps each
  * typed RunResult to a MessageBar; over-limit (>6 single / >13 diverging) surfaces as a non-blocking
  * error.
  */
@@ -79,30 +84,32 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
   const [useAltOrder, setUseAltOrder] = React.useState(false);
   const [rampName, setRampName] = React.useState<RampName>(DEFAULT_RAMP);
   const [divergingTag, setDivergingTag] = React.useState<string>(DEFAULT_DIVERGING_TAG);
-  const [seriesNames, setSeriesNames] = React.useState<string[]>([]);
+  const [elements, setElements] = React.useState<ChartElements>(NO_ELEMENTS);
   const [elementIndex, setElementIndex] = React.useState<"all" | number>("all");
   const [fillValue, setFillValue] = React.useState<string>(FILL_OPTIONS[0].value);
 
   const disabled = !hasChart || busy;
+  const allLabel = elements.kind === "point" ? "All points" : "All series";
 
-  /** Re-resolve the active chart + its series (on mount and via Refresh). */
+  /** Re-resolve the active chart + its elements (on mount, on chart selection, via Refresh). */
   const refresh = React.useCallback(async () => {
     const present = await hasActiveChart();
     const chartPresent = present.ok && present.value;
     setHasChart(chartPresent);
     if (!chartPresent) {
-      setSeriesNames([]);
+      setElements(NO_ELEMENTS);
       return;
     }
-    const result = await listSeries();
+    const result = await listElements();
     if (result.ok) {
-      setSeriesNames(result.value);
+      setElements(result.value);
       setElementIndex("all");
     }
   }, []);
 
   React.useEffect(() => {
     void refresh();
+    return watchChartSelection(() => void refresh());
   }, [refresh]);
 
   // Seed the controls from the workbook's last-used choices (persist/settings). Each value is
@@ -178,7 +185,7 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
         <Body1 className={styles.hint}>
           {hasChart
             ? "Recolouring the selected chart."
-            : "Select a chart on the sheet, then click Refresh."}
+            : "Select a chart on the sheet."}
         </Body1>
         <Button size="small" disabled={busy} onClick={() => void refresh()}>
           Refresh
@@ -255,14 +262,14 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
           <Dropdown
             className={styles.narrowDropdown}
             disabled={disabled}
-            value={elementIndex === "all" ? "All series" : seriesNames[elementIndex] ?? "Series"}
+            value={elementIndex === "all" ? allLabel : elements.names[elementIndex] ?? "Element"}
             selectedOptions={[String(elementIndex)]}
             onOptionSelect={(_, d) =>
               setElementIndex(d.optionValue === "all" ? "all" : Number(d.optionValue))
             }
           >
-            <Option value="all">All series</Option>
-            {seriesNames.map((name, i) => (
+            <Option value="all">{allLabel}</Option>
+            {elements.names.map((name, i) => (
               <Option key={i} value={String(i)}>
                 {name}
               </Option>

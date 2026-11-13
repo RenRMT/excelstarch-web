@@ -5,13 +5,13 @@
  * This is the orchestrator the task pane calls.
  *
  * Re-run semantics: if a chart is selected it is retyped + restyled in place (so the chrome snaps
- * back to its existing canvas origin — the reuse-canvas trick); otherwise a new chart is created
- * from the selected range.
+ * back to its existing canvas origin — the reuse-canvas trick) and the text the user typed into the
+ * chrome boxes is carried over; otherwise a new chart is created from the selected range.
  *
  * Sync structure (never sync inside a loop):
  *   Sync A — read whether a chart is selected (create vs restyle decision).
  *   Sync B — create/retype the chart; load its name, position, parent worksheet, series count.
- *   Sync C — resolve the canvas origin and prior-group existence on the chart's own worksheet.
+ *   Sync C — chrome snapshot (canvas origin, prior group, existing text) + pie/treemap point count.
  *   Sync D — reposition + style + colour the chart AND build all chrome shapes (they now exist).
  *   Sync E — group the chrome shapes (must follow the shapes-exist sync). The live chart can't be
  *            a group member (disjoint Chart/Shape object models); it's sized into the canvas band.
@@ -19,43 +19,20 @@
  * INTEROP: Office.js. UI never throws — returns a typed RunResult.
  */
 import type { ChartKind } from "../logic/chartType";
+import { chartSpecs } from "../config/chartSpecs";
 import { RunResult, runExcel, shapesSupported, unsupported } from "./session";
 import { createChart, resolveChartRange, retypeChart, positionChartIntoBand } from "./chartFactory";
 import { applyChartStyle } from "./chartStyle";
-import { colorSeriesByPalette, colorPointsByPalette } from "./seriesColorer";
+import { colorByPalette } from "./seriesColorer";
 import { buildChrome } from "../chrome/chromeBuilder";
 import { groupChrome, chromeGroupName } from "../chrome/chromeGroup";
-import { chromeShapeName } from "../chrome/chromeNames";
-import type { ChartDefaults } from "../config/chartDefaults";
-import {
-  barChartDefaults,
-  columnChartDefaults,
-  lineChartDefaults,
-  areaChartDefaults,
-  scatterChartDefaults,
-  pieChartDefaults,
-  treemapChartDefaults,
-  boxWhiskerChartDefaults,
-} from "../config/chartDefaults";
+import { readChromeSnapshot } from "../chrome/chromeSnapshot";
 import { Axis } from "../config/enums";
-
-/**
- * Per-kind formatting-defaults factory. Exhaustive — a new ChartKind without an entry is a compile
- * error (the keys are `Record<ChartKind, …>`).
- */
-const defaultsForKind: Record<ChartKind, () => ChartDefaults> = {
-  bar: barChartDefaults,
-  column: columnChartDefaults,
-  line: lineChartDefaults,
-  area: areaChartDefaults,
-  scatter: scatterChartDefaults,
-  pie: pieChartDefaults,
-  treemap: treemapChartDefaults,
-  boxwhisker: boxWhiskerChartDefaults,
-};
 
 export interface CreateChartResult {
   chartName: string;
+  /** Id of the worksheet the chart lives on (chart names are only unique per sheet). */
+  worksheetId: string;
   groupName: string;
   warnings: string[];
 }
@@ -66,7 +43,8 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
   }
 
   return runExcel<CreateChartResult>(async (ctx) => {
-    const defaults = defaultsForKind[kind]();
+    const spec = chartSpecs[kind];
+    const defaults = spec.defaults();
 
     // Decide create vs restyle: is a chart currently selected? Also read the selected range's
     // cellCount so a create can expand a single selected cell to its surrounding region.
@@ -85,8 +63,9 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
       retypeChart(chart, kind);
     }
     // Resolve the chart's OWN worksheet (a selected chart may live on a non-active sheet); the
-    // chrome must be built on that sheet so the group can include the chart.
+    // chrome must be built on that sheet.
     const sheet = chart.worksheet;
+    sheet.load("id");
     chart.load("name, left, top");
     chart.series.load("count");
     await ctx.sync(); // Sync B — chartName, position, series count, sheet.
@@ -95,47 +74,41 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
     const seriesCount = chart.series.count;
 
     // Pie/doughnut and treemap have a single series whose slices/tiles are POINTS — colour per
-    // point, not per series (a solid series fill would flatten the whole chart to one colour). Load
-    // that point count here. (Box & whisker colours per series, like bar/column — no special case.)
-    const colourByPoint = kind === "pie" || kind === "treemap";
+    // point, not per series (a solid series fill would flatten the whole chart to one colour).
+    const colourByPoint = spec.colourTarget === "point" && seriesCount > 0;
     const firstSeriesPoints = colourByPoint ? chart.series.getItemAt(0).points : undefined;
     firstSeriesPoints?.load("count");
 
-    // Resolve canvas origin (reuse an existing canvas's position so a re-run snaps chrome back) and
-    // whether a prior chrome group exists (so removeExistingChrome can safely ungroup it).
-    const existingCanvas = sheet.shapes.getItemOrNullObject(chromeShapeName(chartName, "canvas"));
-    existingCanvas.load("left, top, isNullObject");
-    const existingGroup = sheet.shapes.getItemOrNullObject(chromeGroupName(chartName));
-    existingGroup.load("isNullObject");
-    await ctx.sync(); // Sync C — canvas-or-null + group-or-null resolved (+ pie point count).
+    // Existing chrome: canvas origin (so a re-run snaps back), prior group (so it can be safely
+    // ungrouped) and the text already typed into the boxes (so a re-run keeps it).
+    const snapshot = await readChromeSnapshot(ctx, sheet, chartName); // Sync C.
 
-    const baseLeft = existingCanvas.isNullObject ? chart.left : existingCanvas.left;
-    const baseTop = existingCanvas.isNullObject ? chart.top : existingCanvas.top;
-    const groupExists = !existingGroup.isNullObject;
+    const baseLeft = snapshot.canvasOrigin ? snapshot.canvasOrigin.left : chart.left;
+    const baseTop = snapshot.canvasOrigin ? snapshot.canvasOrigin.top : chart.top;
 
     // Queue all mutations (no sync between them). Derive the band layout from this kind's defaults
-    // so axis-less, legend-on types (e.g. pie) inset correctly — `axisDisplay` is a bit-flag.
+    // so axis-less types (e.g. pie) inset correctly — `axisDisplay` is a bit-flag.
     positionChartIntoBand(
       chart,
       baseLeft,
       baseTop,
       /*showY*/ (defaults.axisDisplay & Axis.Y) !== 0,
-      /*showX*/ (defaults.axisDisplay & Axis.X) !== 0,
-      /*hasLegend*/ defaults.legend
+      /*showX*/ (defaults.axisDisplay & Axis.X) !== 0
     );
     applyChartStyle(chart, defaults);
-    if (firstSeriesPoints) {
-      colorPointsByPalette(chart, firstSeriesPoints.count);
-    } else {
-      colorSeriesByPalette(chart, seriesCount);
-    }
+    colorByPalette(
+      chart,
+      spec.colourTarget,
+      firstSeriesPoints ? firstSeriesPoints.count : seriesCount
+    );
     const { createdShapeNames, warnings } = buildChrome(
       sheet,
       chartName,
       baseLeft,
       baseTop,
       defaults,
-      groupExists
+      snapshot.groupExists,
+      snapshot.texts
     );
     await ctx.sync(); // Sync D — chart repositioned/styled/coloured AND chrome shapes exist.
 
@@ -150,6 +123,11 @@ export async function createBrandedChart(kind: ChartKind): Promise<RunResult<Cre
       warnings.push("The chart and its chrome were created but the chrome could not be grouped.");
     }
 
-    return { chartName, groupName: chromeGroupName(chartName), warnings };
+    return {
+      chartName,
+      worksheetId: sheet.id,
+      groupName: chromeGroupName(chartName),
+      warnings,
+    };
   });
 }

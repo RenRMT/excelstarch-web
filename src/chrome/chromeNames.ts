@@ -25,6 +25,11 @@ export const legacyChromeSuffixes: readonly string[] = ["_FigureBox", "_LogoImag
 
 export type ChromeSuffixKey = keyof typeof chromeSuffix;
 
+/** The chrome shapes that hold text (everything except the canvas). */
+export type ChromeTextKey = Exclude<ChromeSuffixKey, "canvas">;
+
+export const chromeTextKeys: readonly ChromeTextKey[] = ["title", "subtitle", "source", "yAxis"];
+
 /** All chrome member shape names for a chart, in z-order (canvas first). */
 export function chromeShapeName(chartName: string, key: ChromeSuffixKey): string {
   return chartName + chromeSuffix[key];

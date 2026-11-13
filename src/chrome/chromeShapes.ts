@@ -75,8 +75,13 @@ function addTextBoxShape(
   return shape;
 }
 
-export function addTitleBox(sheet: Excel.Worksheet, chartName: string, pos: Box): Excel.Shape {
-  return addTextBoxShape(sheet, chartName, "title", pos, titlePlaceholder, {
+export function addTitleBox(
+  sheet: Excel.Worksheet,
+  chartName: string,
+  pos: Box,
+  text: string = titlePlaceholder
+): Excel.Shape {
+  return addTextBoxShape(sheet, chartName, "title", pos, text, {
     size: titleFontSize,
     color: titleFontColor,
     bold: true,
@@ -84,8 +89,13 @@ export function addTitleBox(sheet: Excel.Worksheet, chartName: string, pos: Box)
   });
 }
 
-export function addSubtitleBox(sheet: Excel.Worksheet, chartName: string, pos: Box): Excel.Shape {
-  return addTextBoxShape(sheet, chartName, "subtitle", pos, subtitlePlaceholder, {
+export function addSubtitleBox(
+  sheet: Excel.Worksheet,
+  chartName: string,
+  pos: Box,
+  text: string = subtitlePlaceholder
+): Excel.Shape {
+  return addTextBoxShape(sheet, chartName, "subtitle", pos, text, {
     size: subtitleFontSize,
     color: subtitleFontColor,
     bold: false,
@@ -94,20 +104,30 @@ export function addSubtitleBox(sheet: Excel.Worksheet, chartName: string, pos: B
 }
 
 /** Source + notes share one box, on two lines (matching the VBA `_SourceBox`). */
-export function addSourceBox(sheet: Excel.Worksheet, chartName: string, pos: Box): Excel.Shape {
+export function addSourceBox(
+  sheet: Excel.Worksheet,
+  chartName: string,
+  pos: Box,
+  text: string = `${sourcePlaceholder}\n${notesPlaceholder}`
+): Excel.Shape {
   return addTextBoxShape(
     sheet,
     chartName,
     "source",
     pos,
-    `${sourcePlaceholder}\n${notesPlaceholder}`,
+    text,
     { size: sourceFontSize, color: sourceFontColor, bold: false, italic: false }
   );
 }
 
 /** Optional value-axis title (chartex types with a value axis); italic. */
-export function addYAxisTitle(sheet: Excel.Worksheet, chartName: string, pos: Box): Excel.Shape {
-  return addTextBoxShape(sheet, chartName, "yAxis", pos, yAxisPlaceholder, {
+export function addYAxisTitle(
+  sheet: Excel.Worksheet,
+  chartName: string,
+  pos: Box,
+  text: string = yAxisPlaceholder
+): Excel.Shape {
+  return addTextBoxShape(sheet, chartName, "yAxis", pos, text, {
     size: axisFontSize,
     color: axisFontColor,
     bold: false,

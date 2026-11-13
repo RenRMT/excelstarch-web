@@ -4,6 +4,8 @@ import Header from "./Header";
 import ChartCreatorPanel from "./ChartCreatorPanel";
 import ChromeTextPanel from "./ChromeTextPanel";
 import type { Status } from "./status";
+import { resolveChromeTarget, ChartRef, ChromeTarget } from "../../excel/chromeText";
+import { watchChartSelection } from "../../excel/selectionEvents";
 import logoUrl from "../../../assets/logo_empty_dark.png";
 
 interface AppProps {
@@ -24,8 +26,26 @@ const useStyles = makeStyles({
 const App: React.FC<AppProps> = (props: AppProps) => {
   const styles = useStyles();
   const [status, setStatus] = React.useState<Status | null>(null);
-  // The chart most recently created/restyled — the chart-text panel writes to its shapes.
-  const [targetChartName, setTargetChartName] = React.useState<string | null>(null);
+  // The chart the chart-text panel edits: the chart selected in Excel, else the last one it had.
+  const [target, setTarget] = React.useState<ChromeTarget | null>(null);
+  const targetRef = React.useRef<ChartRef | null>(null);
+
+  /** Re-resolve the text panel's chart; `preferred` is used when no chart is selected. */
+  const refreshTarget = React.useCallback(async (preferred?: ChartRef) => {
+    const result = await resolveChromeTarget(preferred ?? targetRef.current);
+    if (result.ok) {
+      targetRef.current = result.value;
+      // Keep the same object when nothing changed, so the panel doesn't reset a field mid-typing.
+      setTarget((prev) =>
+        JSON.stringify(prev) === JSON.stringify(result.value) ? prev : result.value
+      );
+    }
+  }, []);
+
+  React.useEffect(() => {
+    void refreshTarget();
+    return watchChartSelection(() => void refreshTarget());
+  }, [refreshTarget]);
 
   return (
     <div className={styles.root}>
@@ -39,11 +59,8 @@ const App: React.FC<AppProps> = (props: AppProps) => {
             </MessageBarBody>
           </MessageBar>
         )}
-        <ChartCreatorPanel
-          onStatus={setStatus}
-          onChartReady={setTargetChartName}
-        />
-        <ChromeTextPanel targetChartName={targetChartName} onStatus={setStatus} />
+        <ChartCreatorPanel onStatus={setStatus} onChartReady={(ref) => void refreshTarget(ref)} />
+        <ChromeTextPanel target={target} onStatus={setStatus} />
       </main>
     </div>
   );

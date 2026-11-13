@@ -16,7 +16,7 @@ import type { ChartDefaults } from "../config/chartDefaults";
 import { Axis } from "../config/enums";
 import { colorNeutral2, colorWhite } from "../config/brand";
 import { gridlineWeight, axisLineWeight } from "../config/geometry";
-import { fontPrimary, axisFontSize, axisFontColor } from "../config/fonts";
+import { fontPrimary, axisFontSize, axisFontColor, legendFontColor } from "../config/fonts";
 
 const GRIDLINE_COLOR = colorNeutral2; // light grey value-scale lines (matches the VBA)
 
@@ -48,7 +48,22 @@ export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): vo
   }
 
   // --- Legend (valid on every chart type, including treemap/pie) ---
-  chart.legend.visible = defaults.legend;
+  styleLegend(chart, defaults.legend);
+}
+
+/**
+ * Show or hide the legend. When shown it sits in a row at the top of the chart object, in the axis
+ * font size and colour (the VBA placed it in a strip under the subtitle; here the chart object
+ * starts under the title block, so the top of the chart is that same place).
+ */
+export function styleLegend(chart: Excel.Chart, visible: boolean): void {
+  chart.legend.visible = visible;
+  if (visible) {
+    chart.legend.position = "Top";
+    const font = chart.legend.format.font;
+    font.size = axisFontSize;
+    font.color = legendFontColor;
+  }
 }
 
 function styleGridlines(axis: Excel.ChartAxis, visible: boolean): void {

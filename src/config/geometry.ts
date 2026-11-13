@@ -59,6 +59,8 @@ export const plotAreaLeft = chartWidth * plotAreaLeftProportion;
 // --- Line weights --------------------------------------------------------------------------
 export const gridlineWeight = 1;
 export const axisLineWeight = 1;
+/** Line weight for line-chart series (the VBA `FormatSeriesColors` LINE-mode default). */
+export const seriesLineWeight = 2;
 
 /**
  * Plot-area Top: the title band, plus the legend strip and/or the y-axis-label strip when shown.
