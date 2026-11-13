@@ -37,6 +37,11 @@ The add-in adds an **ExcelStarch** group to the Home tab with two buttons.
    text boxes around it.
 3. Use the **Chart text** fields to edit those text boxes. Leave a field blank to restore the
    placeholder, or enter `-` to clear it.
+4. Use **Export** to save the selected chart, with its title and source, as one PNG or JPEG
+   image: download it, copy it, or insert it as a picture next to the chart. The chart and its
+   text boxes are separate objects in Excel, so copying the chart on its own leaves the text
+   behind; export is the way to take a finished chart elsewhere. SVG and PDF are not available
+   to Excel add-ins.
 
 **Color Picker**
 

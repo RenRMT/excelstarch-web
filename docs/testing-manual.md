@@ -262,6 +262,38 @@ sideloaded when it was written, so every item here is a first verification, not 
 - [ ] Pie: the legend is a row at the top of the chart object, in the axis font size, and does not
       overlap the subtitle. There is no empty strip between the subtitle and the chart.
 
+### 6.1 Plan phase 1 — export
+
+The Export section of the Chart Builder pane composes the chart and its chrome into one image in
+the task pane (`excel/exportFlow` → `taskpane/export/compose`). Three things in this path could not
+be confirmed without a live host; check them first and note the results in the PR.
+
+**Spikes**
+
+- [ ] **Group render.** Export a styled chart. If the title text looks exactly like Excel's (same
+      font rendering, same wrapping), the chrome came from `shape.getAsImage` on the group. If it is
+      slightly different, the group render failed and the pane drew the text itself — note which
+      host did which.
+- [ ] **Chart transparency.** The exported chart area shows the white canvas, with no black or
+      grey box behind the plot.
+- [ ] **Delivery.** For each platform, record which of **Download**, **Copy** and **Insert on
+      sheet** work. (Copy is hidden when the browser has no image clipboard.)
+
+**Behaviour**
+
+- [ ] PNG at 1×, 2× and 3× gives 800, 1600 and 2400 px square images for a styled chart; the
+      success message reports the size.
+- [ ] The image matches the sheet: title, subtitle, source/notes, y-axis title (box & whisker), and
+      the chart sitting in the same band. Try bar, line, pie and treemap.
+- [ ] JPEG has a white background (no black areas where the PNG is transparent).
+- [ ] The download is named after the chart title; with the placeholder title it is named after
+      the chart (e.g. `Chart 1.png`). Titles with `/`, `:` or `?` give a valid file name.
+- [ ] **Insert on sheet** places a picture of the same size to the right of the canvas, and it
+      can be copied into PowerPoint as one object.
+- [ ] A native chart with no ExcelStarch chrome exports as the chart alone.
+- [ ] No chart selected: a clear "No chart selected" message, nothing exported.
+- [ ] Format and resolution are remembered after closing and reopening the pane.
+
 ---
 
 ## 7. Requirement-set gating
