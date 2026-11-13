@@ -3,6 +3,35 @@
 *Written 2026-11-13, against commit `c6a9a13`. Background and evidence are in
 [porting-assessment.md](porting-assessment.md); section references like "§5.1" point there.*
 
+## Status
+
+| # | Phase | State |
+|---|---|---|
+| 0 | Fix the foundations | Built |
+| 1 | Export and copy as picture | Built |
+| 2 | Chart variants, finishing, Apply Chart Style | Built |
+| 3 | Toggles | Built |
+| 4 | Annotation, point fill, logo | Built |
+| 5 | Ribbon tab | Built, as function commands without a shared runtime (see below) |
+| 6 | Lollipop and other experiments | Not started: waiting for demand and a live-Excel spike |
+
+"Built" means type-checked, unit-tested where pure, and passing the production build. None of the
+interop has been sideloaded yet; the checks for each phase are in
+[testing-manual.md](testing-manual.md) section 6. The spikes listed below are part of those checks.
+
+Changes from the plan made during the build:
+
+- **Phase 5 has no shared runtime.** A shared runtime needs the task pane and the commands to be
+  one page, and the add-in has two panes. Ribbon commands therefore run from a hidden commands
+  page, report failures in a small dialog, and cannot open a pane with a message.
+- **Annotations are not in the chrome group.** The group is sent behind the chart so its white
+  canvas cannot cover the plot; an annotation over the plot must stay in front, so it stands alone
+  and export draws it as its own layer.
+- **No chart band strip for the legend or for x-axis labels.** Both are drawn inside the chart
+  object. The band reserves strips only for the axis-title boxes that exist.
+- **Realign (phase 6)** needs no command: Apply style already snaps a moved chart back onto its
+  canvas.
+
 The plan covers every VBA feature that the assessment found portable, in priority order. Priority
 is user value weighed against certainty: defects first, then the feature that closes the largest
 functional hole, then breadth, then convenience.
