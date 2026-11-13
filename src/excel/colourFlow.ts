@@ -23,7 +23,7 @@ import { colourTargetForChartType } from "../logic/chartClass";
 import { RunResult, runExcel, shapesSupported, fillReadSupported, unsupported } from "./session";
 import { paletteFills, singleRampFills, divergingFills, invertFills } from "../logic/seriesFills";
 import { isRemoveFillPayload, parseFillPayload, colorFromName } from "../logic/colorFill";
-import { applyColours, applyOneColour } from "./seriesRecolorer";
+import { applyColours, applyOneColour, setSeriesPointColour } from "./seriesRecolorer";
 
 /** How to recolour every element. */
 export type RecolourMode =
@@ -37,6 +37,11 @@ export interface ChartElements {
   /** `point` when the chart is coloured per point (pie, treemap); otherwise `series`. */
   kind: "series" | "point";
   names: string[];
+  /**
+   * Whether a single point of a series can be coloured on its own: true for filled and marker
+   * charts, false for plain lines (and for point-coloured charts, whose elements already are points).
+   */
+  pointsColourable: boolean;
 }
 
 const NO_CHART_SELECTED = "No chart selected. Select a chart on the sheet, then try again.";
@@ -173,16 +178,11 @@ export async function applyElementFill(
   }
 
   // Resolve the payload to a hex (or null for remove) before touching the host.
-  let hex: Hex | null;
-  if (isRemoveFillPayload(payload)) {
-    hex = null;
-  } else {
-    const { name } = parseFillPayload(payload);
-    hex = colorFromName(name);
-    if (hex === null) {
-      return { ok: false, kind: "error", message: `Unknown fill colour "${name}".` };
-    }
+  const resolved = resolvePayload(payload);
+  if ("error" in resolved) {
+    return { ok: false, kind: "error", message: resolved.error };
   }
+  const hex = resolved.hex;
 
   return runExcel<void>(async (ctx) => {
     const { chart, target, count } = await resolveColourContext(ctx);
@@ -197,6 +197,44 @@ export async function applyElementFill(
       applyOneColour(chart, target, element, hex);
     }
     await ctx.sync(); // colour applied.
+  });
+}
+
+/** Resolve a fill payload to a colour (null = remove), or an error message for an unknown name. */
+function resolvePayload(payload: string): { hex: Hex | null } | { error: string } {
+  if (isRemoveFillPayload(payload)) {
+    return { hex: null };
+  }
+  const { name } = parseFillPayload(payload);
+  const hex = colorFromName(name);
+  return hex === null ? { error: `Unknown fill colour "${name}".` } : { hex };
+}
+
+/**
+ * Colour one data point of one series (0-based indices) of the active chart — the VBA fill on a
+ * clicked point, with the point picked in the pane instead.
+ */
+export async function applyPointFill(
+  series: number,
+  point: number,
+  payload: string
+): Promise<RunResult<void>> {
+  if (!shapesSupported()) {
+    return unsupported<void>();
+  }
+  const resolved = resolvePayload(payload);
+  if ("error" in resolved) {
+    return { ok: false, kind: "error", message: resolved.error };
+  }
+
+  return runExcel<void>(async (ctx) => {
+    const { chart, target } = await resolveColourContext(ctx);
+    if (target === "point" || target === "line") {
+      throw new Error("Single points of this chart type cannot be coloured on their own.");
+    }
+    const p = chart.series.getItemAt(series).points.getItemAt(point);
+    setSeriesPointColour(p, target, resolved.hex);
+    await ctx.sync();
   });
 }
 
@@ -215,7 +253,11 @@ export async function listElements(): Promise<RunResult<ChartElements>> {
     if (target !== "point") {
       chart.series.load("items/name");
       await ctx.sync(); // series names.
-      return { kind: "series", names: chart.series.items.map((s) => s.name) };
+      return {
+        kind: "series",
+        names: chart.series.items.map((s) => s.name),
+        pointsColourable: target !== "line",
+      };
     }
 
     // Point names are the category labels. Reading them can fail on some chart types, so it gets
@@ -232,7 +274,7 @@ export async function listElements(): Promise<RunResult<ChartElements>> {
         // Keep the numbered fallback.
       }
     }
-    return { kind: "point", names };
+    return { kind: "point", names, pointsColourable: false };
   });
 }
 

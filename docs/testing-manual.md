@@ -367,6 +367,41 @@ the status line names the new state. Use a branded 3-series column chart unless 
       be toggled. (The VBA had to show the axis temporarily.)
 - [ ] A rebuild (choose the same type again) keeps an X-axis title that was switched on.
 
+### 6.4 Plan phase 4 — annotation, point fill, logo
+
+**Z-order (affects every chart).** The chrome group is now sent to the back after grouping.
+
+- [ ] On a new chart of each family, the chart is fully visible in front of the white canvas, and
+      the title, subtitle and source text are visible. Record the result per host: if any host
+      puts the group in front of the chart, the canvas would hide the plot.
+
+**Annotation** (Chart tools → Annotation at → Add annotation)
+
+- [ ] "Plot centre" adds an "Annotation" box centred on the plot, in the axis font. Click it on the
+      sheet to type.
+- [ ] Picking a series selects its last point by default; the box lands just above-right of that
+      point. Pick another point: the box follows it. Points without a data label before still have
+      none afterwards.
+- [ ] Repeated clicks stack boxes numbered Annotation1, Annotation2, … ; none replaces another.
+- [ ] Annotations stay in front of the chart and are **not** in the chrome group. Restyling or
+      toggling axis titles leaves them where they are.
+- [ ] Export includes the annotations on top of the chart.
+- [ ] Treemap: "Plot centre" lands near the middle of the chart (plot area may be unreadable).
+
+**Point fill** (Color Picker)
+
+- [ ] On a column chart, choosing a series shows a Point list ("Whole series" + categories). A
+      colour applied to one point changes only that bar; "No fill" clears just that bar.
+- [ ] On a scatter or line-with-markers chart, a point's **marker** takes the colour.
+- [ ] On a plain line chart and on pie/treemap there is no Point list (pie already lists slices).
+
+**Logo** (off by default)
+
+- [ ] With `logoEnabled = false` nothing changes.
+- [ ] Set `logoEnabled = true` and paste a small PNG as base64 into `src/config/logo.ts`, rebuild
+      and restyle a chart: the logo sits bottom-right, does not overlap the source text, is part
+      of the chrome group, and appears in the export.
+
 ---
 
 ## 7. Requirement-set gating

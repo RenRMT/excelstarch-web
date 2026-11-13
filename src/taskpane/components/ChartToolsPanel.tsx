@@ -21,6 +21,8 @@ import {
   LabelScope,
 } from "../../excel/toggleFlow";
 import { watchChartSelection } from "../../excel/selectionEvents";
+import { addAnnotation, AnnotationAnchor } from "../../excel/annotationFlow";
+import { listPointNames } from "../../excel/chartPoints";
 
 interface ChartToolsPanelProps {
   onStatus: (status: Status) => void;
@@ -38,19 +40,47 @@ const useStyles = makeStyles({
 /**
  * The VBA "Toggles" ribbon group: each button steps the selected chart through one cycle and the
  * status line says where it landed. Data labels act on all series or the series picked here (Excel
- * add-ins cannot see which series is clicked in the chart).
+ * add-ins cannot see which series is clicked in the chart); annotations go at the plot centre or
+ * beside a point picked here.
  */
 const ChartToolsPanel: React.FC<ChartToolsPanelProps> = ({ onStatus, onChromeChanged }) => {
   const styles = useStyles();
   const [busy, setBusy] = React.useState(false);
   const [seriesNames, setSeriesNames] = React.useState<string[]>([]);
   const [scope, setScope] = React.useState<LabelScope>("all");
+  // Annotation anchor: the plot centre, or a point of a series (default: the series' last point).
+  const [anchorSeries, setAnchorSeries] = React.useState<"centre" | number>("centre");
+  const [anchorPoints, setAnchorPoints] = React.useState<string[]>([]);
+  const [anchorPoint, setAnchorPoint] = React.useState(0);
+
+  React.useEffect(() => {
+    if (anchorSeries === "centre") {
+      setAnchorPoints([]);
+      return;
+    }
+    let cancelled = false;
+    void listPointNames(anchorSeries).then((result) => {
+      if (cancelled) return;
+      const names = result.ok ? result.value : [];
+      setAnchorPoints(names);
+      setAnchorPoint(Math.max(0, names.length - 1)); // the VBA anchored a series on its last point
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [anchorSeries, seriesNames]);
+
+  const anchor: AnnotationAnchor =
+    anchorSeries === "centre" || anchorPoints.length === 0
+      ? { kind: "centre" }
+      : { kind: "point", series: anchorSeries, point: anchorPoint };
 
   const refreshSeries = React.useCallback(async () => {
     const result = await listSeriesNames();
     const names = result.ok ? result.value : [];
     setSeriesNames(names);
     setScope((s) => (s === "all" || s < names.length ? s : "all"));
+    setAnchorSeries((s) => (s === "centre" || s < names.length ? s : "centre"));
   }, []);
 
   React.useEffect(() => {
@@ -119,6 +149,50 @@ const ChartToolsPanel: React.FC<ChartToolsPanelProps> = ({ onStatus, onChromeCha
         </Field>
         <Button size="small" disabled={busy} onClick={() => void run(() => toggleDataLabels(scope))}>
           Data labels
+        </Button>
+      </div>
+      <div className={styles.row}>
+        <Field label="Annotation at">
+          <Dropdown
+            className={styles.narrowDropdown}
+            disabled={busy}
+            value={
+              anchorSeries === "centre"
+                ? "Plot centre"
+                : seriesNames[anchorSeries] || `Series ${anchorSeries + 1}`
+            }
+            selectedOptions={[String(anchorSeries)]}
+            onOptionSelect={(_, d) =>
+              setAnchorSeries(d.optionValue === "centre" ? "centre" : Number(d.optionValue))
+            }
+          >
+            <Option value="centre">Plot centre</Option>
+            {seriesNames.map((name, i) => (
+              <Option key={i} value={String(i)}>
+                {name || `Series ${i + 1}`}
+              </Option>
+            ))}
+          </Dropdown>
+        </Field>
+        {anchorSeries !== "centre" && anchorPoints.length > 0 && (
+          <Field label="Point">
+            <Dropdown
+              className={styles.narrowDropdown}
+              disabled={busy}
+              value={anchorPoints[anchorPoint] ?? ""}
+              selectedOptions={[String(anchorPoint)]}
+              onOptionSelect={(_, d) => setAnchorPoint(Number(d.optionValue))}
+            >
+              {anchorPoints.map((name, i) => (
+                <Option key={i} value={String(i)}>
+                  {name}
+                </Option>
+              ))}
+            </Dropdown>
+          </Field>
+        )}
+        <Button size="small" disabled={busy} onClick={() => void run(() => addAnnotation(anchor))}>
+          Add annotation
         </Button>
       </div>
     </section>

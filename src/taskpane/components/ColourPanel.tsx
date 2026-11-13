@@ -16,12 +16,14 @@ import { rampOrder, divergingTags } from "../../config/ramps";
 import {
   recolourSeries,
   applyElementFill,
+  applyPointFill,
   listElements,
   hasActiveChart,
   type ChartElements,
   type RecolourMode,
 } from "../../excel/colourFlow";
 import { watchChartSelection } from "../../excel/selectionEvents";
+import { listPointNames } from "../../excel/chartPoints";
 import type { RunResult } from "../../excel/session";
 import { loadLastUsedColours, saveLastUsedColours } from "../../persist/settings";
 
@@ -31,7 +33,7 @@ interface ColourPanelProps {
 
 const useStyles = makeStyles({
   panel: { display: "flex", flexDirection: "column", rowGap: "10px" },
-  row: { display: "flex", columnGap: "8px", alignItems: "end" },
+  row: { display: "flex", flexWrap: "wrap", columnGap: "8px", rowGap: "8px", alignItems: "end" },
   hint: { color: "#475569" }, // ROOS Grijs-600
   // Fluent v9 Dropdown defaults to min-width 250px; shrink it to fit its text so the task pane
   // stays narrow. fit-content + min-width 0 lets the trigger size to the selected option label.
@@ -40,7 +42,7 @@ const useStyles = makeStyles({
 
 const SINGLE_RAMP_NAMES = rampOrder;
 
-const NO_ELEMENTS: ChartElements = { kind: "series", names: [] };
+const NO_ELEMENTS: ChartElements = { kind: "series", names: [], pointsColourable: false };
 
 /** Hemelblauw is the ROOS primary colour; Rood–Groen is the ROOS default diverging pair. */
 const DEFAULT_RAMP: RampName = "Hemelblauw";
@@ -69,7 +71,8 @@ const FILL_OPTIONS: { value: string; label: string }[] = [
 
 /**
  * Recolour the ACTIVE (selected) chart's series — palette (Contrasting/Rainbow), single-hue ramp,
- * diverging ramp, invert — and apply a per-element fill to one chosen series. Lives in the Color
+ * diverging ramp, invert — and apply a per-element fill to one chosen series, or to one point of
+ * it. Lives in the Color
  * Picker task pane, which has no shared React state with the builder, so it resolves the chart the
  * user has selected in Excel (via the interop's `getActiveChartOrNullObject`). The element list
  * (series, or points for a pie/treemap) loads on mount and whenever the chart selection changes;
@@ -87,6 +90,27 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
   const [elements, setElements] = React.useState<ChartElements>(NO_ELEMENTS);
   const [elementIndex, setElementIndex] = React.useState<"all" | number>("all");
   const [fillValue, setFillValue] = React.useState<string>(FILL_OPTIONS[0].value);
+  // A single point of the chosen series ("whole" = the whole series).
+  const [pointNames, setPointNames] = React.useState<string[]>([]);
+  const [pointIndex, setPointIndex] = React.useState<"whole" | number>("whole");
+  const showPointPicker =
+    elements.kind === "series" && elements.pointsColourable && elementIndex !== "all";
+
+  // Load the chosen series' points whenever the series changes.
+  React.useEffect(() => {
+    setPointIndex("whole");
+    if (!showPointPicker) {
+      setPointNames([]);
+      return;
+    }
+    let cancelled = false;
+    void listPointNames(elementIndex).then((result) => {
+      if (!cancelled) setPointNames(result.ok ? result.value : []);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [showPointPicker, elementIndex, elements]);
 
   const disabled = !hasChart || busy;
   const allLabel = elements.kind === "point" ? "All points" : "All series";
@@ -168,7 +192,10 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
   const runElementFill = async () => {
     setBusy(true);
     try {
-      const result = await applyElementFill(elementIndex, fillValue);
+      const result =
+        showPointPicker && pointIndex !== "whole"
+          ? await applyPointFill(elementIndex, pointIndex, fillValue)
+          : await applyElementFill(elementIndex, fillValue);
       report(result, "Couldn't apply the fill");
       if (result.ok) {
         void saveLastUsedColours({ fillValue });
@@ -276,6 +303,26 @@ const ColourPanel: React.FC<ColourPanelProps> = ({ onStatus }) => {
             ))}
           </Dropdown>
         </Field>
+        {showPointPicker && (
+          <Field label="Point">
+            <Dropdown
+              className={styles.narrowDropdown}
+              disabled={disabled}
+              value={pointIndex === "whole" ? "Whole series" : pointNames[pointIndex] ?? "Point"}
+              selectedOptions={[String(pointIndex)]}
+              onOptionSelect={(_, d) =>
+                setPointIndex(d.optionValue === "whole" ? "whole" : Number(d.optionValue))
+              }
+            >
+              <Option value="whole">Whole series</Option>
+              {pointNames.map((name, i) => (
+                <Option key={i} value={String(i)}>
+                  {name}
+                </Option>
+              ))}
+            </Dropdown>
+          </Field>
+        )}
         <Field label="Fill">
           <Dropdown
             className={styles.narrowDropdown}

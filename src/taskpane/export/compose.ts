@@ -117,7 +117,13 @@ export async function composeExport(
   scale: number,
   format: ExportFormat
 ): Promise<ComposedImage> {
-  const layout = exportLayout(layers.frame, layers.chart, layers.chrome, scale);
+  const layout = exportLayout(
+    layers.frame,
+    layers.chart,
+    layers.chrome,
+    scale,
+    layers.annotations.map((a) => a.rect)
+  );
 
   const canvas: HTMLCanvasElement = document.createElement("canvas");
   canvas.width = layout.width;
@@ -139,6 +145,9 @@ export async function composeExport(
     }
   }
   drawInto(context, await loadImage(layers.chartImage), layout.chart);
+  for (let i = 0; i < layers.annotations.length; i++) {
+    drawInto(context, await loadImage(layers.annotations[i].image), layout.annotations[i]);
+  }
 
   const mimeType = format === "jpeg" ? "image/jpeg" : "image/png";
   const dataUrl = canvas.toDataURL(mimeType, JPEG_QUALITY);

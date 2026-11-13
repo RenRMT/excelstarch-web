@@ -120,3 +120,11 @@ export function plotAreaTopFor(showY: boolean, hasLegend: boolean): number {
 export function plotAreaHeightFor(showY: boolean, showX: boolean, hasLegend: boolean): number {
   return sourceBoxTop - plotAreaTopFor(showY, hasLegend) - (showX ? xAxisLabelHeight : 0);
 }
+
+// --- Annotation boxes (from the VBA modConfig "Chart Actions settings") ---------------------
+export const annotationBoxWidth = 120;
+export const annotationBoxHeight = 30;
+/** Box left = data-label left + this offset. */
+export const annotationOffsetX = 8;
+/** Box top = data-label top + this offset (negative: the box sits above the point). */
+export const annotationOffsetY = -8;

@@ -35,6 +35,8 @@ export interface ExportLayout {
   chart: Rect;
   /** Where the chrome-group image is drawn, or null when the chart has no chrome. */
   chrome: Rect | null;
+  /** Where each annotation image is drawn, in the order given (drawn last, on top). */
+  annotations: Rect[];
 }
 
 function toPixels(rect: Rect, frame: Rect, k: number): Rect {
@@ -56,7 +58,8 @@ export function exportLayout(
   frame: Rect,
   chart: Rect,
   chrome: Rect | null,
-  scale: number
+  scale: number,
+  annotations: readonly Rect[] = []
 ): ExportLayout {
   const k = PX_PER_POINT * scale;
   return {
@@ -65,6 +68,7 @@ export function exportLayout(
     pxPerPoint: k,
     chart: toPixels(chart, frame, k),
     chrome: chrome ? toPixels(chrome, frame, k) : null,
+    annotations: annotations.map((a) => toPixels(a, frame, k)),
   };
 }
 

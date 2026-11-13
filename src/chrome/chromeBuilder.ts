@@ -21,7 +21,9 @@ import {
   addSourceBox,
   addYAxisTitle,
   addXAxisTitle,
+  addLogo,
 } from "./chromeShapes";
+import { logoEnabled, logoBase64, logoBox } from "../config/logo";
 
 /** Which axis-title boxes to build: `y` over the value axis, `x` under the category axis. */
 export interface AxisTitles {
@@ -62,6 +64,11 @@ export function buildChrome(
   }
   if (pos.xAxis) {
     createdShapeNames.push(addXAxisTitle(sheet, chartName, pos.xAxis, texts.xAxis).name);
+  }
+  if (logoEnabled && logoBase64.length > 0) {
+    const box = logoBox();
+    const logoPos = { ...box, left: baseLeft + box.left, top: baseTop + box.top };
+    createdShapeNames.push(addLogo(sheet, chartName, logoPos, logoBase64).name);
   }
 
   return { createdShapeNames, warnings };

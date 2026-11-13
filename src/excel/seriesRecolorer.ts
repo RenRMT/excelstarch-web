@@ -92,6 +92,29 @@ export function applyColours(
   );
 }
 
+/**
+ * Colour (or clear) a single data point of a series-coloured chart: its fill for filled charts, its
+ * marker for marker charts. A point on a plain line has nothing of its own to colour.
+ */
+export function setSeriesPointColour(
+  point: Excel.ChartPoint,
+  target: SeriesColourTarget,
+  hex: Hex | null
+): void {
+  if (target === "fill") {
+    setPointColour(point, hex);
+    return;
+  }
+  if (target === "marker" || target === "lineMarker") {
+    if (hex === null) {
+      point.markerStyle = "None";
+    } else {
+      point.markerBackgroundColor = hex;
+      point.markerForegroundColor = hex;
+    }
+  }
+}
+
 /** Apply one colour (or removal) to a single element: series `index`, or point `index` of series 1. */
 export function applyOneColour(
   chart: Excel.Chart,

@@ -16,18 +16,19 @@ export const chromeSuffix = {
   source: "_SourceBox",
   yAxis: "_YAxisTitle",
   xAxis: "_XAxisTitle",
+  logo: "_LogoImage",
 } as const;
 
 /**
- * Shapes earlier versions built but no longer do (figure-number box, logo image). Kept only so a
- * rebuild of an older chart deletes them instead of leaving them orphaned.
+ * Shapes earlier versions built but no longer do (figure-number box). Kept only so a rebuild of an
+ * older chart deletes them instead of leaving them orphaned.
  */
-export const legacyChromeSuffixes: readonly string[] = ["_FigureBox", "_LogoImage"];
+export const legacyChromeSuffixes: readonly string[] = ["_FigureBox"];
 
 export type ChromeSuffixKey = keyof typeof chromeSuffix;
 
-/** The chrome shapes that hold text (everything except the canvas). */
-export type ChromeTextKey = Exclude<ChromeSuffixKey, "canvas">;
+/** The chrome shapes that hold text (everything except the canvas and the logo). */
+export type ChromeTextKey = Exclude<ChromeSuffixKey, "canvas" | "logo">;
 
 export const chromeTextKeys: readonly ChromeTextKey[] = [
   "title",
@@ -38,8 +39,8 @@ export const chromeTextKeys: readonly ChromeTextKey[] = [
 ];
 
 /**
- * Prefix shared by every chrome member of a chart (`"Chart 1_"`), including ones not listed in
- * `chromeSuffix`, such as annotation boxes. Used to find all members when regrouping.
+ * Prefix shared by every shape the add-in makes for a chart (`"Chart 1_"`), including ones not
+ * listed in `chromeSuffix`. Used to find the members when regrouping (annotations excluded).
  */
 export function chromeMemberPrefix(chartName: string): string {
   return chartName + "_";

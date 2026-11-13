@@ -14,6 +14,7 @@
 import { RunResult, runExcel, shapesSupported, unsupported } from "./session";
 import { readChromeSnapshot, ChromeTexts } from "../chrome/chromeSnapshot";
 import { chromeGroupName } from "../chrome/chromeGroup";
+import { annotationPrefix } from "../logic/annotation";
 import { chartWidth, chartHeight } from "../config/geometry";
 import { Rect, PX_PER_POINT } from "../logic/exportLayout";
 
@@ -34,6 +35,8 @@ export interface ExportLayers {
   chromeImage: string | null;
   /** Text of the chrome boxes, for the file name and the fallback text renderer. */
   texts: ChromeTexts;
+  /** The chart's annotation boxes as rendered by Excel (any the host could not render are left out). */
+  annotations: { rect: Rect; image: string }[];
 }
 
 const NO_CHART_SELECTED = "No chart selected. Select a chart on the sheet, then try again.";
@@ -78,7 +81,24 @@ export async function readExportLayers(scale: number): Promise<RunResult<ExportL
       ? sheet.shapes.getItem(chromeGroupName(chart.name))
       : undefined;
     group?.load("left, top, width, height");
-    await ctx.sync(); // chart image + group geometry.
+    sheet.shapes.load("items/name, items/left, items/top, items/width, items/height");
+    await ctx.sync(); // chart image + group geometry + shape list.
+
+    // Annotations are separate shapes in front of the chart; render each one (guarded).
+    const prefix = annotationPrefix(chart.name);
+    const annotations: { rect: Rect; image: string }[] = [];
+    for (const shape of sheet.shapes.items.filter((s) => s.name.startsWith(prefix))) {
+      try {
+        const image = shape.getAsImage(Excel.PictureFormat.png);
+        await ctx.sync();
+        annotations.push({
+          rect: { left: shape.left, top: shape.top, width: shape.width, height: shape.height },
+          image: image.value,
+        });
+      } catch {
+        // Skip an annotation the host cannot render rather than failing the export.
+      }
+    }
 
     // Rendering a group as an image is the least certain call here, so it gets its own guarded
     // sync: if the host refuses, the export still works with pane-drawn text.
@@ -106,6 +126,7 @@ export async function readExportLayers(scale: number): Promise<RunResult<ExportL
           : null,
       chromeImage,
       texts: snapshot.texts,
+      annotations,
     };
   });
 }

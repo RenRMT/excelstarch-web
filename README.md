@@ -46,7 +46,8 @@ The add-in adds an **ExcelStarch** group to the Home tab with two buttons.
 3. Use the **Chart text** fields to edit those text boxes. Leave a field blank to restore the
    placeholder, or enter `-` to clear it.
 4. Use **Chart tools** to cycle gridlines, axis labels, axis titles, the legend and data labels
-   on the selected chart. Data labels apply to all series or to the series you pick.
+   on the selected chart. Data labels apply to all series or to the series you pick. **Add
+   annotation** puts a text box at the plot centre or beside a point you pick.
 5. Use **Export** to save the selected chart, with its title and source, as one PNG or JPEG
    image: download it, copy it, or insert it as a picture next to the chart. The chart and its
    text boxes are separate objects in Excel, so copying the chart on its own leaves the text
@@ -60,7 +61,7 @@ Select a chart, then:
 - apply the data palette (Contrasting or Rainbow order)
 - apply a single-colour gradient (up to 6 series) or a diverging gradient (up to 13 series)
 - invert the colours
-- fill a single series
+- fill a single series, or a single point of a series
 
 Your last choices are saved in the workbook.
 
@@ -80,5 +81,7 @@ npm run build    # production build into dist/
   unit tests. `src/excel/` and `src/chrome/` call Office.js and are tested by sideloading; see
   [docs/testing-manual.md](docs/testing-manual.md).
 - **Colours and fonts:** all palette, ramp and font values live in `src/config/`.
+- **Logo:** off by default. To add one bottom-right on every chart, set `logoEnabled` and paste a
+  base64 PNG into `src/config/logo.ts`.
 - **Releases:** pull requests run tests and the build in CI. Merging to `main` deploys to
   GitHub Pages. Installed add-ins pick up the new version automatically.

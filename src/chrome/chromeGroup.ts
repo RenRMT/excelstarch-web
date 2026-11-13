@@ -14,6 +14,7 @@ import {
   chromeMemberPrefix,
   legacyChromeSuffixes,
 } from "./chromeNames";
+import { isAnnotationName } from "../logic/annotation";
 
 export { chromeGroupName };
 
@@ -59,12 +60,17 @@ export function groupChrome(
 ): Excel.Shape {
   const group = sheet.shapes.addGroup(memberShapeNames);
   group.name = chromeGroupName(chartName);
+  // A group takes a single place in the z-order. Keep it behind the chart, so its white canvas
+  // never covers the plot; the text boxes sit beside the chart band, not under it.
+  group.setZOrder("SendToBack");
   return group;
 }
 
 /**
  * Group every ungrouped shape on the sheet whose name starts with the chart's member prefix — the
- * built chrome plus anything added later (axis titles, annotations). SYNCS twice: once to list the
+ * built chrome plus anything added later (axis titles). Annotation boxes are left out: the group
+ * sits behind the chart (its white canvas must not cover the plot), and an annotation sits over the
+ * plot, so it has to stay in front of the chart on its own. SYNCS twice: once to list the
  * shapes, once to group. Call it after the members exist and after any previous group has been
  * ungrouped (shapes inside a group are not listed at the top level). Grouping needs at least two
  * shapes; with fewer it does nothing.
@@ -79,7 +85,9 @@ export async function regroupChrome(
   await ctx.sync();
 
   const prefix = chromeMemberPrefix(chartName);
-  const members = shapes.items.map((s) => s.name).filter((name) => name.startsWith(prefix));
+  const members = shapes.items
+    .map((s) => s.name)
+    .filter((name) => name.startsWith(prefix) && !isAnnotationName(name));
   if (members.length < 2) {
     return;
   }

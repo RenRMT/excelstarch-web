@@ -28,12 +28,23 @@ describe("exportLayout", () => {
   });
 
   it("places a chrome group that extends beyond the canvas at a negative offset", () => {
-    // e.g. an annotation box dragged left of the canvas widens the group.
+    // e.g. an axis-title box dragged left of the canvas widens the group.
     const group = { left: 80, top: 50, width: 620, height: 600 };
     const layout = exportLayout(canvas, chart, group, 1);
     expect(layout.chrome?.left).toBeCloseTo(-20 * PX_PER_POINT, 10);
     expect(layout.chrome?.width).toBeCloseTo(620 * PX_PER_POINT, 10);
     expect(layout.width).toBe(800); // the frame, not the group, sets the image size
+  });
+
+  it("places annotations relative to the frame, and none by default", () => {
+    expect(exportLayout(canvas, chart, canvas, 1).annotations).toEqual([]);
+    const layout = exportLayout(canvas, chart, canvas, 1, [
+      { left: 300, top: 250, width: 120, height: 30 },
+    ]);
+    expect(layout.annotations).toHaveLength(1);
+    expect(layout.annotations[0].left).toBeCloseTo(200 * PX_PER_POINT, 10);
+    expect(layout.annotations[0].top).toBeCloseTo(200 * PX_PER_POINT, 10);
+    expect(layout.annotations[0].width).toBeCloseTo(120 * PX_PER_POINT, 10);
   });
 
   it("has no chrome layer for an unstyled chart framed on itself", () => {

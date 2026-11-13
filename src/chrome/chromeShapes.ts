@@ -136,6 +136,20 @@ export function addYAxisTitle(
   });
 }
 
+/** The optional logo picture (see config/logo). `base64` is PNG or JPEG data. */
+export function addLogo(
+  sheet: Excel.Worksheet,
+  chartName: string,
+  pos: Box,
+  base64: string
+): Excel.Shape {
+  const shape = sheet.shapes.addImage(base64);
+  shape.name = chromeShapeName(chartName, "logo");
+  shape.lockAspectRatio = false;
+  positionShape(shape, pos);
+  return shape;
+}
+
 /** Optional category-axis title, centred in the strip above the source box; italic. */
 export function addXAxisTitle(
   sheet: Excel.Worksheet,
