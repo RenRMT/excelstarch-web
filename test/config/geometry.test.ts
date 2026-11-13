@@ -16,6 +16,7 @@ import {
   titleBoxHeight,
   subtitleBoxHeight,
   chartHeight,
+  squarePlotArea,
 } from "../../src/config/geometry";
 
 describe("title band", () => {
@@ -50,5 +51,27 @@ describe("plotAreaHeightFor", () => {
 
   it("keeps the minimal-chrome plot area positive", () => {
     expect(plotAreaHeightFor(false, false, false)).toBeGreaterThan(0);
+  });
+});
+
+describe("squarePlotArea", () => {
+  it("is a centred square below the reserved strip", () => {
+    const p = squarePlotArea(600, 480, 30);
+    expect(p.width).toBeCloseTo(p.height, 10);
+    expect(p.left).toBeCloseTo((600 - p.width) / 2, 10);
+    // Centred vertically in the space under the strip.
+    expect(p.top - 30).toBeCloseTo(480 - (p.top + p.height), 10);
+  });
+
+  it("is limited by the smaller side and fits inside the chart", () => {
+    const wide = squarePlotArea(600, 300, 0);
+    expect(wide.height).toBeLessThanOrEqual(300);
+    const tall = squarePlotArea(300, 600, 0);
+    expect(tall.width).toBeLessThanOrEqual(300);
+    expect(tall.left).toBeGreaterThanOrEqual(0);
+  });
+
+  it("collapses to zero rather than going negative when there is no room", () => {
+    expect(squarePlotArea(600, 20, 30).width).toBe(0);
   });
 });

@@ -1,10 +1,20 @@
 import * as React from "react";
 import { Field, Input, Textarea, Title3, Body1, makeStyles } from "@fluentui/react-components";
 import type { Status } from "./status";
-import { writeChromeText, ChromeField } from "../../excel/chromeText";
+import { writeChromeText, ChromeField, ChromeTarget } from "../../excel/chromeText";
+import { fieldValueFor } from "../../logic/chromeText";
+import {
+  titlePlaceholder,
+  subtitlePlaceholder,
+  yAxisPlaceholder,
+  xAxisPlaceholder,
+  sourcePlaceholder,
+  notesPlaceholder,
+} from "../../config/text";
 
 interface ChromeTextPanelProps {
-  targetChartName: string | null;
+  /** The chart being edited and its current text, or null when there is none. */
+  target: ChromeTarget | null;
   onStatus: (status: Status) => void;
 }
 
@@ -16,34 +26,59 @@ const useStyles = makeStyles({
 interface FieldDef {
   field: ChromeField;
   label: string;
+  placeholder: string;
   multiline?: boolean;
-  /** Disabled for bar/column (the y-axis title box isn't built for them). */
-  unavailable?: boolean;
 }
 
 const FIELDS: FieldDef[] = [
-  { field: "title", label: "Title" },
-  { field: "subtitle", label: "Subtitle" },
-  { field: "source", label: "Source", multiline: true },
-  { field: "notes", label: "Notes", multiline: true },
-  { field: "yAxis", label: "Y-axis title", unavailable: true },
+  { field: "title", label: "Title", placeholder: titlePlaceholder },
+  { field: "subtitle", label: "Subtitle", placeholder: subtitlePlaceholder },
+  { field: "yAxis", label: "Y-axis title", placeholder: yAxisPlaceholder },
+  { field: "xAxis", label: "X-axis title", placeholder: xAxisPlaceholder },
+  { field: "source", label: "Source", placeholder: sourcePlaceholder, multiline: true },
+  { field: "notes", label: "Notes", placeholder: notesPlaceholder, multiline: true },
 ];
 
-/**
- * Edits the chrome text of the most recently created/restyled chart by writing to the named
- * worksheet shapes (no chart selection required). Applies on blur; blank restores the placeholder,
- * "-" clears the field completely.
- */
-const ChromeTextPanel: React.FC<ChromeTextPanelProps> = ({ targetChartName, onStatus }) => {
-  const styles = useStyles();
-  const disabled = targetChartName === null;
+type FieldValues = Record<ChromeField, string>;
 
-  const handleApply = async (field: ChromeField, value: string) => {
-    if (targetChartName === null) {
+/** The field values to show for a target: each box's text, with the placeholder shown as blank. */
+function valuesFor(target: ChromeTarget | null): FieldValues {
+  const values = {} as FieldValues;
+  for (const { field, placeholder } of FIELDS) {
+    const text = target ? target.texts[field] : null;
+    values[field] = text === null ? "" : fieldValueFor(text, placeholder);
+  }
+  return values;
+}
+
+/**
+ * Edits the chrome text of the selected chart (or the one most recently created) by writing to the
+ * named worksheet shapes. The fields show the chart's current text and apply on blur; blank
+ * restores the placeholder, "-" clears the field completely. A field is disabled when the chart
+ * has no such box (e.g. no y-axis title on a pie; axis titles are switched on and off with the
+ * Axis titles tool).
+ */
+const ChromeTextPanel: React.FC<ChromeTextPanelProps> = ({ target, onStatus }) => {
+  const styles = useStyles();
+  const [values, setValues] = React.useState<FieldValues>(() => valuesFor(target));
+  // What the chart holds, in field form — a blur only writes when the field differs from this.
+  const applied = React.useRef<FieldValues>(valuesFor(target));
+
+  React.useEffect(() => {
+    const fresh = valuesFor(target);
+    applied.current = fresh;
+    setValues(fresh);
+  }, [target]);
+
+  const handleApply = async (field: ChromeField) => {
+    const value = values[field];
+    if (target === null || value === applied.current[field]) {
       return;
     }
-    const result = await writeChromeText(targetChartName, field, value);
-    if (!result.ok) {
+    const result = await writeChromeText(target, field, value);
+    if (result.ok) {
+      applied.current = { ...applied.current, [field]: value };
+    } else {
       onStatus({
         intent: result.kind === "unsupported" ? "warning" : "error",
         title: "Couldn't update the chart text",
@@ -56,28 +91,34 @@ const ChromeTextPanel: React.FC<ChromeTextPanelProps> = ({ targetChartName, onSt
     <section className={styles.panel}>
       <Title3>Chart text</Title3>
       <Body1 className={styles.hint}>
-        {disabled
-          ? "Create a chart first, then edit its title, subtitle, and notes here."
-          : `Editing "${targetChartName}". Leave a field blank to restore its placeholder, or type "-" to clear it completely.`}
+        {target === null
+          ? "Create a chart, or select one made with ExcelStarch, to edit its title, subtitle and notes here."
+          : `Editing "${target.chartName}". Leave a field blank to restore its placeholder, or type "-" to clear it completely.`}
       </Body1>
-      {FIELDS.map(({ field, label, multiline, unavailable }) => (
-        <Field
-          key={field}
-          label={unavailable ? `${label} (not used for bar/column)` : label}
-        >
-          {multiline ? (
-            <Textarea
-              disabled={disabled || unavailable}
-              onBlur={(e) => handleApply(field, e.target.value)}
-            />
-          ) : (
-            <Input
-              disabled={disabled || unavailable}
-              onBlur={(e) => handleApply(field, e.target.value)}
-            />
-          )}
-        </Field>
-      ))}
+      {FIELDS.map(({ field, label, placeholder, multiline }) => {
+        const disabled = target === null || target.texts[field] === null;
+        const common = {
+          disabled,
+          value: values[field],
+          placeholder,
+          onBlur: () => void handleApply(field),
+        };
+        return (
+          <Field key={field} label={label}>
+            {multiline ? (
+              <Textarea
+                {...common}
+                onChange={(_, d) => setValues((v) => ({ ...v, [field]: d.value }))}
+              />
+            ) : (
+              <Input
+                {...common}
+                onChange={(_, d) => setValues((v) => ({ ...v, [field]: d.value }))}
+              />
+            )}
+          </Field>
+        );
+      })}
     </section>
   );
 };

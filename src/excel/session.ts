@@ -13,13 +13,28 @@ export type RunResult<T> =
   | { ok: true; value: T }
   | { ok: false; kind: "unsupported" | "error"; message: string };
 
-/** Whether the host supports the worksheet-shape/grouping APIs the chrome overlay needs. */
+/**
+ * The minimum ExcelApi requirement set. Worksheet shapes arrived in 1.9, but the chrome code looks
+ * shapes up with `shapes.getItemOrNullObject`, which is 1.14. Keep this in step with the
+ * `<Requirements>` element in manifest.xml.
+ */
+export const MIN_EXCEL_API = "1.14";
+
+/** Reading a chart fill colour back (`ChartFill.getSolidColor`) needs this newer set. */
+const FILL_READ_EXCEL_API = "1.16";
+
+/** Whether the host supports the worksheet-shape APIs the chrome overlay needs. */
 export function shapesSupported(): boolean {
-  return Office.context.requirements.isSetSupported("ExcelApi", "1.9");
+  return Office.context.requirements.isSetSupported("ExcelApi", MIN_EXCEL_API);
+}
+
+/** Whether the host can read a chart fill colour (needed to invert fills and contrast labels). */
+export function fillReadSupported(): boolean {
+  return Office.context.requirements.isSetSupported("ExcelApi", FILL_READ_EXCEL_API);
 }
 
 const UNSUPPORTED_MESSAGE =
-  "This Excel version doesn't support the chart styling features (requires ExcelApi 1.9). " +
+  `This Excel version doesn't support the chart styling features (requires ExcelApi ${MIN_EXCEL_API}). ` +
   "Try Excel on the web or a newer desktop build.";
 
 /** A typed `RunResult` for the unsupported-host case (shared by all gated actions). */

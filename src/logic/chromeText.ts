@@ -21,3 +21,25 @@ export function resolveChromeText(value: string, placeholder: string): string {
   }
   return trimmed.length > 0 ? value : placeholder;
 }
+
+/**
+ * Split the shared source/notes box text into its two lines. Text frames report the in-shape line
+ * break as \r, \n or \v depending on host, so split on any run of them (otherwise editing one field
+ * could wipe the other). A missing second line yields an empty notes string.
+ */
+export function splitSourceNotes(text: string): { source: string; notes: string } {
+  const [source = "", ...rest] = text.split(/[\r\n\v]+/);
+  return { source, notes: rest.join(" ") };
+}
+
+/**
+ * What to show in a task-pane field for a box's current text — the inverse of `resolveChromeText`:
+ * the placeholder shows as an empty field (so the field's own hint appears), a cleared box shows
+ * as the clear sentinel, and anything else verbatim. Applying the shown value unchanged therefore
+ * writes back exactly what the box already holds.
+ */
+export function fieldValueFor(text: string, placeholder: string): string {
+  if (text === placeholder) return "";
+  if (text === "") return clearFieldToken;
+  return text;
+}

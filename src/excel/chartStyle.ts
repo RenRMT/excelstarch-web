@@ -16,11 +16,20 @@ import type { ChartDefaults } from "../config/chartDefaults";
 import { Axis } from "../config/enums";
 import { colorNeutral2, colorWhite } from "../config/brand";
 import { gridlineWeight, axisLineWeight } from "../config/geometry";
-import { fontPrimary, axisFontSize, axisFontColor } from "../config/fonts";
+import { fontPrimary, axisFontSize, axisFontColor, legendFontColor } from "../config/fonts";
 
 const GRIDLINE_COLOR = colorNeutral2; // light grey value-scale lines (matches the VBA)
 
-export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): void {
+/**
+ * `keepLegend` leaves the legend as it is — used when styling a chart type the add-in knows nothing
+ * about (Apply Chart Style's "other" class); such a profile also displays no axes, so the axes are
+ * left alone too.
+ */
+export function applyChartStyle(
+  chart: Excel.Chart,
+  defaults: ChartDefaults,
+  keepLegend = false
+): void {
   const axes = chart.axes;
 
   // --- Suppress the chart's own title; the branded title lives in the chrome title shape ---
@@ -48,10 +57,27 @@ export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): vo
   }
 
   // --- Legend (valid on every chart type, including treemap/pie) ---
-  chart.legend.visible = defaults.legend;
+  if (!keepLegend) {
+    styleLegend(chart, defaults.legend);
+  }
 }
 
-function styleGridlines(axis: Excel.ChartAxis, visible: boolean): void {
+/**
+ * Show or hide the legend. When shown it sits in a row at the top of the chart object, in the axis
+ * font size and colour (the VBA placed it in a strip under the subtitle; here the chart object
+ * starts under the title block, so the top of the chart is that same place).
+ */
+export function styleLegend(chart: Excel.Chart, visible: boolean): void {
+  chart.legend.visible = visible;
+  if (visible) {
+    chart.legend.position = "Top";
+    const font = chart.legend.format.font;
+    font.size = axisFontSize;
+    font.color = legendFontColor;
+  }
+}
+
+export function styleGridlines(axis: Excel.ChartAxis, visible: boolean): void {
   axis.majorGridlines.visible = visible;
   if (visible) {
     const line = axis.majorGridlines.format.line;
@@ -60,7 +86,7 @@ function styleGridlines(axis: Excel.ChartAxis, visible: boolean): void {
   }
 }
 
-function styleAxisLineAndFont(axis: Excel.ChartAxis): void {
+export function styleAxisLineAndFont(axis: Excel.ChartAxis): void {
   axis.format.line.color = colorWhite;
   axis.format.line.weight = axisLineWeight;
   const font = axis.format.font;

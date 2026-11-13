@@ -59,6 +59,46 @@ export const plotAreaLeft = chartWidth * plotAreaLeftProportion;
 // --- Line weights --------------------------------------------------------------------------
 export const gridlineWeight = 1;
 export const axisLineWeight = 1;
+/** Line weight for line-chart series (the VBA `FormatSeriesColors` LINE-mode default). */
+export const seriesLineWeight = 2;
+
+// --- Series spacing and markers (from the VBA modConfig "Chart Data settings") -------------
+/** Space between bar/column groups, as a percentage of the bar width. */
+export const seriesGapWidth = 33;
+/** Overlap between clustered series; negative leaves a small gap between them. */
+export const seriesOverlap = -5;
+/** Stacked bars/columns must be flush. */
+export const stackedOverlap = 100;
+/** Scatter marker size in points. */
+export const scatterMarkerSize = 9;
+/** Scatter marker shapes, cycled per series (Office.js `ChartMarkerStyle` values). */
+export const scatterMarkerStyles: readonly string[] = ["Circle", "Square", "Triangle", "X"];
+/** Doughnut hole size in percent (Excel's own default is 75). */
+export const donutHoleSize = 50;
+
+// --- Round charts ----------------------------------------------------------------------------
+/** Share of the available space a pie/doughnut plot square takes (the rest is breathing room). */
+const squarePlotFill = 0.92;
+
+/**
+ * The plot area of a pie/doughnut as a centred square inside a chart object of `width` × `height`
+ * points, below a `topReserve` strip (the legend). Coordinates are relative to the chart object.
+ * Replaces the VBA's fixed pie plot constants, which assumed a 600 × 600 chart.
+ */
+export function squarePlotArea(
+  width: number,
+  height: number,
+  topReserve: number
+): { left: number; top: number; width: number; height: number } {
+  const available = Math.max(0, height - topReserve);
+  const size = Math.max(0, Math.min(width, available) * squarePlotFill);
+  return {
+    left: (width - size) / 2,
+    top: topReserve + (available - size) / 2,
+    width: size,
+    height: size,
+  };
+}
 
 /**
  * Plot-area Top: the title band, plus the legend strip and/or the y-axis-label strip when shown.
@@ -80,3 +120,11 @@ export function plotAreaTopFor(showY: boolean, hasLegend: boolean): number {
 export function plotAreaHeightFor(showY: boolean, showX: boolean, hasLegend: boolean): number {
   return sourceBoxTop - plotAreaTopFor(showY, hasLegend) - (showX ? xAxisLabelHeight : 0);
 }
+
+// --- Annotation boxes (from the VBA modConfig "Chart Actions settings") ---------------------
+export const annotationBoxWidth = 120;
+export const annotationBoxHeight = 30;
+/** Box left = data-label left + this offset. */
+export const annotationOffsetX = 8;
+/** Box top = data-label top + this offset (negative: the box sits above the point). */
+export const annotationOffsetY = -8;

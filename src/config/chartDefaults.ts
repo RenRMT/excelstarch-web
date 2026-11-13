@@ -20,8 +20,9 @@ export interface ChartDefaults {
   /** Whether to show the legend. */
   legend: boolean;
   /**
-   * Chartex only: add a worksheet Y-axis title box (box & whisker has a value axis).
-   * Classic factories leave this false and ignore it.
+   * Add the worksheet y-axis title box. True for every type with a value axis (as the VBA's
+   * `CreateYAxisLabelBox` did); false for pie and treemap. Must only be true when `axisDisplay`
+   * includes the Y axis, because the chart band reserves the title strip from that flag.
    */
   showYAxisTitle: boolean;
 }
@@ -41,7 +42,7 @@ export function lineChartDefaults(): ChartDefaults {
     gridlines: Axis.Y,
     axisDisplay: Axis.Both,
     legend: defaultLegend,
-    showYAxisTitle: false,
+    showYAxisTitle: true,
   };
 }
 
@@ -53,7 +54,7 @@ export function barChartDefaults(): ChartDefaults {
     gridlines: Axis.Y,
     axisDisplay: Axis.Both,
     legend: defaultLegend,
-    showYAxisTitle: false,
+    showYAxisTitle: true,
   };
 }
 
@@ -62,7 +63,7 @@ export function columnChartDefaults(): ChartDefaults {
     gridlines: Axis.Y,
     axisDisplay: Axis.Both,
     legend: defaultLegend,
-    showYAxisTitle: false,
+    showYAxisTitle: true,
   };
 }
 
@@ -71,7 +72,7 @@ export function areaChartDefaults(): ChartDefaults {
     gridlines: Axis.Y,
     axisDisplay: Axis.Both,
     legend: defaultLegend,
-    showYAxisTitle: false,
+    showYAxisTitle: true,
   };
 }
 
@@ -80,7 +81,7 @@ export function scatterChartDefaults(): ChartDefaults {
     gridlines: Axis.Both,
     axisDisplay: Axis.Both,
     legend: defaultLegend,
-    showYAxisTitle: false,
+    showYAxisTitle: true,
   };
 }
 

@@ -11,14 +11,15 @@ Excel. This document is the canonical checklist for that.
 
 ## Scope by phase
 
-Each section maps to a delivery phase of the original port. Phases 0–2 have shipped; the planned
-Phase 3 (toggles, export, annotation) was not built.
+Sections 3–5 map to the delivery phases of the original port. Section 6 covers the follow-up work
+from [implementation-plan.md](implementation-plan.md), one subsection per phase of that plan.
 
 | Phase | What to sideload-test | Section |
 |-------|-----------------------|---------|
 | 0 | Nothing — no interop yet. `npm test` green is the whole gate. | — |
 | 1 | Bar + column creation, branded styling, the worksheet-chrome group, chart-text panel. | [§3](#3-phase-1--chart-creation-styling-and-chrome), [§4](#4-phase-1--chart-text-chrome-panel) |
 | 2 | Remaining chart types, full colour tooling, per-element fill, last-used persistence. | [§5](#5-phase-2--colour-tooling-and-breadth) |
+| follow-up | Fixes and features from the implementation plan. | [§6](#6-follow-up-port) |
 | every | Requirement-set gating, cross-platform smoke. | [§7](#7-requirement-set-gating), [§8](#8-cross-platform-smoke) |
 
 ---
@@ -73,7 +74,8 @@ series** for the colouring edge cases later.
 ### 3.2 The worksheet-chrome group
 
 Office.js charts cannot host in-chart shapes, so chrome is built as **worksheet shapes grouped with
-the chart** (generalizing `modEngineExChrome.bas`). Verify:
+each other** (generalizing `modEngineExChrome.bas`). The chart itself cannot join the group — charts
+and shapes are separate object models in Office.js — so it is sized into the canvas band. Verify:
 
 - [ ] A white **canvas rectangle** sits behind the chart (sent to back).
 - [ ] **Title, subtitle, source/notes** text boxes appear at the branded positions with the correct
@@ -81,8 +83,9 @@ the chart** (generalizing `modEngineExChrome.bas`). Verify:
       14pt `colorBrand3`). The title sits at the very top of the canvas; there is **no figure-number
       box and no logo**.
 - [ ] The bottom of the chart lines up with the top of the source/notes (footer) box.
-- [ ] Selecting any one element and dragging moves the **whole group together** (chart + canvas +
-      text) — i.e. they are grouped, named `ESChromeGroup_<chartName>`.
+- [ ] Selecting a chrome element and dragging moves the **chrome group together** (canvas + text),
+      named `ESChromeGroup_<chartName>`. The **chart does not move with it** (expected); re-running
+      the builder on the chart snaps it back onto the canvas.
 - [ ] Placeholder text matches the spec (`"Title in 28pt sentence case"`,
       `"Source: Source text goes here."`, etc.).
 
@@ -132,7 +135,7 @@ For each classic type (line, area, scatter, pie):
 - [ ] Gridlines/axes match the defaults: **line/area → Y-gridlines, both axes**; **scatter → both
       gridlines, both axes**; **pie → no axes/gridlines, legend ON**.
 - [ ] **Pie point-colouring (HIGH-risk path):** a pie's slices are *points* of one series, so the
-      colourer fills **points** in brand-palette order (`colorPointsByPalette`), not the single series.
+      colourer fills **points** in brand-palette order (`colorByPalette` with a `point` target), not the single series.
       Confirm slices are distinctly coloured (not one flat colour). Try a fixture with 3 and with 8+
       categories (>8 falls back to neutral per `getPaletteColor`).
 - [ ] **Pie band/legend layout:** legend sits below the subtitle without overlap; the no-axes band
@@ -144,12 +147,12 @@ For each classic type (line, area, scatter, pie):
 - [ ] **Retype between kinds:** with a chart selected, create a different kind (e.g. bar → pie → line)
       and confirm it retypes in place and the chrome snaps back to its canvas origin.
 
-For the chartex types (treemap, box & whisker — both ExcelApi 1.9, same gate as the chrome overlay):
+For the chartex types (treemap, box & whisker — both ExcelApi 1.9, below the add-in's minimum):
 
 - [ ] **Treemap (HIGH-risk path):** select a categorical range → Treemap → branded 600×600 chrome,
       **no axis errors** (`applyChartStyle` now gates axis styling on `axisDisplay`, so it never
       touches the treemap's non-existent value/category axes), **no Y-axis title box**. Tiles are
-      coloured **per point** in brand-palette order (`colorPointsByPalette`, pie's path) — confirm
+      coloured **per point** in brand-palette order (the `point` colour target, pie's path) — confirm
       distinct tile colours, not one flat fill. Try 3 and 8+ categories (>8 → neutral).
 - [ ] **Box & Whisker:** select multi-series numeric data → Box & Whisker → branded chart with
       **Y-gridlines + both axes** and the **worksheet Y-axis title box present** (`showYAxisTitle:
@@ -212,13 +215,229 @@ setting, like the VBA).
 
 ---
 
+## 6. Follow-up port
+
+Checks for the work in [implementation-plan.md](implementation-plan.md). None of this could be
+sideloaded when it was written, so every item here is a first verification, not a regression check.
+
+### 6.0 Plan phase 0 — foundations
+
+**Colour lives in the right place**
+
+- [ ] **Line** chart: each series line is a brand colour, 2 pt. No stray fill or marker changes.
+- [ ] **Scatter** chart: each series' markers are a brand colour.
+- [ ] Color Picker on a line chart: palette, single ramp, diverging ramp and Invert all change the
+      **line** colour. "No fill (remove)" hides the line.
+- [ ] Color Picker on a scatter chart: the same tools change the **marker** colour.
+- [ ] Color Picker on a **pie** and a **treemap**: the tools recolour the **slices / tiles**, the
+      Element list shows the points (category names, or "Point n"), and filling one element
+      colours one slice.
+- [ ] Color Picker on a chart the add-in did not create (insert a native line-with-markers chart):
+      line and markers both take the colour.
+
+**Text survives a rebuild**
+
+- [ ] Type a title, subtitle, source and notes. Select the chart and choose a different chart type.
+      All four texts are kept; the chrome is still grouped and in the same place.
+- [ ] Clear a field with `-`, then restyle: the box stays empty (it does not come back as the
+      placeholder).
+
+**Chart-text panel**
+
+- [ ] Close and reopen the Chart Builder pane, then select a styled chart: the fields fill with the
+      chart's current text and are editable without rebuilding the chart.
+- [ ] Select a different styled chart: the fields switch to that chart within a moment, with no
+      Refresh. Click a cell: the panel keeps editing the last chart.
+- [ ] Select a native, unstyled chart: the panel disables itself.
+- [ ] With two worksheets each holding a "Chart 1", editing text changes the chart on the sheet
+      that chart lives on, not the active sheet's namesake.
+- [ ] The Y-axis title field is enabled for box & whisker and disabled for pie.
+- [ ] Typing into a field and blurring writes once; tabbing through untouched fields writes nothing
+      (in particular, it does not restore placeholders into cleared boxes).
+
+**Selection tracking and legend**
+
+- [ ] Color Picker: selecting and deselecting a chart enables and disables the controls without
+      pressing Refresh. Adding a new worksheet and selecting a chart there also works.
+- [ ] Pie: the legend is a row at the top of the chart object, in the axis font size, and does not
+      overlap the subtitle. There is no empty strip between the subtitle and the chart.
+
+### 6.1 Plan phase 1 — export
+
+The Export section of the Chart Builder pane composes the chart and its chrome into one image in
+the task pane (`excel/exportFlow` → `taskpane/export/compose`). Three things in this path could not
+be confirmed without a live host; check them first and note the results in the PR.
+
+**Spikes**
+
+- [ ] **Group render.** Export a styled chart. If the title text looks exactly like Excel's (same
+      font rendering, same wrapping), the chrome came from `shape.getAsImage` on the group. If it is
+      slightly different, the group render failed and the pane drew the text itself — note which
+      host did which.
+- [ ] **Chart transparency.** The exported chart area shows the white canvas, with no black or
+      grey box behind the plot.
+- [ ] **Delivery.** For each platform, record which of **Download**, **Copy** and **Insert on
+      sheet** work. (Copy is hidden when the browser has no image clipboard.)
+
+**Behaviour**
+
+- [ ] PNG at 1×, 2× and 3× gives 800, 1600 and 2400 px square images for a styled chart; the
+      success message reports the size.
+- [ ] The image matches the sheet: title, subtitle, source/notes, y-axis title (box & whisker), and
+      the chart sitting in the same band. Try bar, line, pie and treemap.
+- [ ] JPEG has a white background (no black areas where the PNG is transparent).
+- [ ] The download is named after the chart title; with the placeholder title it is named after
+      the chart (e.g. `Chart 1.png`). Titles with `/`, `:` or `?` give a valid file name.
+- [ ] **Insert on sheet** places a picture of the same size to the right of the canvas, and it
+      can be copied into PowerPoint as one object.
+- [ ] A native chart with no ExcelStarch chrome exports as the chart alone.
+- [ ] No chart selected: a clear "No chart selected" message, nothing exported.
+- [ ] Format and resolution are remembered after closing and reopening the pane.
+
+### 6.2 Plan phase 2 — chart variants, finishing, Apply Chart Style
+
+**Fixtures:** the 3-series fixture; an X/Y/size range for bubble; a single-column category range
+for pie/donut.
+
+**New variants** — each creates a branded chart of the right type:
+
+- [ ] Stacked column, 100% column, stacked bar, 100% bar: segments are flush (no gap between
+      stacked segments), bars are wide (gap width 33%).
+- [ ] Area is now **stacked** (no series hidden behind another); 100% area fills to the top.
+- [ ] Donut: per-slice colours, hole about half the diameter, legend at the top.
+- [ ] Bubble: per-series fills (opaque — transparency is not available in Office JS).
+
+**Per-type finishing** (compare with the VBA output side by side):
+
+- [ ] Clustered column/bar: a small gap between series in a group (overlap −5), no shadows.
+- [ ] Line: tick marks outside, the line starts on the y-axis (no half-category gap), 2 pt lines.
+- [ ] Area: no tick marks, the area starts on the y-axis.
+- [ ] Scatter: markers cycle circle → square → triangle → X per series, size 9, tick marks outside.
+- [ ] Pie and donut: the plot is a centred circle that does not touch the legend or the source box.
+- [ ] Treemap and box & whisker: data labels (if shown) use the chart font. No warning is shown if
+      the host refuses this.
+- [ ] If any of the above is refused by a host, the chart is still created and a warning names
+      what was skipped. Record any such warning per host.
+
+**Y-axis title on classic charts**
+
+- [ ] Column, bar, line, area, scatter and bubble now get the italic "Y axis title (unit)" box
+      in the strip under the subtitle; pie, donut and treemap do not.
+- [ ] Restyling an older chart (made before this change) adds the box with the placeholder and
+      keeps the existing title text.
+
+**Apply style to selected chart**
+
+- [ ] On a branded column chart: nothing about the type changes; chrome is rebuilt in place and the
+      text is kept.
+- [ ] On a native Excel chart of each builder type (e.g. insert a stacked bar from Excel's own
+      ribbon): it ends up identical to the builder's version of that type.
+- [ ] On a native line-with-markers chart and an XY scatter-with-lines chart: brand colours on lines
+      **and** markers, Y gridlines (line) or both gridlines (scatter).
+- [ ] On a 3-D column, a waterfall and a sunburst: canvas and chrome are added, colours are applied
+      if the type allows, and **the axes and legend are left as they were**. No error.
+- [ ] No chart selected: "No chart selected" message.
+
+### 6.3 Plan phase 3 — chart tools (toggles)
+
+The **Chart tools** section of the Chart Builder pane. Each button acts on the selected chart and
+the status line names the new state. Use a branded 3-series column chart unless stated.
+
+- [ ] **Gridlines** cycles none → value axis → category axis → both → none. Gridlines that appear
+      are light grey, 1 pt. On a bar chart, "value axis" gridlines run vertically.
+- [ ] **Axis labels** cycles none → X axis → Y axis → both → none. Labels that reappear use the
+      chart font, size 18.
+- [ ] **Axis titles** cycles both → Y → X → none → both. The X title is centred under the chart.
+      The chart grows into the freed space and shrinks to make room; it never overlaps the title,
+      subtitle or source box. Text typed into a title box that stays is kept.
+- [ ] Axis titles on a funnel only toggles the X title; on a pie it says the chart has no axes.
+- [ ] Axis titles on a native, unstyled chart says to create or apply style first.
+- [ ] After **Axis titles**, the X-axis title field in the Chart text panel enables and disables to
+      match, and the chrome is still one group (drag it).
+- [ ] **Legend** turns the legend on (top row, axis font) and off. On a pie or donut the plot
+      re-centres. On a single-series column chart and a treemap it explains why not.
+- [ ] **Data labels** with "All series" cycles none → outside end → inside centre → none.
+      Outside labels are dark; inside labels are white on dark fills and dark on light fills
+      (needs ExcelApi 1.16; on older hosts they stay dark).
+- [ ] Data labels on a stacked column cycles none ↔ inside only.
+- [ ] Data labels with one series picked changes only that series. The series list follows the
+      selected chart without a refresh.
+- [ ] Data labels on a pie: inside labels contrast per slice.
+- [ ] **Spike:** gridlines on an axis hidden with Axis labels → none: record whether they can still
+      be toggled. (The VBA had to show the axis temporarily.)
+- [ ] A rebuild (choose the same type again) keeps an X-axis title that was switched on.
+
+### 6.4 Plan phase 4 — annotation, point fill, logo
+
+**Z-order (affects every chart).** The chrome group is now sent to the back after grouping.
+
+- [ ] On a new chart of each family, the chart is fully visible in front of the white canvas, and
+      the title, subtitle and source text are visible. Record the result per host: if any host
+      puts the group in front of the chart, the canvas would hide the plot.
+
+**Annotation** (Chart tools → Annotation at → Add annotation)
+
+- [ ] "Plot centre" adds an "Annotation" box centred on the plot, in the axis font. Click it on the
+      sheet to type.
+- [ ] Picking a series selects its last point by default; the box lands just above-right of that
+      point. Pick another point: the box follows it. Points without a data label before still have
+      none afterwards.
+- [ ] Repeated clicks stack boxes numbered Annotation1, Annotation2, … ; none replaces another.
+- [ ] Annotations stay in front of the chart and are **not** in the chrome group. Restyling or
+      toggling axis titles leaves them where they are.
+- [ ] Export includes the annotations on top of the chart.
+- [ ] Treemap: "Plot centre" lands near the middle of the chart (plot area may be unreadable).
+
+**Point fill** (Color Picker)
+
+- [ ] On a column chart, choosing a series shows a Point list ("Whole series" + categories). A
+      colour applied to one point changes only that bar; "No fill" clears just that bar.
+- [ ] On a scatter or line-with-markers chart, a point's **marker** takes the colour.
+- [ ] On a plain line chart and on pie/treemap there is no Point list (pie already lists slices).
+
+**Logo** (off by default)
+
+- [ ] With `logoEnabled = false` nothing changes.
+- [ ] Set `logoEnabled = true` and paste a small PNG as base64 into `src/config/logo.ts`, rebuild
+      and restyle a chart: the logo sits bottom-right, does not overlap the source text, is part
+      of the chrome group, and appears in the export.
+
+### 6.5 Plan phase 5 — ribbon tab
+
+The two Home-tab buttons are replaced by an **ExcelStarch** tab. Ribbon buttons run commands from
+a hidden page (`commands.html`); the panes are unchanged. Re-register or re-upload the manifest
+first: Office caches ribbons, so an old one can linger until the add-in is removed and re-added.
+
+- [ ] The ExcelStarch tab shows four groups: Charts, Chart tools, Colours, Output. Every button has
+      an icon at the normal and the large ribbon size.
+- [ ] **Charts**: each family menu lists its types; each creates or retypes a chart like the
+      matching pane button. **Apply style** matches the pane's button.
+- [ ] **Chart tools**: each toggle gives the same result as the pane's button. Data labels act on
+      all series; Annotation goes to the plot centre.
+- [ ] **Colours**: in the Color Picker, apply a non-default ramp, diverging ramp and Rainbow
+      palette. Close the pane. **Ramp**, **Diverging** and **Palette** re-apply those choices on
+      another chart (the command re-reads the workbook settings). **Invert** reverses the colours.
+- [ ] **Output → Picture** inserts the composed picture next to the selected chart.
+- [ ] **Chart Builder** and **Color Picker** open their panes.
+- [ ] With no chart selected, a toggle opens a small dialog saying so; **OK** closes it. The
+      button does not stay busy.
+- [ ] A command that fails leaves Excel responsive (no spinning button) — every command completes
+      its event.
+
+---
+
 ## 7. Requirement-set gating
 
-The add-in requires **ExcelApi 1.9** (worksheet shapes). Features must be gated with
-`isSetSupported`, not assumed.
+The add-in requires **ExcelApi 1.14** (worksheet shapes are 1.9, but the chrome is looked up with
+`shapes.getItemOrNullObject`, which is 1.14). The value lives in `MIN_EXCEL_API` in
+`src/excel/session.ts` and in the `<Requirements>` element of `manifest.xml`; keep them equal.
+Anything newer must be gated with `isSetSupported`, not assumed — today that is reading a fill
+colour back (ExcelApi 1.16), used by Invert on fill- and point-coloured charts.
 
-- [ ] On a host **with** ExcelApi 1.9: shape/chrome features work.
-- [ ] On a host **without** ExcelApi 1.9 (an older Excel, or simulate by temporarily gating a feature
+- [ ] On a host **with** ExcelApi 1.14: shape/chrome features work.
+- [ ] On a host with 1.14 or 1.15: **Invert** on a column or pie chart shows the "needs a newer
+      Excel" message and changes nothing; Invert on a line chart works.
+- [ ] On a host **without** ExcelApi 1.14 (an older Excel, or simulate by temporarily gating a feature
       off): the add-in shows the **graceful unsupported-host message** (Fluent `MessageBar`) and does
       **not** throw or build a broken chart.
 

@@ -23,4 +23,5 @@ export const sourceFontSize = 14;
 export const titleFontColor: Hex = colorBrand1;
 export const subtitleFontColor: Hex = colorBrand2;
 export const axisFontColor: Hex = colorBrand3;
+export const legendFontColor: Hex = colorBrand3;
 export const sourceFontColor: Hex = colorBrand3;

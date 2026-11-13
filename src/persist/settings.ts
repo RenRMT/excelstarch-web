@@ -88,3 +88,79 @@ export async function saveLastUsedColours(patch: Partial<LastUsedColours>): Prom
     // Silent — never disrupt the UI on a persistence failure.
   }
 }
+
+// --- Export preferences ---------------------------------------------------------------------------
+// The VBA remembered the last export format in the Windows registry; here it is a workbook setting,
+// alongside the scale. Same best-effort, never-throw contract as the colour choices above.
+
+/** Last-used export choices. Both optional: absent means "use the UI default". */
+export interface ExportPrefs {
+  /** `"png"` or `"jpeg"`. */
+  format?: string;
+  /** Resolution multiplier (1, 2 or 3). */
+  scale?: number;
+}
+
+const EXPORT_KEY = "ExcelStarch:exportPrefs";
+
+function sanitizeExportPrefs(raw: unknown): ExportPrefs {
+  if (!raw || typeof raw !== "object") {
+    return {};
+  }
+  const r = raw as Record<string, unknown>;
+  const clean: ExportPrefs = {};
+  if (typeof r.format === "string") clean.format = r.format;
+  if (typeof r.scale === "number") clean.scale = r.scale;
+  return clean;
+}
+
+/** Read the stored export choices; never throws. The caller validates the values. */
+export function loadExportPrefs(): ExportPrefs {
+  try {
+    return sanitizeExportPrefs(Office.context.document.settings.get(EXPORT_KEY));
+  } catch {
+    return {};
+  }
+}
+
+/** Persist the export choices; best-effort and silent. */
+export async function saveExportPrefs(prefs: ExportPrefs): Promise<void> {
+  try {
+    const settings = Office.context.document.settings;
+    settings.set(EXPORT_KEY, sanitizeExportPrefs(prefs));
+    await new Promise<void>((resolve) => {
+      settings.saveAsync(() => resolve());
+    });
+  } catch {
+    // Silent: never disrupt the UI on a persistence failure.
+  }
+}
+
+// --- Fresh reads for other runtimes ---------------------------------------------------------------
+// Each pane and the ribbon-command page is a separate JavaScript runtime with its own copy of the
+// document settings, loaded when it started. A ribbon command must re-read them to see what the
+// Color Picker saved since.
+
+/** Re-read the document settings from the workbook. Best-effort: resolves even on failure. */
+async function refreshSettings(): Promise<void> {
+  try {
+    await new Promise<void>((resolve) => {
+      Office.context.document.settings.refreshAsync(() => resolve());
+    });
+  } catch {
+    // Keep the copy we have.
+  }
+}
+
+/** The last-used colour choices as currently saved in the workbook. Never throws. */
+export async function loadLastUsedColoursFresh(): Promise<LastUsedColours> {
+  await refreshSettings();
+  cache = null;
+  return loadLastUsedColours();
+}
+
+/** The export choices as currently saved in the workbook. Never throws. */
+export async function loadExportPrefsFresh(): Promise<ExportPrefs> {
+  await refreshSettings();
+  return loadExportPrefs();
+}

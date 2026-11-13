@@ -13,8 +13,8 @@
     <Host Name="Workbook"/>
   </Hosts>
   <Requirements>
-    <Sets DefaultMinVersion="1.9">
-      <Set Name="ExcelApi" MinVersion="1.9"/>
+    <Sets DefaultMinVersion="1.14">
+      <Set Name="ExcelApi" MinVersion="1.14"/>
     </Sets>
   </Requirements>
   <DefaultSettings>
@@ -30,36 +30,511 @@
             <Description resid="GetStarted.Description"/>
             <LearnMoreUrl resid="GetStarted.LearnMoreUrl"/>
           </GetStarted>
+          <FunctionFile resid="Commands.Url"/>
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
-            <OfficeTab id="TabHome">
-              <Group id="CommandsGroup">
-                <Label resid="CommandsGroup.Label"/>
+            <CustomTab id="TabExcelStarch">
+              <Group id="Gr_Charts">
+                <Label resid="L.Gr_Charts"/>
                 <Icon>
                   <bt:Image size="16" resid="Icon.16x16"/>
                   <bt:Image size="32" resid="Icon.32x32"/>
                   <bt:Image size="80" resid="Icon.80x80"/>
                 </Icon>
-                <Control xsi:type="Button" id="TaskpaneButton">
-                  <Label resid="TaskpaneButton.Label"/>
+                <Control xsi:type="Menu" id="Mn_Column">
+                  <Label resid="L.Mn_Column"/>
                   <Supertip>
-                    <Title resid="TaskpaneButton.Label"/>
-                    <Description resid="TaskpaneButton.Tooltip"/>
+                    <Title resid="L.Mn_Column"/>
+                    <Description resid="T.Mn_Column"/>
                   </Supertip>
                   <Icon>
-                    <bt:Image size="16" resid="Icon.16x16"/>
-                    <bt:Image size="32" resid="Icon.32x32"/>
-                    <bt:Image size="80" resid="Icon.80x80"/>
+                    <bt:Image size="16" resid="I.chart-vbar.16"/>
+                    <bt:Image size="32" resid="I.chart-vbar.32"/>
+                    <bt:Image size="80" resid="I.chart-vbar.80"/>
                   </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation resid="Taskpane.Url"/>
+                  <Items>
+                    <Item id="Mk_column">
+                      <Label resid="L.Mk_column"/>
+                      <Supertip>
+                        <Title resid="L.Mk_column"/>
+                        <Description resid="T.Mk_column"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-vbar.16"/>
+                        <bt:Image size="32" resid="I.chart-vbar.32"/>
+                        <bt:Image size="80" resid="I.chart-vbar.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_column</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_columnStacked">
+                      <Label resid="L.Mk_columnStacked"/>
+                      <Supertip>
+                        <Title resid="L.Mk_columnStacked"/>
+                        <Description resid="T.Mk_columnStacked"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-v-stacked.16"/>
+                        <bt:Image size="32" resid="I.chart-v-stacked.32"/>
+                        <bt:Image size="80" resid="I.chart-v-stacked.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_columnStacked</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_columnStacked100">
+                      <Label resid="L.Mk_columnStacked100"/>
+                      <Supertip>
+                        <Title resid="L.Mk_columnStacked100"/>
+                        <Description resid="T.Mk_columnStacked100"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-v-stacked.16"/>
+                        <bt:Image size="32" resid="I.chart-v-stacked.32"/>
+                        <bt:Image size="80" resid="I.chart-v-stacked.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_columnStacked100</FunctionName>
+                      </Action>
+                    </Item>
+                  </Items>
+                </Control>
+                <Control xsi:type="Menu" id="Mn_Bar">
+                  <Label resid="L.Mn_Bar"/>
+                  <Supertip>
+                    <Title resid="L.Mn_Bar"/>
+                    <Description resid="T.Mn_Bar"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.chart-hbar.16"/>
+                    <bt:Image size="32" resid="I.chart-hbar.32"/>
+                    <bt:Image size="80" resid="I.chart-hbar.80"/>
+                  </Icon>
+                  <Items>
+                    <Item id="Mk_bar">
+                      <Label resid="L.Mk_bar"/>
+                      <Supertip>
+                        <Title resid="L.Mk_bar"/>
+                        <Description resid="T.Mk_bar"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-hbar.16"/>
+                        <bt:Image size="32" resid="I.chart-hbar.32"/>
+                        <bt:Image size="80" resid="I.chart-hbar.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_bar</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_barStacked">
+                      <Label resid="L.Mk_barStacked"/>
+                      <Supertip>
+                        <Title resid="L.Mk_barStacked"/>
+                        <Description resid="T.Mk_barStacked"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-h-stacked.16"/>
+                        <bt:Image size="32" resid="I.chart-h-stacked.32"/>
+                        <bt:Image size="80" resid="I.chart-h-stacked.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_barStacked</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_barStacked100">
+                      <Label resid="L.Mk_barStacked100"/>
+                      <Supertip>
+                        <Title resid="L.Mk_barStacked100"/>
+                        <Description resid="T.Mk_barStacked100"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-h-stacked.16"/>
+                        <bt:Image size="32" resid="I.chart-h-stacked.32"/>
+                        <bt:Image size="80" resid="I.chart-h-stacked.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_barStacked100</FunctionName>
+                      </Action>
+                    </Item>
+                  </Items>
+                </Control>
+                <Control xsi:type="Menu" id="Mn_LineArea">
+                  <Label resid="L.Mn_LineArea"/>
+                  <Supertip>
+                    <Title resid="L.Mn_LineArea"/>
+                    <Description resid="T.Mn_LineArea"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.chart-line.16"/>
+                    <bt:Image size="32" resid="I.chart-line.32"/>
+                    <bt:Image size="80" resid="I.chart-line.80"/>
+                  </Icon>
+                  <Items>
+                    <Item id="Mk_line">
+                      <Label resid="L.Mk_line"/>
+                      <Supertip>
+                        <Title resid="L.Mk_line"/>
+                        <Description resid="T.Mk_line"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-line.16"/>
+                        <bt:Image size="32" resid="I.chart-line.32"/>
+                        <bt:Image size="80" resid="I.chart-line.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_line</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_area">
+                      <Label resid="L.Mk_area"/>
+                      <Supertip>
+                        <Title resid="L.Mk_area"/>
+                        <Description resid="T.Mk_area"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-area.16"/>
+                        <bt:Image size="32" resid="I.chart-area.32"/>
+                        <bt:Image size="80" resid="I.chart-area.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_area</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_area100">
+                      <Label resid="L.Mk_area100"/>
+                      <Supertip>
+                        <Title resid="L.Mk_area100"/>
+                        <Description resid="T.Mk_area100"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-100-area.16"/>
+                        <bt:Image size="32" resid="I.chart-100-area.32"/>
+                        <bt:Image size="80" resid="I.chart-100-area.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_area100</FunctionName>
+                      </Action>
+                    </Item>
+                  </Items>
+                </Control>
+                <Control xsi:type="Menu" id="Mn_Pie">
+                  <Label resid="L.Mn_Pie"/>
+                  <Supertip>
+                    <Title resid="L.Mn_Pie"/>
+                    <Description resid="T.Mn_Pie"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.chart-pie.16"/>
+                    <bt:Image size="32" resid="I.chart-pie.32"/>
+                    <bt:Image size="80" resid="I.chart-pie.80"/>
+                  </Icon>
+                  <Items>
+                    <Item id="Mk_pie">
+                      <Label resid="L.Mk_pie"/>
+                      <Supertip>
+                        <Title resid="L.Mk_pie"/>
+                        <Description resid="T.Mk_pie"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-pie.16"/>
+                        <bt:Image size="32" resid="I.chart-pie.32"/>
+                        <bt:Image size="80" resid="I.chart-pie.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_pie</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_doughnut">
+                      <Label resid="L.Mk_doughnut"/>
+                      <Supertip>
+                        <Title resid="L.Mk_doughnut"/>
+                        <Description resid="T.Mk_doughnut"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-donut.16"/>
+                        <bt:Image size="32" resid="I.chart-donut.32"/>
+                        <bt:Image size="80" resid="I.chart-donut.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_doughnut</FunctionName>
+                      </Action>
+                    </Item>
+                  </Items>
+                </Control>
+                <Control xsi:type="Menu" id="Mn_Scatter">
+                  <Label resid="L.Mn_Scatter"/>
+                  <Supertip>
+                    <Title resid="L.Mn_Scatter"/>
+                    <Description resid="T.Mn_Scatter"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.chart-scatter.16"/>
+                    <bt:Image size="32" resid="I.chart-scatter.32"/>
+                    <bt:Image size="80" resid="I.chart-scatter.80"/>
+                  </Icon>
+                  <Items>
+                    <Item id="Mk_scatter">
+                      <Label resid="L.Mk_scatter"/>
+                      <Supertip>
+                        <Title resid="L.Mk_scatter"/>
+                        <Description resid="T.Mk_scatter"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-scatter.16"/>
+                        <bt:Image size="32" resid="I.chart-scatter.32"/>
+                        <bt:Image size="80" resid="I.chart-scatter.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_scatter</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_bubble">
+                      <Label resid="L.Mk_bubble"/>
+                      <Supertip>
+                        <Title resid="L.Mk_bubble"/>
+                        <Description resid="T.Mk_bubble"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-bubble.16"/>
+                        <bt:Image size="32" resid="I.chart-bubble.32"/>
+                        <bt:Image size="80" resid="I.chart-bubble.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_bubble</FunctionName>
+                      </Action>
+                    </Item>
+                  </Items>
+                </Control>
+                <Control xsi:type="Menu" id="Mn_Complex">
+                  <Label resid="L.Mn_Complex"/>
+                  <Supertip>
+                    <Title resid="L.Mn_Complex"/>
+                    <Description resid="T.Mn_Complex"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.chart-treemap.16"/>
+                    <bt:Image size="32" resid="I.chart-treemap.32"/>
+                    <bt:Image size="80" resid="I.chart-treemap.80"/>
+                  </Icon>
+                  <Items>
+                    <Item id="Mk_treemap">
+                      <Label resid="L.Mk_treemap"/>
+                      <Supertip>
+                        <Title resid="L.Mk_treemap"/>
+                        <Description resid="T.Mk_treemap"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-treemap.16"/>
+                        <bt:Image size="32" resid="I.chart-treemap.32"/>
+                        <bt:Image size="80" resid="I.chart-treemap.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_treemap</FunctionName>
+                      </Action>
+                    </Item>
+                    <Item id="Mk_boxwhisker">
+                      <Label resid="L.Mk_boxwhisker"/>
+                      <Supertip>
+                        <Title resid="L.Mk_boxwhisker"/>
+                        <Description resid="T.Mk_boxwhisker"/>
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="I.chart-boxwhisker.16"/>
+                        <bt:Image size="32" resid="I.chart-boxwhisker.32"/>
+                        <bt:Image size="80" resid="I.chart-boxwhisker.80"/>
+                      </Icon>
+                      <Action xsi:type="ExecuteFunction">
+                        <FunctionName>create_boxwhisker</FunctionName>
+                      </Action>
+                    </Item>
+                  </Items>
+                </Control>
+                <Control xsi:type="Button" id="Bt_ApplyStyle">
+                  <Label resid="L.Bt_ApplyStyle"/>
+                  <Supertip>
+                    <Title resid="L.Bt_ApplyStyle"/>
+                    <Description resid="T.Bt_ApplyStyle"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.magic-wand.16"/>
+                    <bt:Image size="32" resid="I.magic-wand.32"/>
+                    <bt:Image size="80" resid="I.magic-wand.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>applyStyle</FunctionName>
+                  </Action>
+                </Control>
+              </Group>
+              <Group id="Gr_Tools">
+                <Label resid="L.Gr_Tools"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
+                <Control xsi:type="Button" id="Bt_Gridlines">
+                  <Label resid="L.Bt_Gridlines"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Gridlines"/>
+                    <Description resid="T.Bt_Gridlines"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-gridlines.16"/>
+                    <bt:Image size="32" resid="I.menu-gridlines.32"/>
+                    <bt:Image size="80" resid="I.menu-gridlines.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>toggleGridlines</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_AxisLabels">
+                  <Label resid="L.Bt_AxisLabels"/>
+                  <Supertip>
+                    <Title resid="L.Bt_AxisLabels"/>
+                    <Description resid="T.Bt_AxisLabels"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-axislines.16"/>
+                    <bt:Image size="32" resid="I.menu-axislines.32"/>
+                    <bt:Image size="80" resid="I.menu-axislines.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>toggleAxisLabels</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_AxisTitles">
+                  <Label resid="L.Bt_AxisTitles"/>
+                  <Supertip>
+                    <Title resid="L.Bt_AxisTitles"/>
+                    <Description resid="T.Bt_AxisTitles"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-titles.16"/>
+                    <bt:Image size="32" resid="I.menu-titles.32"/>
+                    <bt:Image size="80" resid="I.menu-titles.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>toggleAxisTitles</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_Legend">
+                  <Label resid="L.Bt_Legend"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Legend"/>
+                    <Description resid="T.Bt_Legend"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-legend.16"/>
+                    <bt:Image size="32" resid="I.menu-legend.32"/>
+                    <bt:Image size="80" resid="I.menu-legend.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>toggleLegend</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_DataLabels">
+                  <Label resid="L.Bt_DataLabels"/>
+                  <Supertip>
+                    <Title resid="L.Bt_DataLabels"/>
+                    <Description resid="T.Bt_DataLabels"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-labels.16"/>
+                    <bt:Image size="32" resid="I.menu-labels.32"/>
+                    <bt:Image size="80" resid="I.menu-labels.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>toggleDataLabels</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_Annotation">
+                  <Label resid="L.Bt_Annotation"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Annotation"/>
+                    <Description resid="T.Bt_Annotation"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-label-last.16"/>
+                    <bt:Image size="32" resid="I.menu-label-last.32"/>
+                    <bt:Image size="80" resid="I.menu-label-last.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>addAnnotation</FunctionName>
+                  </Action>
+                </Control>
+              </Group>
+              <Group id="Gr_Colours">
+                <Label resid="L.Gr_Colours"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
+                <Control xsi:type="Button" id="Bt_Palette">
+                  <Label resid="L.Bt_Palette"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Palette"/>
+                    <Description resid="T.Bt_Palette"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-order.16"/>
+                    <bt:Image size="32" resid="I.menu-order.32"/>
+                    <bt:Image size="80" resid="I.menu-order.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>reapplyPalette</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_Ramp">
+                  <Label resid="L.Bt_Ramp"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Ramp"/>
+                    <Description resid="T.Bt_Ramp"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.ramp-teal.16"/>
+                    <bt:Image size="32" resid="I.ramp-teal.32"/>
+                    <bt:Image size="80" resid="I.ramp-teal.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>reapplyRamp</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_Diverging">
+                  <Label resid="L.Bt_Diverging"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Diverging"/>
+                    <Description resid="T.Bt_Diverging"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.div-teal-jasmine.16"/>
+                    <bt:Image size="32" resid="I.div-teal-jasmine.32"/>
+                    <bt:Image size="80" resid="I.div-teal-jasmine.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>reapplyDiverging</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="Bt_Invert">
+                  <Label resid="L.Bt_Invert"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Invert"/>
+                    <Description resid="T.Bt_Invert"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-invert.16"/>
+                    <bt:Image size="32" resid="I.menu-invert.32"/>
+                    <bt:Image size="80" resid="I.menu-invert.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>invertColours</FunctionName>
                   </Action>
                 </Control>
                 <Control xsi:type="Button" id="ColorPickerButton">
-                  <Label resid="ColorPickerButton.Label"/>
+                  <Label resid="L.ColorPickerButton"/>
                   <Supertip>
-                    <Title resid="ColorPickerButton.Label"/>
-                    <Description resid="ColorPickerButton.Tooltip"/>
+                    <Title resid="L.ColorPickerButton"/>
+                    <Description resid="T.ColorPickerButton"/>
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="Icon.16x16"/>
@@ -72,7 +547,47 @@
                   </Action>
                 </Control>
               </Group>
-            </OfficeTab>
+              <Group id="Gr_Output">
+                <Label resid="L.Gr_Output"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
+                <Control xsi:type="Button" id="Bt_Export">
+                  <Label resid="L.Bt_Export"/>
+                  <Supertip>
+                    <Title resid="L.Bt_Export"/>
+                    <Description resid="T.Bt_Export"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="I.menu-export.16"/>
+                    <bt:Image size="32" resid="I.menu-export.32"/>
+                    <bt:Image size="80" resid="I.menu-export.80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>exportPicture</FunctionName>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="TaskpaneButton">
+                  <Label resid="L.TaskpaneButton"/>
+                  <Supertip>
+                    <Title resid="L.TaskpaneButton"/>
+                    <Description resid="T.TaskpaneButton"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ButtonId1</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+              <Label resid="L.Tab"/>
+            </CustomTab>
           </ExtensionPoint>
         </DesktopFormFactor>
       </Host>
@@ -82,22 +597,168 @@
         <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3000/assets/icon-16.png"/>
         <bt:Image id="Icon.32x32" DefaultValue="https://localhost:3000/assets/icon-32.png"/>
         <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+        <bt:Image id="I.chart-vbar.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-vbar-16.png"/>
+        <bt:Image id="I.chart-vbar.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-vbar-32.png"/>
+        <bt:Image id="I.chart-vbar.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-vbar-80.png"/>
+        <bt:Image id="I.chart-v-stacked.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-v-stacked-16.png"/>
+        <bt:Image id="I.chart-v-stacked.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-v-stacked-32.png"/>
+        <bt:Image id="I.chart-v-stacked.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-v-stacked-80.png"/>
+        <bt:Image id="I.chart-hbar.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-hbar-16.png"/>
+        <bt:Image id="I.chart-hbar.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-hbar-32.png"/>
+        <bt:Image id="I.chart-hbar.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-hbar-80.png"/>
+        <bt:Image id="I.chart-h-stacked.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-h-stacked-16.png"/>
+        <bt:Image id="I.chart-h-stacked.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-h-stacked-32.png"/>
+        <bt:Image id="I.chart-h-stacked.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-h-stacked-80.png"/>
+        <bt:Image id="I.chart-line.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-line-16.png"/>
+        <bt:Image id="I.chart-line.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-line-32.png"/>
+        <bt:Image id="I.chart-line.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-line-80.png"/>
+        <bt:Image id="I.chart-area.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-area-16.png"/>
+        <bt:Image id="I.chart-area.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-area-32.png"/>
+        <bt:Image id="I.chart-area.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-area-80.png"/>
+        <bt:Image id="I.chart-100-area.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-100-area-16.png"/>
+        <bt:Image id="I.chart-100-area.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-100-area-32.png"/>
+        <bt:Image id="I.chart-100-area.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-100-area-80.png"/>
+        <bt:Image id="I.chart-pie.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-pie-16.png"/>
+        <bt:Image id="I.chart-pie.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-pie-32.png"/>
+        <bt:Image id="I.chart-pie.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-pie-80.png"/>
+        <bt:Image id="I.chart-donut.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-donut-16.png"/>
+        <bt:Image id="I.chart-donut.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-donut-32.png"/>
+        <bt:Image id="I.chart-donut.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-donut-80.png"/>
+        <bt:Image id="I.chart-scatter.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-scatter-16.png"/>
+        <bt:Image id="I.chart-scatter.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-scatter-32.png"/>
+        <bt:Image id="I.chart-scatter.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-scatter-80.png"/>
+        <bt:Image id="I.chart-bubble.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-bubble-16.png"/>
+        <bt:Image id="I.chart-bubble.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-bubble-32.png"/>
+        <bt:Image id="I.chart-bubble.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-bubble-80.png"/>
+        <bt:Image id="I.chart-treemap.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-treemap-16.png"/>
+        <bt:Image id="I.chart-treemap.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-treemap-32.png"/>
+        <bt:Image id="I.chart-treemap.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-treemap-80.png"/>
+        <bt:Image id="I.chart-boxwhisker.16" DefaultValue="https://localhost:3000/assets/ribbon/chart-boxwhisker-16.png"/>
+        <bt:Image id="I.chart-boxwhisker.32" DefaultValue="https://localhost:3000/assets/ribbon/chart-boxwhisker-32.png"/>
+        <bt:Image id="I.chart-boxwhisker.80" DefaultValue="https://localhost:3000/assets/ribbon/chart-boxwhisker-80.png"/>
+        <bt:Image id="I.magic-wand.16" DefaultValue="https://localhost:3000/assets/ribbon/magic-wand-16.png"/>
+        <bt:Image id="I.magic-wand.32" DefaultValue="https://localhost:3000/assets/ribbon/magic-wand-32.png"/>
+        <bt:Image id="I.magic-wand.80" DefaultValue="https://localhost:3000/assets/ribbon/magic-wand-80.png"/>
+        <bt:Image id="I.menu-gridlines.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-gridlines-16.png"/>
+        <bt:Image id="I.menu-gridlines.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-gridlines-32.png"/>
+        <bt:Image id="I.menu-gridlines.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-gridlines-80.png"/>
+        <bt:Image id="I.menu-axislines.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-axislines-16.png"/>
+        <bt:Image id="I.menu-axislines.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-axislines-32.png"/>
+        <bt:Image id="I.menu-axislines.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-axislines-80.png"/>
+        <bt:Image id="I.menu-titles.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-titles-16.png"/>
+        <bt:Image id="I.menu-titles.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-titles-32.png"/>
+        <bt:Image id="I.menu-titles.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-titles-80.png"/>
+        <bt:Image id="I.menu-legend.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-legend-16.png"/>
+        <bt:Image id="I.menu-legend.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-legend-32.png"/>
+        <bt:Image id="I.menu-legend.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-legend-80.png"/>
+        <bt:Image id="I.menu-labels.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-labels-16.png"/>
+        <bt:Image id="I.menu-labels.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-labels-32.png"/>
+        <bt:Image id="I.menu-labels.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-labels-80.png"/>
+        <bt:Image id="I.menu-label-last.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-label-last-16.png"/>
+        <bt:Image id="I.menu-label-last.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-label-last-32.png"/>
+        <bt:Image id="I.menu-label-last.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-label-last-80.png"/>
+        <bt:Image id="I.menu-order.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-order-16.png"/>
+        <bt:Image id="I.menu-order.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-order-32.png"/>
+        <bt:Image id="I.menu-order.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-order-80.png"/>
+        <bt:Image id="I.ramp-teal.16" DefaultValue="https://localhost:3000/assets/ribbon/ramp-teal-16.png"/>
+        <bt:Image id="I.ramp-teal.32" DefaultValue="https://localhost:3000/assets/ribbon/ramp-teal-32.png"/>
+        <bt:Image id="I.ramp-teal.80" DefaultValue="https://localhost:3000/assets/ribbon/ramp-teal-80.png"/>
+        <bt:Image id="I.div-teal-jasmine.16" DefaultValue="https://localhost:3000/assets/ribbon/div-teal-jasmine-16.png"/>
+        <bt:Image id="I.div-teal-jasmine.32" DefaultValue="https://localhost:3000/assets/ribbon/div-teal-jasmine-32.png"/>
+        <bt:Image id="I.div-teal-jasmine.80" DefaultValue="https://localhost:3000/assets/ribbon/div-teal-jasmine-80.png"/>
+        <bt:Image id="I.menu-invert.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-invert-16.png"/>
+        <bt:Image id="I.menu-invert.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-invert-32.png"/>
+        <bt:Image id="I.menu-invert.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-invert-80.png"/>
+        <bt:Image id="I.menu-export.16" DefaultValue="https://localhost:3000/assets/ribbon/menu-export-16.png"/>
+        <bt:Image id="I.menu-export.32" DefaultValue="https://localhost:3000/assets/ribbon/menu-export-32.png"/>
+        <bt:Image id="I.menu-export.80" DefaultValue="https://localhost:3000/assets/ribbon/menu-export-80.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/>
         <bt:Url id="ColorPicker.Url" DefaultValue="https://localhost:3000/colorpicker.html"/>
+        <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with ExcelStarch!"/>
-        <bt:String id="CommandsGroup.Label" DefaultValue="ExcelStarch"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Chart Builder"/>
-        <bt:String id="ColorPickerButton.Label" DefaultValue="Color Picker"/>
+        <bt:String id="L.Mn_Column" DefaultValue="Column"/>
+        <bt:String id="L.Mk_column" DefaultValue="Column"/>
+        <bt:String id="L.Mk_columnStacked" DefaultValue="Stacked column"/>
+        <bt:String id="L.Mk_columnStacked100" DefaultValue="100% column"/>
+        <bt:String id="L.Mn_Bar" DefaultValue="Bar"/>
+        <bt:String id="L.Mk_bar" DefaultValue="Bar"/>
+        <bt:String id="L.Mk_barStacked" DefaultValue="Stacked bar"/>
+        <bt:String id="L.Mk_barStacked100" DefaultValue="100% bar"/>
+        <bt:String id="L.Mn_LineArea" DefaultValue="Line &amp; Area"/>
+        <bt:String id="L.Mk_line" DefaultValue="Line"/>
+        <bt:String id="L.Mk_area" DefaultValue="Area"/>
+        <bt:String id="L.Mk_area100" DefaultValue="100% area"/>
+        <bt:String id="L.Mn_Pie" DefaultValue="Pie"/>
+        <bt:String id="L.Mk_pie" DefaultValue="Pie"/>
+        <bt:String id="L.Mk_doughnut" DefaultValue="Donut"/>
+        <bt:String id="L.Mn_Scatter" DefaultValue="Scatter"/>
+        <bt:String id="L.Mk_scatter" DefaultValue="Scatter"/>
+        <bt:String id="L.Mk_bubble" DefaultValue="Bubble"/>
+        <bt:String id="L.Mn_Complex" DefaultValue="Complex"/>
+        <bt:String id="L.Mk_treemap" DefaultValue="Treemap"/>
+        <bt:String id="L.Mk_boxwhisker" DefaultValue="Box &amp; whisker"/>
+        <bt:String id="L.Bt_ApplyStyle" DefaultValue="Apply style"/>
+        <bt:String id="L.Bt_Gridlines" DefaultValue="Gridlines"/>
+        <bt:String id="L.Bt_AxisLabels" DefaultValue="Axis labels"/>
+        <bt:String id="L.Bt_AxisTitles" DefaultValue="Axis titles"/>
+        <bt:String id="L.Bt_Legend" DefaultValue="Legend"/>
+        <bt:String id="L.Bt_DataLabels" DefaultValue="Data labels"/>
+        <bt:String id="L.Bt_Annotation" DefaultValue="Annotation"/>
+        <bt:String id="L.Bt_Palette" DefaultValue="Palette"/>
+        <bt:String id="L.Bt_Ramp" DefaultValue="Ramp"/>
+        <bt:String id="L.Bt_Diverging" DefaultValue="Diverging"/>
+        <bt:String id="L.Bt_Invert" DefaultValue="Invert"/>
+        <bt:String id="L.ColorPickerButton" DefaultValue="Color Picker"/>
+        <bt:String id="L.Bt_Export" DefaultValue="Picture"/>
+        <bt:String id="L.TaskpaneButton" DefaultValue="Chart Builder"/>
+        <bt:String id="L.Gr_Charts" DefaultValue="Charts"/>
+        <bt:String id="L.Gr_Tools" DefaultValue="Chart tools"/>
+        <bt:String id="L.Gr_Colours" DefaultValue="Colours"/>
+        <bt:String id="L.Gr_Output" DefaultValue="Output"/>
+        <bt:String id="L.Tab" DefaultValue="ExcelStarch"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="ExcelStarch loaded successfully. On the HOME tab, click 'Chart Builder' to create charts or 'Color Picker' to recolour a selected chart."/>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open the ExcelStarch chart builder task pane"/>
-        <bt:String id="ColorPickerButton.Tooltip" DefaultValue="Open the ExcelStarch color picker task pane"/>
+        <bt:String id="GetStarted.Description" DefaultValue="ExcelStarch loaded successfully. Open the ExcelStarch tab to create and style charts."/>
+        <bt:String id="T.Mn_Column" DefaultValue="Create a branded column chart."/>
+        <bt:String id="T.Mk_column" DefaultValue="Create a branded column chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_columnStacked" DefaultValue="Create a branded stacked column chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_columnStacked100" DefaultValue="Create a branded 100% column chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mn_Bar" DefaultValue="Create a branded bar chart."/>
+        <bt:String id="T.Mk_bar" DefaultValue="Create a branded bar chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_barStacked" DefaultValue="Create a branded stacked bar chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_barStacked100" DefaultValue="Create a branded 100% bar chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mn_LineArea" DefaultValue="Create a branded line &amp; area chart."/>
+        <bt:String id="T.Mk_line" DefaultValue="Create a branded line chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_area" DefaultValue="Create a branded area chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_area100" DefaultValue="Create a branded 100% area chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mn_Pie" DefaultValue="Create a branded pie chart."/>
+        <bt:String id="T.Mk_pie" DefaultValue="Create a branded pie chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_doughnut" DefaultValue="Create a branded donut chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mn_Scatter" DefaultValue="Create a branded scatter chart."/>
+        <bt:String id="T.Mk_scatter" DefaultValue="Create a branded scatter chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_bubble" DefaultValue="Create a branded bubble chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mn_Complex" DefaultValue="Create a branded complex chart."/>
+        <bt:String id="T.Mk_treemap" DefaultValue="Create a branded treemap chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Mk_boxwhisker" DefaultValue="Create a branded box &amp; whisker chart from the selected range, or change the selected chart to this type."/>
+        <bt:String id="T.Bt_ApplyStyle" DefaultValue="Apply the house style to the selected chart without changing its type."/>
+        <bt:String id="T.Bt_Gridlines" DefaultValue="Cycle gridlines: none, value axis, category axis, both."/>
+        <bt:String id="T.Bt_AxisLabels" DefaultValue="Cycle axis labels: none, X axis, Y axis, both."/>
+        <bt:String id="T.Bt_AxisTitles" DefaultValue="Cycle axis titles: both, Y axis, X axis, none. The chart resizes to match."/>
+        <bt:String id="T.Bt_Legend" DefaultValue="Turn the legend on or off."/>
+        <bt:String id="T.Bt_DataLabels" DefaultValue="Cycle data labels on all series: none, outside end, inside centre. To pick one series, use the Chart Builder pane."/>
+        <bt:String id="T.Bt_Annotation" DefaultValue="Add an annotation box at the plot centre. To place it beside a point, use the Chart Builder pane."/>
+        <bt:String id="T.Bt_Palette" DefaultValue="Apply the brand palette in the order last chosen in the Color Picker."/>
+        <bt:String id="T.Bt_Ramp" DefaultValue="Apply the single-hue ramp last chosen in the Color Picker."/>
+        <bt:String id="T.Bt_Diverging" DefaultValue="Apply the diverging ramp last chosen in the Color Picker."/>
+        <bt:String id="T.Bt_Invert" DefaultValue="Reverse the colour order of the selected chart."/>
+        <bt:String id="T.ColorPickerButton" DefaultValue="Open the ExcelStarch color picker task pane."/>
+        <bt:String id="T.Bt_Export" DefaultValue="Insert the selected chart with its title and source as one picture next to it. For download and copy, use the Chart Builder pane."/>
+        <bt:String id="T.TaskpaneButton" DefaultValue="Open the ExcelStarch chart builder task pane: chart text, tools and export."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

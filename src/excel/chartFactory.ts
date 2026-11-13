@@ -5,41 +5,17 @@
  * (Office.js `chart.chartType` is settable) so a re-run restyles the same chart and the chrome
  * snaps back to its canvas origin; otherwise create a new chart from the selected range.
  *
+ * The ChartKind → Excel chart type mapping lives in `config/chartSpecs`.
+ *
  * INTEROP: Office.js chart API.
  */
 import type { ChartKind } from "../logic/chartType";
+import { chartSpecs } from "../config/chartSpecs";
 import { chartBandPosition } from "../chrome/chromeLayout";
 
-/**
- * Map the UI's ChartKind to the concrete Office.js chart type. Exhaustive `switch` — adding a new
- * ChartKind without a case here is a compile error (the `never` default fails to type-check).
- * `scatter` uses `xyscatter` (markers only), the closest classic match to the VBA scatter. The
- * chartex types (`treemap`, `boxwhisker`) are ExcelApi 1.9 members, the same set the chrome overlay
- * already gates on.
- */
+/** The concrete Office.js chart type for a kind (the spec stores its string value). */
 function chartTypeFor(kind: ChartKind): Excel.ChartType {
-  switch (kind) {
-    case "bar":
-      return Excel.ChartType.barClustered;
-    case "column":
-      return Excel.ChartType.columnClustered;
-    case "line":
-      return Excel.ChartType.line;
-    case "area":
-      return Excel.ChartType.area;
-    case "scatter":
-      return Excel.ChartType.xyscatter;
-    case "pie":
-      return Excel.ChartType.pie;
-    case "treemap":
-      return Excel.ChartType.treemap;
-    case "boxwhisker":
-      return Excel.ChartType.boxwhisker;
-    default: {
-      const exhaustive: never = kind;
-      return exhaustive;
-    }
-  }
+  return chartSpecs[kind].excelType as Excel.ChartType;
 }
 
 /**
@@ -67,18 +43,19 @@ export function retypeChart(chart: Excel.Chart, kind: ChartKind): void {
 }
 
 /**
- * Position the CHART OBJECT as a band inset into the canvas (we size the chart, not an internal
- * plot area — Office.js `Excel.Chart` has none). Bar/column show both axes and no legend.
+ * Position the CHART OBJECT as a band inset into the canvas. The band leaves room above for the
+ * title block (and the y-axis title strip when `showY`, i.e. when the y-axis title box is present)
+ * and below for the source box (and the x-axis title strip when `showX`). No strip is reserved for
+ * the legend or the axis labels: both are drawn inside the chart object itself.
  */
 export function positionChartIntoBand(
   chart: Excel.Chart,
   baseLeft: number,
   baseTop: number,
   showY: boolean,
-  showX: boolean,
-  hasLegend: boolean
+  showX: boolean
 ): void {
-  const band = chartBandPosition(baseLeft, baseTop, showY, showX, hasLegend);
+  const band = chartBandPosition(baseLeft, baseTop, showY, showX, /*hasLegend*/ false);
   chart.left = band.left;
   chart.top = band.top;
   chart.width = band.width;

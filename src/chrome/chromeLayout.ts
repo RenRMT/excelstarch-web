@@ -3,8 +3,11 @@
  * `modEngineExChrome.bas` (the `AddChartEx*` shape offsets and `PositionChartExChart`).
  *
  * Worksheet shapes use absolute sheet coordinates, so every chrome element is the canvas origin
- * (`baseLeft`/`baseTop`) plus the canvas-relative geometry constant. The chart OBJECT (not an
- * internal plot area — Office.js `Excel.Chart` has none) is inset into the plot band the same way.
+ * (`baseLeft`/`baseTop`) plus the canvas-relative geometry constant. The chart OBJECT is inset into
+ * the plot band the same way. (Office.js does expose `chart.plotArea`, but the chart must be a band
+ * on top of the canvas anyway — a chart cannot contain the chrome shapes — and treemap-family
+ * charts ignore plot-area settings, so sizing the chart object is the one approach that works for
+ * every type.)
  *
  * PURE: imports only `config/geometry`; no `Excel`/`Office`. This is the one chrome module that is
  * unit-testable, so the offset arithmetic is proven without a host.
@@ -21,6 +24,8 @@ import {
   sourceBoxWidth,
   yAxisLabelTopNoLegend,
   yAxisLabelHeight,
+  xAxisLabelHeight,
+  sourceBoxTop,
   plotAreaLeft,
   plotAreaTopFor,
   plotAreaHeightFor,
@@ -41,6 +46,7 @@ export interface ChromePositions {
   subtitle: Box;
   source: Box;
   yAxis?: Box;
+  xAxis?: Box;
 }
 
 /**
@@ -51,7 +57,8 @@ export interface ChromePositions {
 export function chromePositions(
   baseLeft: number,
   baseTop: number,
-  showYAxisTitle: boolean
+  showYAxisTitle: boolean,
+  showXAxisTitle = false
 ): ChromePositions {
   const positions: ChromePositions = {
     // White 600×600 backdrop, sent to back so the chart + chrome render on top.
@@ -86,13 +93,23 @@ export function chromePositions(
     };
   }
 
+  if (showXAxisTitle) {
+    // The strip between the bottom of the chart band and the source box (see chartBandPosition).
+    positions.xAxis = {
+      left: baseLeft,
+      top: baseTop + sourceBoxTop - xAxisLabelHeight,
+      width: titleBoxWidth,
+      height: xAxisLabelHeight,
+    };
+  }
+
   return positions;
 }
 
 /**
  * The chart object's position as a band inset into the canvas, leaving the title block above and
  * the source (footer) box below. Ported from `PositionChartExChart`: we set the CHART size/position,
- * not an internal plot area.
+ * not its internal plot area.
  */
 export function chartBandPosition(
   baseLeft: number,
