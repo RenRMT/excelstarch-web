@@ -27,7 +27,17 @@ requirement-set table). Inverting fill colours needs ExcelApi 1.16.
 
 ## Usage
 
-The add-in adds an **ExcelStarch** group to the Home tab with two buttons.
+The add-in adds an **ExcelStarch** tab to the ribbon:
+
+- **Charts**: a menu per chart family, and **Apply style** to restyle the selected chart.
+- **Chart tools**: gridlines, axis labels, axis titles, legend, data labels and annotation, each
+  one click on the selected chart.
+- **Colours**: re-apply the palette, ramp or diverging ramp last chosen in the Color Picker, or
+  invert the colours.
+- **Output**: insert the selected chart as one picture, and open the two task panes.
+
+The task panes offer the same tools plus everything that needs a choice: chart text, picking a
+series or point, ramp choices, and export by download or copy.
 
 **Chart Builder**
 

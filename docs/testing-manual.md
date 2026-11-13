@@ -402,6 +402,28 @@ the status line names the new state. Use a branded 3-series column chart unless 
       and restyle a chart: the logo sits bottom-right, does not overlap the source text, is part
       of the chrome group, and appears in the export.
 
+### 6.5 Plan phase 5 — ribbon tab
+
+The two Home-tab buttons are replaced by an **ExcelStarch** tab. Ribbon buttons run commands from
+a hidden page (`commands.html`); the panes are unchanged. Re-register or re-upload the manifest
+first: Office caches ribbons, so an old one can linger until the add-in is removed and re-added.
+
+- [ ] The ExcelStarch tab shows four groups: Charts, Chart tools, Colours, Output. Every button has
+      an icon at the normal and the large ribbon size.
+- [ ] **Charts**: each family menu lists its types; each creates or retypes a chart like the
+      matching pane button. **Apply style** matches the pane's button.
+- [ ] **Chart tools**: each toggle gives the same result as the pane's button. Data labels act on
+      all series; Annotation goes to the plot centre.
+- [ ] **Colours**: in the Color Picker, apply a non-default ramp, diverging ramp and Rainbow
+      palette. Close the pane. **Ramp**, **Diverging** and **Palette** re-apply those choices on
+      another chart (the command re-reads the workbook settings). **Invert** reverses the colours.
+- [ ] **Output → Picture** inserts the composed picture next to the selected chart.
+- [ ] **Chart Builder** and **Color Picker** open their panes.
+- [ ] With no chart selected, a toggle opens a small dialog saying so; **OK** closes it. The
+      button does not stay busy.
+- [ ] A command that fails leaves Excel responsive (no spinning button) — every command completes
+      its event.
+
 ---
 
 ## 7. Requirement-set gating

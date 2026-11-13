@@ -135,3 +135,32 @@ export async function saveExportPrefs(prefs: ExportPrefs): Promise<void> {
     // Silent: never disrupt the UI on a persistence failure.
   }
 }
+
+// --- Fresh reads for other runtimes ---------------------------------------------------------------
+// Each pane and the ribbon-command page is a separate JavaScript runtime with its own copy of the
+// document settings, loaded when it started. A ribbon command must re-read them to see what the
+// Color Picker saved since.
+
+/** Re-read the document settings from the workbook. Best-effort: resolves even on failure. */
+async function refreshSettings(): Promise<void> {
+  try {
+    await new Promise<void>((resolve) => {
+      Office.context.document.settings.refreshAsync(() => resolve());
+    });
+  } catch {
+    // Keep the copy we have.
+  }
+}
+
+/** The last-used colour choices as currently saved in the workbook. Never throws. */
+export async function loadLastUsedColoursFresh(): Promise<LastUsedColours> {
+  await refreshSettings();
+  cache = null;
+  return loadLastUsedColours();
+}
+
+/** The export choices as currently saved in the workbook. Never throws. */
+export async function loadExportPrefsFresh(): Promise<ExportPrefs> {
+  await refreshSettings();
+  return loadExportPrefs();
+}

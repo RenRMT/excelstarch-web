@@ -28,6 +28,10 @@ module.exports = async (env, options) => {
         import: ["./src/colorpicker/index.tsx", "./src/colorpicker/colorpicker.html"],
         dependOn: "react",
       },
+      // Hidden page that runs the ribbon commands (manifest FunctionFile).
+      commands: ["./src/commands/commands.ts", "./src/commands/commands.html"],
+      // Dialog the ribbon commands open to report a problem.
+      message: ["./src/message/message.ts", "./src/message/message.html"],
     },
     output: {
       clean: true,
@@ -74,11 +78,25 @@ module.exports = async (env, options) => {
         template: "./src/colorpicker/colorpicker.html",
         chunks: ["polyfill", "colorpicker", "react"],
       }),
+      new HtmlWebpackPlugin({
+        filename: "commands.html",
+        template: "./src/commands/commands.html",
+        chunks: ["polyfill", "commands"],
+      }),
+      new HtmlWebpackPlugin({
+        filename: "message.html",
+        template: "./src/message/message.html",
+        chunks: ["polyfill", "message"],
+      }),
       new CopyWebpackPlugin({
         patterns: [
           {
             from: "assets/*",
             to: "assets/[name][ext][query]",
+          },
+          {
+            from: "assets/ribbon/*",
+            to: "assets/ribbon/[name][ext][query]",
           },
           {
             from: "manifest*.xml",
