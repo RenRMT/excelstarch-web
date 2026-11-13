@@ -8,7 +8,12 @@
  *
  * INTEROP: Office.js shape API.
  */
-import { chromeSuffix, chromeGroupName, legacyChromeSuffixes } from "./chromeNames";
+import {
+  chromeSuffix,
+  chromeGroupName,
+  chromeMemberPrefix,
+  legacyChromeSuffixes,
+} from "./chromeNames";
 
 export { chromeGroupName };
 
@@ -55,4 +60,29 @@ export function groupChrome(
   const group = sheet.shapes.addGroup(memberShapeNames);
   group.name = chromeGroupName(chartName);
   return group;
+}
+
+/**
+ * Group every ungrouped shape on the sheet whose name starts with the chart's member prefix — the
+ * built chrome plus anything added later (axis titles, annotations). SYNCS twice: once to list the
+ * shapes, once to group. Call it after the members exist and after any previous group has been
+ * ungrouped (shapes inside a group are not listed at the top level). Grouping needs at least two
+ * shapes; with fewer it does nothing.
+ */
+export async function regroupChrome(
+  ctx: Excel.RequestContext,
+  sheet: Excel.Worksheet,
+  chartName: string
+): Promise<void> {
+  const shapes = sheet.shapes;
+  shapes.load("items/name");
+  await ctx.sync();
+
+  const prefix = chromeMemberPrefix(chartName);
+  const members = shapes.items.map((s) => s.name).filter((name) => name.startsWith(prefix));
+  if (members.length < 2) {
+    return;
+  }
+  groupChrome(sheet, chartName, members);
+  await ctx.sync();
 }

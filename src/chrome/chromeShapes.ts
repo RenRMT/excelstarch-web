@@ -27,6 +27,7 @@ import {
   titlePlaceholder,
   subtitlePlaceholder,
   yAxisPlaceholder,
+  xAxisPlaceholder,
   sourcePlaceholder,
   notesPlaceholder,
 } from "../config/text";
@@ -133,4 +134,22 @@ export function addYAxisTitle(
     bold: false,
     italic: true,
   });
+}
+
+/** Optional category-axis title, centred in the strip above the source box; italic. */
+export function addXAxisTitle(
+  sheet: Excel.Worksheet,
+  chartName: string,
+  pos: Box,
+  text: string = xAxisPlaceholder
+): Excel.Shape {
+  const shape = addTextBoxShape(sheet, chartName, "xAxis", pos, text, {
+    size: axisFontSize,
+    color: axisFontColor,
+    bold: false,
+    italic: true,
+  });
+  // The box spans the canvas width, so centred text sits over the middle of the plot.
+  shape.textFrame.horizontalAlignment = "Center";
+  return shape;
 }

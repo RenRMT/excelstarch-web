@@ -20,6 +20,7 @@ import {
   sourceBoxTop,
   sourceBoxWidth,
   yAxisLabelTopNoLegend,
+  xAxisLabelHeight,
 } from "../../config/geometry";
 import {
   fontPrimary,
@@ -65,6 +66,7 @@ interface TextStyle {
   color: string;
   bold?: boolean;
   italic?: boolean;
+  centred?: boolean;
 }
 
 /** Draw one chrome text box: top-left anchored, wrapped to the box width. `k` is px per point. */
@@ -83,17 +85,20 @@ function drawTextBox(
   context.font = `${slant}${weight}${sizePx}px ${fontPrimary}, sans-serif`;
   context.fillStyle = style.color;
   context.textBaseline = "top";
+  context.textAlign = style.centred ? "center" : "left";
   const maxWidth = (width - 2 * TEXT_MARGIN_LEFT) * k;
+  const x = style.centred ? (width / 2) * k : TEXT_MARGIN_LEFT * k;
   const lines = wrapText(text, maxWidth, (s) => context.measureText(s).width);
   lines.forEach((line, i) => {
     const y = (top + TEXT_MARGIN_TOP) * k + i * sizePx * LINE_HEIGHT;
-    context.fillText(line, TEXT_MARGIN_LEFT * k, y);
+    context.fillText(line, x, y);
   });
+  context.textAlign = "left";
 }
 
 /** Fallback chrome: draw the text boxes ourselves at their canvas-relative positions. */
 function drawChromeText(context: CanvasRenderingContext2D, layers: ExportLayers, k: number): void {
-  const { title, subtitle, source, yAxis } = layers.texts;
+  const { title, subtitle, source, yAxis, xAxis } = layers.texts;
   const titleStyle = { size: titleFontSize, color: titleFontColor, bold: true };
   const subtitleStyle = { size: subtitleFontSize, color: subtitleFontColor };
   const yAxisStyle = { size: axisFontSize, color: axisFontColor, italic: true };
@@ -102,6 +107,8 @@ function drawChromeText(context: CanvasRenderingContext2D, layers: ExportLayers,
   drawTextBox(context, subtitle, subtitleBoxTop, titleBoxWidth, subtitleStyle, k);
   drawTextBox(context, yAxis, yAxisLabelTopNoLegend, titleBoxWidth, yAxisStyle, k);
   drawTextBox(context, source, sourceBoxTop, sourceBoxWidth, sourceStyle, k);
+  const xAxisStyle = { ...yAxisStyle, centred: true };
+  drawTextBox(context, xAxis, sourceBoxTop - xAxisLabelHeight, titleBoxWidth, xAxisStyle, k);
 }
 
 /** Compose the layers into one image at `scale`, in the requested format. */

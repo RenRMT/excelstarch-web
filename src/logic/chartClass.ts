@@ -99,3 +99,26 @@ export function styleClassForChartType(chartType: string): StyleClass {
 export function isScatterChartType(chartType: string): boolean {
   return chartType.startsWith("XYScatter");
 }
+
+/**
+ * Which of the two standard axes a chart type has. Round charts and tile charts have none; a funnel
+ * has only its category axis. Everything else is assumed to have both (a wrong guess surfaces as an
+ * error message from the host, never as a corrupted chart).
+ */
+export function axesOfChartType(chartType: string): { value: boolean; category: boolean } {
+  if (colourTargetForChartType(chartType) === "point") {
+    return { value: false, category: false };
+  }
+  if (chartType === "Funnel") {
+    return { value: false, category: true };
+  }
+  return { value: true, category: true };
+}
+
+/** Types whose legend adds nothing (tile labels or a single series), per the VBA `ToggleLegend`. */
+export function legendNotApplicable(chartType: string, seriesCount: number): boolean {
+  if (["Treemap", "Sunburst", "Funnel", "Histogram"].includes(chartType)) return true;
+  // Round charts have one series but one legend entry per slice, so their legend is useful.
+  if (isPieChartType(chartType)) return false;
+  return seriesCount <= 1;
+}

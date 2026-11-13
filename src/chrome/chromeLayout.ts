@@ -24,6 +24,8 @@ import {
   sourceBoxWidth,
   yAxisLabelTopNoLegend,
   yAxisLabelHeight,
+  xAxisLabelHeight,
+  sourceBoxTop,
   plotAreaLeft,
   plotAreaTopFor,
   plotAreaHeightFor,
@@ -44,6 +46,7 @@ export interface ChromePositions {
   subtitle: Box;
   source: Box;
   yAxis?: Box;
+  xAxis?: Box;
 }
 
 /**
@@ -54,7 +57,8 @@ export interface ChromePositions {
 export function chromePositions(
   baseLeft: number,
   baseTop: number,
-  showYAxisTitle: boolean
+  showYAxisTitle: boolean,
+  showXAxisTitle = false
 ): ChromePositions {
   const positions: ChromePositions = {
     // White 600×600 backdrop, sent to back so the chart + chrome render on top.
@@ -86,6 +90,16 @@ export function chromePositions(
       top: baseTop + yAxisLabelTopNoLegend,
       width: titleBoxWidth,
       height: yAxisLabelHeight,
+    };
+  }
+
+  if (showXAxisTitle) {
+    // The strip between the bottom of the chart band and the source box (see chartBandPosition).
+    positions.xAxis = {
+      left: baseLeft,
+      top: baseTop + sourceBoxTop - xAxisLabelHeight,
+      width: titleBoxWidth,
+      height: xAxisLabelHeight,
     };
   }
 

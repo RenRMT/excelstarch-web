@@ -7,6 +7,7 @@ import {
   titlePlaceholder,
   subtitlePlaceholder,
   yAxisPlaceholder,
+  xAxisPlaceholder,
   sourcePlaceholder,
   notesPlaceholder,
 } from "../../config/text";
@@ -33,6 +34,7 @@ const FIELDS: FieldDef[] = [
   { field: "title", label: "Title", placeholder: titlePlaceholder },
   { field: "subtitle", label: "Subtitle", placeholder: subtitlePlaceholder },
   { field: "yAxis", label: "Y-axis title", placeholder: yAxisPlaceholder },
+  { field: "xAxis", label: "X-axis title", placeholder: xAxisPlaceholder },
   { field: "source", label: "Source", placeholder: sourcePlaceholder, multiline: true },
   { field: "notes", label: "Notes", placeholder: notesPlaceholder, multiline: true },
 ];
@@ -53,7 +55,8 @@ function valuesFor(target: ChromeTarget | null): FieldValues {
  * Edits the chrome text of the selected chart (or the one most recently created) by writing to the
  * named worksheet shapes. The fields show the chart's current text and apply on blur; blank
  * restores the placeholder, "-" clears the field completely. A field is disabled when the chart
- * has no such box (e.g. no y-axis title on a pie).
+ * has no such box (e.g. no y-axis title on a pie; axis titles are switched on and off with the
+ * Axis titles tool).
  */
 const ChromeTextPanel: React.FC<ChromeTextPanelProps> = ({ target, onStatus }) => {
   const styles = useStyles();

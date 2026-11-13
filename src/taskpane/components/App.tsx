@@ -4,6 +4,7 @@ import Header from "./Header";
 import ChartCreatorPanel from "./ChartCreatorPanel";
 import ChromeTextPanel from "./ChromeTextPanel";
 import ExportPanel from "./ExportPanel";
+import ChartToolsPanel from "./ChartToolsPanel";
 import type { Status } from "./status";
 import { resolveChromeTarget, ChartRef, ChromeTarget } from "../../excel/chromeText";
 import { watchChartSelection } from "../../excel/selectionEvents";
@@ -62,6 +63,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
         )}
         <ChartCreatorPanel onStatus={setStatus} onChartReady={(ref) => void refreshTarget(ref)} />
         <ChromeTextPanel target={target} onStatus={setStatus} />
+        <ChartToolsPanel onStatus={setStatus} onChromeChanged={() => void refreshTarget()} />
         <ExportPanel onStatus={setStatus} />
       </main>
     </div>

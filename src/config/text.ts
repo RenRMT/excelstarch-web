@@ -7,6 +7,7 @@
 export const titlePlaceholder = "Title in 28pt sentence case";
 export const subtitlePlaceholder = "Subtitle in 22pt sentence case";
 export const yAxisPlaceholder = "Y axis title (unit)";
+export const xAxisPlaceholder = "X axis title (unit)";
 export const sourcePlaceholder = "Source: Source text goes here.";
 export const notesPlaceholder = "Notes: Notes text goes here.";
 

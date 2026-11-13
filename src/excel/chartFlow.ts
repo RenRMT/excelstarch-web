@@ -34,8 +34,8 @@ import {
   queueExtraFinishing,
   hasExtraFinishing,
 } from "./chartFinishing";
-import { buildChrome } from "../chrome/chromeBuilder";
-import { groupChrome, chromeGroupName } from "../chrome/chromeGroup";
+import { buildChrome, AxisTitles } from "../chrome/chromeBuilder";
+import { regroupChrome, chromeGroupName } from "../chrome/chromeGroup";
 import { readChromeSnapshot } from "../chrome/chromeSnapshot";
 import { chartBandPosition } from "../chrome/chromeLayout";
 import { Axis } from "../config/enums";
@@ -146,34 +146,39 @@ async function brandChart(
   const baseLeft = snapshot.canvasOrigin ? snapshot.canvasOrigin.left : chart.left;
   const baseTop = snapshot.canvasOrigin ? snapshot.canvasOrigin.top : chart.top;
   const colourCount = firstSeriesPoints ? firstSeriesPoints.count : seriesCount;
-  const showY = (defaults.axisDisplay & Axis.Y) !== 0;
-  const showX = (defaults.axisDisplay & Axis.X) !== 0;
+  // The y-axis title follows the type's defaults (as the VBA's FormatTitle did); an x-axis title is
+  // only ever added by the axis-title toggle, so it is kept if it was there and the type still
+  // shows a category axis. The chart band leaves a strip for each title that is present.
+  const titles: AxisTitles = {
+    y: defaults.showYAxisTitle,
+    x: snapshot.texts.xAxis !== undefined && (defaults.axisDisplay & Axis.X) !== 0,
+  };
 
   // Queue all core mutations (no sync between them).
-  positionChartIntoBand(chart, baseLeft, baseTop, showY, showX);
+  positionChartIntoBand(chart, baseLeft, baseTop, titles.y, titles.x);
   applyChartStyle(chart, defaults, profile.keepAxesAndLegend);
   if (!profile.bestEffortColour) {
     colorByPalette(chart, colourTarget, colourCount);
   }
-  const { createdShapeNames, warnings } = buildChrome(
+  const { warnings } = buildChrome(
     sheet,
     chartName,
     baseLeft,
     baseTop,
-    defaults,
+    titles,
     snapshot.groupExists,
     snapshot.texts
   );
   await ctx.sync(); // Sync D — chart repositioned/styled/coloured AND chrome shapes exist.
 
-  // Group the chrome shapes. Guarded so a rare failure degrades to a warning rather than
-  // discarding an otherwise-complete chart + chrome.
-  await guardedSync(
-    ctx,
-    () => groupChrome(sheet, chartName, createdShapeNames),
-    warnings,
-    "The chart and its chrome were created but the chrome could not be grouped."
-  ); // Sync E.
+  // Group the chrome shapes, plus any other members that survived the rebuild (annotations).
+  // Guarded so a rare failure degrades to a warning rather than discarding an otherwise-complete
+  // chart + chrome.
+  try {
+    await regroupChrome(ctx, sheet, chartName); // Sync E.
+  } catch {
+    warnings.push("The chart and its chrome were created but the chrome could not be grouped.");
+  }
 
   // Follow-ups that not every chart type or host accepts, each in its own guarded sync.
   if (profile.bestEffortColour) {
@@ -187,7 +192,7 @@ async function brandChart(
     "Some per-type formatting (spacing, tick marks or markers) could not be applied."
   );
   if (hasExtraFinishing(finishing)) {
-    const band = chartBandPosition(baseLeft, baseTop, showY, showX, false);
+    const band = chartBandPosition(baseLeft, baseTop, titles.y, titles.x, false);
     await guardedSync(
       ctx,
       () =>

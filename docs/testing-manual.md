@@ -338,6 +338,35 @@ for pie/donut.
       if the type allows, and **the axes and legend are left as they were**. No error.
 - [ ] No chart selected: "No chart selected" message.
 
+### 6.3 Plan phase 3 — chart tools (toggles)
+
+The **Chart tools** section of the Chart Builder pane. Each button acts on the selected chart and
+the status line names the new state. Use a branded 3-series column chart unless stated.
+
+- [ ] **Gridlines** cycles none → value axis → category axis → both → none. Gridlines that appear
+      are light grey, 1 pt. On a bar chart, "value axis" gridlines run vertically.
+- [ ] **Axis labels** cycles none → X axis → Y axis → both → none. Labels that reappear use the
+      chart font, size 18.
+- [ ] **Axis titles** cycles both → Y → X → none → both. The X title is centred under the chart.
+      The chart grows into the freed space and shrinks to make room; it never overlaps the title,
+      subtitle or source box. Text typed into a title box that stays is kept.
+- [ ] Axis titles on a funnel only toggles the X title; on a pie it says the chart has no axes.
+- [ ] Axis titles on a native, unstyled chart says to create or apply style first.
+- [ ] After **Axis titles**, the X-axis title field in the Chart text panel enables and disables to
+      match, and the chrome is still one group (drag it).
+- [ ] **Legend** turns the legend on (top row, axis font) and off. On a pie or donut the plot
+      re-centres. On a single-series column chart and a treemap it explains why not.
+- [ ] **Data labels** with "All series" cycles none → outside end → inside centre → none.
+      Outside labels are dark; inside labels are white on dark fills and dark on light fills
+      (needs ExcelApi 1.16; on older hosts they stay dark).
+- [ ] Data labels on a stacked column cycles none ↔ inside only.
+- [ ] Data labels with one series picked changes only that series. The series list follows the
+      selected chart without a refresh.
+- [ ] Data labels on a pie: inside labels contrast per slice.
+- [ ] **Spike:** gridlines on an axis hidden with Axis labels → none: record whether they can still
+      be toggled. (The VBA had to show the axis temporarily.)
+- [ ] A rebuild (choose the same type again) keeps an X-axis title that was switched on.
+
 ---
 
 ## 7. Requirement-set gating

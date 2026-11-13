@@ -7,6 +7,8 @@ import {
   isPieChartType,
   styleClassForChartType,
   isScatterChartType,
+  axesOfChartType,
+  legendNotApplicable,
 } from "../../src/logic/chartClass";
 
 describe("colourTargetForChartType", () => {
@@ -78,5 +80,26 @@ describe("isScatterChartType", () => {
     expect(isScatterChartType("XYScatter")).toBe(true);
     expect(isScatterChartType("XYScatterLinesNoMarkers")).toBe(true);
     expect(isScatterChartType("Line")).toBe(false);
+  });
+});
+
+describe("axesOfChartType", () => {
+  it("knows which charts have no axes or only one", () => {
+    expect(axesOfChartType("Pie")).toEqual({ value: false, category: false });
+    expect(axesOfChartType("Treemap")).toEqual({ value: false, category: false });
+    expect(axesOfChartType("Funnel")).toEqual({ value: false, category: true });
+    expect(axesOfChartType("ColumnClustered")).toEqual({ value: true, category: true });
+    expect(axesOfChartType("XYScatter")).toEqual({ value: true, category: true });
+  });
+});
+
+describe("legendNotApplicable", () => {
+  it("rejects tile charts and single-series charts but not pies", () => {
+    expect(legendNotApplicable("Treemap", 1)).toBe(true);
+    expect(legendNotApplicable("Histogram", 3)).toBe(true);
+    expect(legendNotApplicable("ColumnClustered", 1)).toBe(true);
+    expect(legendNotApplicable("ColumnClustered", 2)).toBe(false);
+    expect(legendNotApplicable("Pie", 1)).toBe(false);
+    expect(legendNotApplicable("Doughnut", 1)).toBe(false);
   });
 });

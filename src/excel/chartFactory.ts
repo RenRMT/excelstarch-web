@@ -44,9 +44,9 @@ export function retypeChart(chart: Excel.Chart, kind: ChartKind): void {
 
 /**
  * Position the CHART OBJECT as a band inset into the canvas. The band leaves room above for the
- * title block (and the y-axis title strip when `showY`) and below for the source box (and the
- * x-axis title strip when `showX`). No strip is reserved for the legend: the legend is drawn inside
- * the chart object itself.
+ * title block (and the y-axis title strip when `showY`, i.e. when the y-axis title box is present)
+ * and below for the source box (and the x-axis title strip when `showX`). No strip is reserved for
+ * the legend or the axis labels: both are drawn inside the chart object itself.
  */
 export function positionChartIntoBand(
   chart: Excel.Chart,

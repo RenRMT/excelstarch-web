@@ -18,12 +18,13 @@ import {
   titlePlaceholder,
   subtitlePlaceholder,
   yAxisPlaceholder,
+  xAxisPlaceholder,
   sourcePlaceholder,
   notesPlaceholder,
 } from "../config/text";
 
 /** Editable chrome fields exposed by the task pane. */
-export type ChromeField = "title" | "subtitle" | "yAxis" | "source" | "notes";
+export type ChromeField = "title" | "subtitle" | "yAxis" | "xAxis" | "source" | "notes";
 
 /** Identifies a chart across worksheets (chart names are only unique per sheet). */
 export interface ChartRef {
@@ -47,6 +48,7 @@ const SINGLE_BOX: Record<
   title: { key: "title", placeholder: titlePlaceholder },
   subtitle: { key: "subtitle", placeholder: subtitlePlaceholder },
   yAxis: { key: "yAxis", placeholder: yAxisPlaceholder },
+  xAxis: { key: "xAxis", placeholder: xAxisPlaceholder },
 };
 
 /**
@@ -90,7 +92,7 @@ export async function resolveChromeTarget(
       return null; // not a chart this add-in has styled.
     }
 
-    const { title, subtitle, source, yAxis } = snapshot.texts;
+    const { title, subtitle, source, yAxis, xAxis } = snapshot.texts;
     const sourceNotes = source === undefined ? null : splitSourceNotes(source);
     return {
       ...ref,
@@ -98,6 +100,7 @@ export async function resolveChromeTarget(
         title: title ?? null,
         subtitle: subtitle ?? null,
         yAxis: yAxis ?? null,
+        xAxis: xAxis ?? null,
         source: sourceNotes ? sourceNotes.source : null,
         notes: sourceNotes ? sourceNotes.notes : null,
       },

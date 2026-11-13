@@ -77,7 +77,7 @@ export function styleLegend(chart: Excel.Chart, visible: boolean): void {
   }
 }
 
-function styleGridlines(axis: Excel.ChartAxis, visible: boolean): void {
+export function styleGridlines(axis: Excel.ChartAxis, visible: boolean): void {
   axis.majorGridlines.visible = visible;
   if (visible) {
     const line = axis.majorGridlines.format.line;
@@ -86,7 +86,7 @@ function styleGridlines(axis: Excel.ChartAxis, visible: boolean): void {
   }
 }
 
-function styleAxisLineAndFont(axis: Excel.ChartAxis): void {
+export function styleAxisLineAndFont(axis: Excel.ChartAxis): void {
   axis.format.line.color = colorWhite;
   axis.format.line.weight = axisLineWeight;
   const font = axis.format.font;

@@ -72,3 +72,18 @@ describe("chartBandPosition", () => {
     expect(band.height).toBeCloseTo(plotAreaHeightFor(false, false, true), 10);
   });
 });
+
+describe("x-axis title box", () => {
+  it("is absent unless requested", () => {
+    expect(chromePositions(0, 0, true).xAxis).toBeUndefined();
+  });
+
+  it("fills the strip between the chart band and the source box", () => {
+    const p = chromePositions(100, 50, true, true);
+    const band = chartBandPosition(100, 50, true, true, false);
+    expect(p.xAxis).toBeDefined();
+    expect(p.xAxis!.top).toBeCloseTo(band.top + band.height, 10);
+    expect(p.xAxis!.top + p.xAxis!.height).toBeCloseTo(p.source.top, 10);
+    expect(p.xAxis!.left).toBeCloseTo(100, 10);
+  });
+});

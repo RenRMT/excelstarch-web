@@ -15,6 +15,7 @@ export const chromeSuffix = {
   subtitle: "_SubTitleBox",
   source: "_SourceBox",
   yAxis: "_YAxisTitle",
+  xAxis: "_XAxisTitle",
 } as const;
 
 /**
@@ -28,7 +29,21 @@ export type ChromeSuffixKey = keyof typeof chromeSuffix;
 /** The chrome shapes that hold text (everything except the canvas). */
 export type ChromeTextKey = Exclude<ChromeSuffixKey, "canvas">;
 
-export const chromeTextKeys: readonly ChromeTextKey[] = ["title", "subtitle", "source", "yAxis"];
+export const chromeTextKeys: readonly ChromeTextKey[] = [
+  "title",
+  "subtitle",
+  "source",
+  "yAxis",
+  "xAxis",
+];
+
+/**
+ * Prefix shared by every chrome member of a chart (`"Chart 1_"`), including ones not listed in
+ * `chromeSuffix`, such as annotation boxes. Used to find all members when regrouping.
+ */
+export function chromeMemberPrefix(chartName: string): string {
+  return chartName + "_";
+}
 
 /** All chrome member shape names for a chart, in z-order (canvas first). */
 export function chromeShapeName(chartName: string, key: ChromeSuffixKey): string {
