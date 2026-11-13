@@ -63,3 +63,39 @@ export function isPieChartType(chartType: string): boolean {
     chartType === "DoughnutExploded"
   );
 }
+
+/**
+ * How Apply Chart Style treats a chart type it has no builder spec for — the buckets of the VBA
+ * `ClassifyChart` (`modEngineStyle.bas`):
+ *   - `pie`         round charts: no axes, legend, per-slice colours
+ *   - `axisFill`    2-D bar/column/area/bubble: axes, gridlines, per-series fills
+ *   - `lineScatter` 2-D line and scatter: axes, gridlines, colour on lines/markers
+ *   - `other`       everything else (3-D, stock, radar, surface, chartex, unknown): chrome and
+ *                   best-effort colour only; axes and legend are left as they are
+ */
+export type StyleClass = "pie" | "axisFill" | "lineScatter" | "other";
+
+const AXIS_FILL_TYPES: readonly string[] = [
+  "ColumnClustered",
+  "ColumnStacked",
+  "ColumnStacked100",
+  "BarClustered",
+  "BarStacked",
+  "BarStacked100",
+  "Area",
+  "AreaStacked",
+  "AreaStacked100",
+  "Bubble",
+];
+
+export function styleClassForChartType(chartType: string): StyleClass {
+  if (isPieChartType(chartType)) return "pie";
+  if (AXIS_FILL_TYPES.includes(chartType)) return "axisFill";
+  if (/^(Line|XYScatter)/.test(chartType)) return "lineScatter";
+  return "other";
+}
+
+/** True for the XY scatter family (two value axes), as opposed to line charts. */
+export function isScatterChartType(chartType: string): boolean {
+  return chartType.startsWith("XYScatter");
+}

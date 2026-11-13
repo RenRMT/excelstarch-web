@@ -2,7 +2,12 @@
  * Chart-type classification — mirrors the type lists in the VBA `GetStyleColorMode`,
  * `IsLineTarget` and `IsPieChartType`, with markers split out.
  */
-import { colourTargetForChartType, isPieChartType } from "../../src/logic/chartClass";
+import {
+  colourTargetForChartType,
+  isPieChartType,
+  styleClassForChartType,
+  isScatterChartType,
+} from "../../src/logic/chartClass";
 
 describe("colourTargetForChartType", () => {
   it("colours filled charts on the series fill", () => {
@@ -47,5 +52,31 @@ describe("isPieChartType", () => {
     expect(isPieChartType("DoughnutExploded")).toBe(true);
     expect(isPieChartType("Treemap")).toBe(false);
     expect(isPieChartType("ColumnClustered")).toBe(false);
+  });
+});
+
+describe("styleClassForChartType", () => {
+  it("buckets the VBA classes", () => {
+    expect(styleClassForChartType("Pie")).toBe("pie");
+    expect(styleClassForChartType("DoughnutExploded")).toBe("pie");
+    expect(styleClassForChartType("ColumnStacked")).toBe("axisFill");
+    expect(styleClassForChartType("Area")).toBe("axisFill");
+    expect(styleClassForChartType("Bubble")).toBe("axisFill");
+    expect(styleClassForChartType("LineMarkersStacked")).toBe("lineScatter");
+    expect(styleClassForChartType("XYScatterSmooth")).toBe("lineScatter");
+  });
+
+  it("sends 3-D, stock, radar, chartex and unknown types to other", () => {
+    for (const t of ["3DColumnClustered", "3DLine", "StockHLC", "Radar", "Waterfall", "Sunburst", "Funnel", "Nope"]) {
+      expect(styleClassForChartType(t)).toBe("other");
+    }
+  });
+});
+
+describe("isScatterChartType", () => {
+  it("is true for the XY scatter family only", () => {
+    expect(isScatterChartType("XYScatter")).toBe(true);
+    expect(isScatterChartType("XYScatterLinesNoMarkers")).toBe(true);
+    expect(isScatterChartType("Line")).toBe(false);
   });
 });

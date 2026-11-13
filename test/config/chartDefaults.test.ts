@@ -40,7 +40,7 @@ describe("classic chart-type defaults", () => {
       gridlines: Axis.Y,
       axisDisplay: Axis.Both,
       legend: defaultLegend,
-      showYAxisTitle: false,
+      showYAxisTitle: true,
     });
   });
 
@@ -49,7 +49,7 @@ describe("classic chart-type defaults", () => {
       gridlines: Axis.Y,
       axisDisplay: Axis.Both,
       legend: defaultLegend,
-      showYAxisTitle: false,
+      showYAxisTitle: true,
     });
   });
 
@@ -58,7 +58,7 @@ describe("classic chart-type defaults", () => {
       gridlines: Axis.Y,
       axisDisplay: Axis.Both,
       legend: defaultLegend,
-      showYAxisTitle: false,
+      showYAxisTitle: true,
     });
   });
 
@@ -67,7 +67,7 @@ describe("classic chart-type defaults", () => {
       gridlines: Axis.Y,
       axisDisplay: Axis.Both,
       legend: defaultLegend,
-      showYAxisTitle: false,
+      showYAxisTitle: true,
     });
   });
 
@@ -76,7 +76,7 @@ describe("classic chart-type defaults", () => {
       gridlines: Axis.Both,
       axisDisplay: Axis.Both,
       legend: defaultLegend,
-      showYAxisTitle: false,
+      showYAxisTitle: true,
     });
   });
 
@@ -112,16 +112,19 @@ describe("chartex chart-type defaults", () => {
   });
 });
 
-describe("classic factories never request the chartex value-axis title box", () => {
-  const classics = [
+describe("the value-axis title box follows the value axis", () => {
+  const all = [
     barChartDefaults,
     columnChartDefaults,
     lineChartDefaults,
     areaChartDefaults,
     scatterChartDefaults,
     pieChartDefaults,
+    treemapChartDefaults,
+    boxWhiskerChartDefaults,
   ];
-  it.each(classics.map((f) => [f.name, f]))("%s sets showYAxisTitle false", (_name, factory) => {
-    expect((factory as () => { showYAxisTitle: boolean })().showYAxisTitle).toBe(false);
+  it.each(all.map((f) => [f.name, f]))("%s requests the box exactly when Y is displayed", (_n, f) => {
+    const d = (f as () => { showYAxisTitle: boolean; axisDisplay: Axis })();
+    expect(d.showYAxisTitle).toBe((d.axisDisplay & Axis.Y) !== 0);
   });
 });

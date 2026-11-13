@@ -2,7 +2,12 @@
  * The chart-spec table is the single source of truth for what each chart kind maps to. These tests
  * guard its internal consistency rather than restating its values.
  */
-import { chartSpecs, chartKinds } from "../../src/config/chartSpecs";
+import {
+  chartSpecs,
+  chartKinds,
+  chartFamilies,
+  kindForExcelType,
+} from "../../src/config/chartSpecs";
 import { colourTargetForChartType } from "../../src/logic/chartClass";
 
 describe("chartSpecs", () => {
@@ -37,4 +42,44 @@ describe("chartSpecs", () => {
     expect(new Set(types).size).toBe(types.length);
     expect(new Set(labels).size).toBe(labels.length);
   });
+
+  it("groups every kind into exactly one family, keeping table order", () => {
+    expect(chartFamilies.flatMap((f) => f.kinds)).toEqual(chartKinds);
+    expect(chartFamilies.map((f) => f.family)).toEqual([
+      "Column",
+      "Bar",
+      "Line & Area",
+      "Pie",
+      "Scatter",
+      "Complex",
+    ]);
+  });
+
+  it("looks a kind up by its Excel chart type", () => {
+    for (const kind of chartKinds) {
+      expect(kindForExcelType(chartSpecs[kind].excelType)).toBe(kind);
+    }
+    expect(kindForExcelType("Area")).toBeUndefined(); // plain overlapping area is not built
+  });
+
+  it.each(chartKinds)("%s: stacked kinds overlap fully, clustered ones do not", (kind) => {
+    const { excelType, finishing } = chartSpecs[kind];
+    if (/Stacked/.test(excelType) && finishing.overlap !== undefined) {
+      expect(finishing.overlap).toBe(100);
+    }
+    if (/Clustered/.test(excelType)) {
+      expect(finishing.overlap).toBeLessThan(100);
+    }
+  });
+
+  it.each(chartKinds)("%s: round-chart finishing only on round charts", (kind) => {
+    const { colourTarget, excelType, finishing } = chartSpecs[kind];
+    if (finishing.squarePlot) {
+      expect(colourTarget).toBe("point");
+    }
+    if (finishing.doughnutHoleSize !== undefined) {
+      expect(excelType).toMatch(/^Doughnut/);
+    }
+  });
 });
+

@@ -20,7 +20,16 @@ import { fontPrimary, axisFontSize, axisFontColor, legendFontColor } from "../co
 
 const GRIDLINE_COLOR = colorNeutral2; // light grey value-scale lines (matches the VBA)
 
-export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): void {
+/**
+ * `keepLegend` leaves the legend as it is — used when styling a chart type the add-in knows nothing
+ * about (Apply Chart Style's "other" class); such a profile also displays no axes, so the axes are
+ * left alone too.
+ */
+export function applyChartStyle(
+  chart: Excel.Chart,
+  defaults: ChartDefaults,
+  keepLegend = false
+): void {
   const axes = chart.axes;
 
   // --- Suppress the chart's own title; the branded title lives in the chrome title shape ---
@@ -48,7 +57,9 @@ export function applyChartStyle(chart: Excel.Chart, defaults: ChartDefaults): vo
   }
 
   // --- Legend (valid on every chart type, including treemap/pie) ---
-  styleLegend(chart, defaults.legend);
+  if (!keepLegend) {
+    styleLegend(chart, defaults.legend);
+  }
 }
 
 /**

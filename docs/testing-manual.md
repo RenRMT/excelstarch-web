@@ -294,6 +294,50 @@ be confirmed without a live host; check them first and note the results in the P
 - [ ] No chart selected: a clear "No chart selected" message, nothing exported.
 - [ ] Format and resolution are remembered after closing and reopening the pane.
 
+### 6.2 Plan phase 2 — chart variants, finishing, Apply Chart Style
+
+**Fixtures:** the 3-series fixture; an X/Y/size range for bubble; a single-column category range
+for pie/donut.
+
+**New variants** — each creates a branded chart of the right type:
+
+- [ ] Stacked column, 100% column, stacked bar, 100% bar: segments are flush (no gap between
+      stacked segments), bars are wide (gap width 33%).
+- [ ] Area is now **stacked** (no series hidden behind another); 100% area fills to the top.
+- [ ] Donut: per-slice colours, hole about half the diameter, legend at the top.
+- [ ] Bubble: per-series fills (opaque — transparency is not available in Office JS).
+
+**Per-type finishing** (compare with the VBA output side by side):
+
+- [ ] Clustered column/bar: a small gap between series in a group (overlap −5), no shadows.
+- [ ] Line: tick marks outside, the line starts on the y-axis (no half-category gap), 2 pt lines.
+- [ ] Area: no tick marks, the area starts on the y-axis.
+- [ ] Scatter: markers cycle circle → square → triangle → X per series, size 9, tick marks outside.
+- [ ] Pie and donut: the plot is a centred circle that does not touch the legend or the source box.
+- [ ] Treemap and box & whisker: data labels (if shown) use the chart font. No warning is shown if
+      the host refuses this.
+- [ ] If any of the above is refused by a host, the chart is still created and a warning names
+      what was skipped. Record any such warning per host.
+
+**Y-axis title on classic charts**
+
+- [ ] Column, bar, line, area, scatter and bubble now get the italic "Y axis title (unit)" box
+      in the strip under the subtitle; pie, donut and treemap do not.
+- [ ] Restyling an older chart (made before this change) adds the box with the placeholder and
+      keeps the existing title text.
+
+**Apply style to selected chart**
+
+- [ ] On a branded column chart: nothing about the type changes; chrome is rebuilt in place and the
+      text is kept.
+- [ ] On a native Excel chart of each builder type (e.g. insert a stacked bar from Excel's own
+      ribbon): it ends up identical to the builder's version of that type.
+- [ ] On a native line-with-markers chart and an XY scatter-with-lines chart: brand colours on lines
+      **and** markers, Y gridlines (line) or both gridlines (scatter).
+- [ ] On a 3-D column, a waterfall and a sunburst: canvas and chrome are added, colours are applied
+      if the type allows, and **the axes and legend are left as they were**. No error.
+- [ ] No chart selected: "No chart selected" message.
+
 ---
 
 ## 7. Requirement-set gating

@@ -31,8 +31,16 @@ The add-in adds an **ExcelStarch** group to the Home tab with two buttons.
 
 **Chart Builder**
 
-1. Select a data range and choose a chart type: Bar, Column, Line, Area, Scatter, Pie,
-   Treemap or Box & Whisker. If you select an existing chart instead, it is restyled in place.
+1. Select a data range and choose a chart type:
+   - **Column** and **Bar**: clustered, stacked and 100% stacked
+   - **Line & Area**: line, stacked area and 100% area
+   - **Pie**: pie and donut
+   - **Scatter**: scatter and bubble
+   - **Complex**: treemap and box & whisker
+
+   If you select an existing chart instead, it is changed to that type and restyled. To restyle a
+   chart without changing its type, select it and click **Apply style to selected chart**; this also
+   works on chart types the builder does not create, as far as each type allows.
 2. The chart is placed on a white 600 × 600 canvas, with title, subtitle and source/notes
    text boxes around it.
 3. Use the **Chart text** fields to edit those text boxes. Leave a field blank to restore the
